@@ -34,4 +34,6 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
 
 EXPOSE 80
 
-CMD ["sh","-c","php artisan migrate --force && php artisan db:seed --class='Database\Seeders\DatabaseSeeder' --force && apache2-foreground"]
+RUN chmod +x docker-entrypoint.sh
+
+CMD ["sh", "/var/www/html/docker-entrypoint.sh"]

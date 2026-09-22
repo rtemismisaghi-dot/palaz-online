@@ -50,3 +50,47 @@
 @media(prefers-reduced-motion:reduce){
  .hero-live-badge span{animation:none}
 }
+
+
+/* PALAZ SHOP / premium catalog layer */
+.shop-section{background:#f7f4f0}
+.shop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;padding:14px 18px;border:1px solid var(--line);background:#fff;box-shadow:0 10px 30px #17171908}
+.shop-toolbar>div:first-child{display:flex;align-items:center;gap:12px}
+.shop-toolbar strong{font-size:13px}
+.result-query{font-size:10px;color:var(--muted);padding-right:12px;border-right:1px solid var(--line)}
+.shop-sort{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)}
+.shop-sort select{border:0;background:transparent;font:inherit;color:#222;font-weight:700;cursor:pointer;outline:none}
+.shop-filter{position:sticky;top:18px;align-self:start}
+.filter-group a{transition:padding .2s ease,background .2s ease,color .2s ease}
+.filter-group a:hover{padding-right:14px;background:#faf7f3}
+.category-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.category-chips a{padding:9px 14px;border:1px solid var(--line);background:#fff;color:#5e5954;font-size:10px;transition:.2s ease}
+.category-chips a:hover{border-color:#cbbfb4;transform:translateY(-2px)}
+.category-chips a.selected{background:var(--dark);border-color:var(--dark);color:#fff}
+.shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.shop-product{position:relative}
+.shop-product .product-visual{min-height:245px}
+.shop-product .product-visual i{position:absolute;z-index:3;right:18px;bottom:16px;font-style:normal;font-size:9px;color:#fff;opacity:0;transform:translateY(7px);transition:.25s ease}
+.shop-product:hover .product-visual i{opacity:1;transform:none}
+.product-hover-line{position:absolute;z-index:3;left:18px;bottom:18px;width:0;height:2px;background:#fff;transition:width .35s ease}
+.shop-product:hover .product-hover-line{width:42px}
+.shop-product .product-info{min-height:145px}
+.shop-product .product-meta{display:flex;justify-content:space-between;gap:10px}
+.shop-product .product-meta small:last-child{opacity:.45}
+.shop-product a{display:block}
+.shop-product.is-sorted{animation:shopCardIn .35s ease both}
+@keyframes shopCardIn{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:none}}
+.shop-service-strip{background:#efe9e3;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.shop-service-strip .container{min-height:100px;display:flex;align-items:center;gap:24px}
+.shop-service-strip strong{font-size:14px}
+.shop-service-strip a{margin-right:auto;color:var(--red);font-size:11px;font-weight:700}
+@media(max-width:900px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-filter{position:static}}
+@media(max-width:600px){
+ .shop-toolbar{align-items:flex-start;flex-direction:column}
+ .shop-toolbar>div:first-child{width:100%;justify-content:space-between}
+ .shop-grid{grid-template-columns:1fr}
+ .shop-product .product-visual{min-height:230px}
+ .shop-service-strip .container{padding-top:22px;padding-bottom:22px;display:grid;gap:8px}
+ .shop-service-strip a{margin-right:0}
+ .result-query{display:none}
+}

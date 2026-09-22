@@ -30,17 +30,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const slides = document.querySelectorAll('.hero-slide');
   const dots = document.querySelectorAll('.hero-slide-dots span');
+  const counter = document.querySelector('.hero-number');
+  const progress = document.querySelector('.hero-slide-progress span');
+  const slideDuration = 5000;
+
   if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     let current = 0;
+
+    const updateHeroMeta = () => {
+      const number = String(current + 1).padStart(2, '0');
+      if (counter) counter.textContent = number + ' — ' + String(slides.length).padStart(2, '0');
+      if (progress) {
+        progress.style.animation = 'none';
+        void progress.offsetWidth;
+        progress.style.animation = 'palazHeroProgress ' + slideDuration + 'ms linear forwards';
+      }
+    };
+
+    updateHeroMeta();
+
     setInterval(() => {
       slides[current].classList.remove('is-active');
       if (dots[current]) dots[current].classList.remove('active');
       current = (current + 1) % slides.length;
       slides[current].classList.add('is-active');
       if (dots[current]) dots[current].classList.add('active');
-    }, 5000);
+      updateHeroMeta();
+    }, slideDuration);
   }
-
 
   const mobileMenu = document.querySelector('.mobile-menu');
   const mainNav = document.querySelector('.main-nav');

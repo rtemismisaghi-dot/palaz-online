@@ -1,0 +1,6 @@
+@extends('layouts.store')
+@section('title','فروشگاه | PALAZ ONLINE')
+@section('content')
+<section class="page-head"><div class="container"><span class="eyebrow">PALAZ ONLINE / SHOP</span><h1>فروشگاه</h1><p>محصول موردنظر را انتخاب کنید و اگر لازم بود خدمات اندازه‌گیری، نصب یا طراحی را هم به مسیر اضافه کنید.</p></div></section>
+<section class="section"><div class="container"><div class="shop-toolbar"><strong>{{ count($products) }} محصول</strong><div class="chips"><a class="{{ !$category?'selected':'' }}" href="{{ route('shop') }}">همه</a>@foreach(['carpet'=>'موکت','laminate'=>'لمینیت','spc'=>'SPC','wallpaper'=>'کاغذدیواری','tile'=>'موکت تایل','grass'=>'چمن مصنوعی'] as $key=>$label)<a class="{{ $category===$key?'selected':'' }}" href="{{ route('shop',['category'=>$key]) }}">{{ $label }}</a>@endforeach</div></div><div class="product-grid shop-grid">@forelse($products as $product)<article class="product-card"><a href="{{ route('product',$product['id']) }}"><div class="product-visual {{ $product['tone'] }}"><span>PALAZ</span></div><div class="product-info"><small>{{ strtoupper($product['category']) }}</small><h3>{{ $product['name'] }}</h3><p>{{ $product['unit'] }}</p><strong>مشاهده محصول ←</strong></div></a></article>@empty<div class="empty">محصولی با این مشخصات پیدا نشد.</div>@endforelse</div></div></section>
+@endsection

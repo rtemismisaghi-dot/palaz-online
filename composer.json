@@ -3,11 +3,7 @@
   "name": "palaz/online",
   "type": "project",
   "description": "PALAZ ONLINE e-commerce platform",
-  "keywords": [
-    "laravel",
-    "palaz",
-    "ecommerce"
-  ],
+  "keywords": ["laravel", "palaz", "ecommerce"],
   "license": "proprietary",
   "require": {
     "php": "^8.3",
@@ -24,12 +20,8 @@
   },
   "autoload": {
     "psr-4": {
-      "App\\": "app/",
-      "Database\\": "database/"
-    },
-    "classmap": [
-      "database/seeders"
-    ]
+      "App\\": "app/"
+    }
   },
   "autoload-dev": {
     "psr-4": {

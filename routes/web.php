@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -10,6 +11,8 @@ Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');
 Route::get('/services', [StoreController::class, 'services'])->name('services');
+Route::get('/calculate/{id}', [CalculatorController::class, 'show'])->name('calculator.show');
+Route::post('/calculate/{id}', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
 Route::get('/cart', [StoreController::class, 'cart'])->name('cart');
 Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart.add');
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');

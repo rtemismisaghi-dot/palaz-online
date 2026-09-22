@@ -40,4 +40,14 @@ window.addEventListener('DOMContentLoaded', () => {
       if (dots[current]) dots[current].classList.add('active');
     }, 5000);
   }
+
+
+  const mobileMenu = document.querySelector('.mobile-menu');
+  const mainNav = document.querySelector('.main-nav');
+  if (mobileMenu && mainNav) {
+    mobileMenu.addEventListener('click', () => {
+      const open = mainNav.classList.toggle('is-open');
+      mobileMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 });

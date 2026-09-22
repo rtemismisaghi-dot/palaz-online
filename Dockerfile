@@ -17,6 +17,7 @@ RUN apt-get update \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
+RUN mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
 COPY --from=assets /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction \

@@ -3,12 +3,16 @@
   "name": "palaz/online",
   "type": "project",
   "description": "PALAZ ONLINE e-commerce platform",
-  "keywords": ["laravel", "palaz", "ecommerce"],
+  "keywords": [
+    "laravel",
+    "palaz",
+    "ecommerce"
+  ],
   "license": "proprietary",
   "require": {
     "php": "^8.3",
     "laravel/framework": "^13.0",
-    "laravel/tinker": "^2.10"
+    "laravel/tinker": "^2.11"
   },
   "require-dev": {
     "fakerphp/faker": "^1.24",

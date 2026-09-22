@@ -94,3 +94,37 @@
  .shop-service-strip a{margin-right:0}
  .result-query{display:none}
 }
+
+
+/* PALAZ HOME / hero visual refinement */
+.hero{min-height:640px}
+.hero-grid{min-height:640px;gap:46px}
+.hero-copy{padding:72px 0}
+.hero h1{max-width:620px;font-size:64px;letter-spacing:-1.2px}
+.hero p{max-width:520px}
+.hero-art{height:540px;margin-right:0;border:0;box-shadow:0 30px 80px #1717191c}
+.hero-art:after{content:'';position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,#17171908 5%,transparent 42%,#17171970 100%);pointer-events:none}
+.hero-floating-card{position:absolute;z-index:5;right:24px;bottom:24px;width:190px;padding:16px 17px;border:1px solid #ffffff35;background:#171719b8;color:#fff;backdrop-filter:blur(10px);box-shadow:0 16px 40px #0003}
+.hero-floating-card span{display:block;font-size:7px;letter-spacing:2px;color:#ffffff99;margin-bottom:8px}
+.hero-floating-card strong{display:block;font-size:20px;line-height:1.35}
+.hero-floating-card small{display:block;margin-top:8px;font-size:8px;color:#ffffffaa}
+.hero-bottom-label{position:absolute;z-index:5;left:24px;bottom:24px;display:flex;align-items:center;gap:9px;color:#fff;font-size:8px;letter-spacing:2px}
+.hero-bottom-label i{display:block;width:70px;height:1px;background:#ffffff66}
+@media(max-width:1000px){
+ .hero,.hero-grid{min-height:auto}
+ .hero-grid{gap:20px}
+ .hero h1{font-size:52px}
+ .hero-art{height:470px}
+}
+@media(max-width:700px){
+ .hero h1{font-size:39px}
+ .hero-copy{padding:45px 0 38px}
+ .hero-art{height:330px;margin-bottom:28px}
+ .hero-floating-card{right:14px;bottom:14px;width:155px;padding:12px}
+ .hero-floating-card strong{font-size:16px}
+ .hero-bottom-label{left:14px;bottom:14px}
+ .hero-bottom-label i{width:42px}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero-floating-card{backdrop-filter:none}
+}

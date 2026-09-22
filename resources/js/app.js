@@ -28,15 +28,16 @@ window.addEventListener('DOMContentLoaded', () => {
   reveal();
   window.addEventListener('scroll', reveal, {passive:true});
 
-  const art = document.querySelector('.hero-art');
-  if (art && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    window.addEventListener('pointermove', (event) => {
-      const rect = art.getBoundingClientRect();
-      if (rect.top > window.innerHeight || rect.bottom < 0) return;
-      const x = ((event.clientX - rect.left) / rect.width - .5) * 8;
-      const y = ((event.clientY - rect.top) / rect.height - .5) * 6;
-      art.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
-    }, {passive:true});
-    window.addEventListener('pointerleave', () => { art.style.transform = ''; });
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-slide-dots span');
+  if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('is-active');
+      if (dots[current]) dots[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('is-active');
+      if (dots[current]) dots[current].classList.add('active');
+    }, 5000);
   }
 });

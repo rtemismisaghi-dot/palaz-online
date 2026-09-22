@@ -47,3 +47,23 @@
 .hero{background:#eee9e2;min-height:610px}.hero-grid{min-height:610px}.hero-copy{padding:72px 0}.hero h1{font-size:64px;font-weight:800;letter-spacing:-1.5px;max-width:700px}.hero p{font-size:15px;max-width:610px}.hero-buttons .btn{min-width:150px}.hero-art{height:500px;margin-right:55px;background:#c8beb2;box-shadow:0 30px 80px #17171918}.hero-art:before{content:'';position:absolute;inset:16px;border:1px solid #ffffff66;z-index:2;pointer-events:none}.art-grid{opacity:.55;background-size:45px 45px}.art-one{width:62%;height:73%;right:2%;top:2%;background:linear-gradient(145deg,#e3d6c7 0%,#a98f79 100%);box-shadow:0 25px 50px #0002}.art-two{width:58%;height:54%;left:0;bottom:0;background:linear-gradient(145deg,#8e1825,#d96870);box-shadow:0 25px 50px #0002}.art-three{width:34%;height:43%;right:18%;bottom:2%;background:linear-gradient(145deg,#252421,#8d8275);box-shadow:0 25px 50px #0002}.art-label{z-index:3;font-size:11px;letter-spacing:3px}.art-label strong{font-size:27px}.art-stamp{z-index:3}.hero-trust{border-top:1px solid #d7cec5;padding-top:18px}.intro-section{padding-top:80px}.category-card{height:220px;box-shadow:0 12px 35px #00000008}.category-card:after{background:linear-gradient(135deg,#0001,#0008)}.service-section{position:relative}.service-section:before{content:'DTZ';position:absolute;left:5%;top:30px;font-size:150px;font-weight:800;color:#fff;opacity:.025;pointer-events:none}.project-banner{position:relative;overflow:hidden}.project-banner:after{content:'PALAZ';position:absolute;left:-30px;bottom:-70px;font-size:190px;font-weight:800;color:#17171906;pointer-events:none}.project-grid{position:relative;z-index:1}
 @media(max-width:1000px){.hero,.hero-grid{min-height:auto}.hero-copy{padding:60px 0}.hero h1{font-size:50px}.hero-art{height:430px;margin:0 0 50px}.service-section:before{font-size:100px}}
 @media(max-width:700px){.hero h1{font-size:39px;letter-spacing:-.5px}.hero-copy{padding:45px 0}.hero-art{height:310px;margin-bottom:35px}.hero-buttons{flex-wrap:wrap}.hero-buttons .btn{flex:1}.intro-section{padding-top:55px}.category-card{height:170px}.project-banner:after{font-size:100px}}
+
+/* PALAZ REAL PRODUCT IMAGERY */
+.art-one{background-image:linear-gradient(180deg,#17171908,#17171955),url('https://palazonline.com/storage/uploads/IMG_5796.jpg');background-size:cover;background-position:center}
+.art-two{background-image:linear-gradient(180deg,#17171908,#17171955),url('https://palazonline.com/storage/uploads/IMG_5777.PNG');background-size:cover;background-position:center}
+.art-three{background-image:linear-gradient(180deg,#17171908,#17171955),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG');background-size:cover;background-position:center}
+.category-card{background-size:cover;background-position:center;border:1px solid #ffffff18;overflow:hidden}
+.category-card.category-carpet{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.category-card.category-laminate{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_5777.PNG')}
+.category-card.category-spc{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.category-card.category-tile{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.category-card.category-wallpaper{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_5796.jpg')}
+.category-card.category-grass{background-image:linear-gradient(180deg,#17171908,#171719a8),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.product-visual{background-size:cover;background-position:center;position:relative;overflow:hidden}
+.product-visual:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#17171905,#17171966)}
+.product-visual span,.product-visual b{position:relative;z-index:2}
+.product-visual.product-wallpaper{background-image:url('https://palazonline.com/storage/uploads/IMG_5796.jpg')}
+.product-visual.product-laminate{background-image:url('https://palazonline.com/storage/uploads/IMG_5777.PNG')}
+.product-visual.product-spc{background-image:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.product-visual.product-carpet{background-image:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+@media(max-width:700px){.category-card{height:185px}.art-one,.art-two,.art-three{background-position:center}}

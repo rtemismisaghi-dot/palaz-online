@@ -12,3 +12,14 @@ Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
+
+
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('categories', CategoryController::class)->except(['show','destroy']);
+    Route::resource('products', ProductController::class)->except(['show','destroy']);
+});

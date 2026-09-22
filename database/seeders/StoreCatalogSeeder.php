@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductPricingRule;
 use Illuminate\Database\Seeder;
 
 class StoreCatalogSeeder extends Seeder
@@ -35,18 +36,36 @@ class StoreCatalogSeeder extends Seeder
 
         foreach ($products as $data) {
             $category = Category::where('slug', $data['category'])->firstOrFail();
-            Product::updateOrCreate(
+
+            $product = Product::updateOrCreate(
                 ['slug' => $data['slug']],
                 [
                     'category_id' => $category->id,
                     'name' => $data['name'],
                     'description' => $data['description'],
                     'price' => null,
-                    'unit' => 'تماس برای قیمت',
+                    'unit' => $data['category'] === 'carpet' ? 'مترمربع' : 'تماس برای قیمت',
                     'tone' => $data['tone'],
                     'is_active' => true,
                 ]
             );
+
+            if ($data['category'] === 'carpet') {
+                ProductPricingRule::updateOrCreate(
+                    ['product_id' => $product->id],
+                    [
+                        'calculation_type' => 'roll',
+                        'unit' => 'مترمربع',
+                        'waste_percent' => 0,
+                        'parameters' => [
+                            'width' => 3,
+                            'min_length' => 1,
+                            'max_length' => 15,
+                        ],
+                        'is_active' => true,
+                    ]
+                );
+            }
         }
     }
 }

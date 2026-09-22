@@ -32,6 +32,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const dots = document.querySelectorAll('.hero-slide-dots span');
   const counter = document.querySelector('.hero-number');
   const progress = document.querySelector('.hero-slide-progress span');
+  const heroCaption = document.querySelector('.hero-art-caption');
+  const heroKicker = document.querySelector('[data-hero-kicker]');
+  const heroTitle = document.querySelector('[data-hero-title]');
+  const heroNote = document.querySelector('[data-hero-note]');
+  const heroArt = document.querySelector('[data-hero-art]');
   const slideDuration = 5000;
 
   if (slides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -45,6 +50,16 @@ window.addEventListener('DOMContentLoaded', () => {
         void progress.offsetWidth;
         progress.style.animation = 'palazHeroProgress ' + slideDuration + 'ms linear forwards';
       }
+      const active = slides[current];
+      if (heroCaption && active) {
+        heroCaption.classList.add('is-changing');
+        setTimeout(() => {
+          if (heroKicker) heroKicker.textContent = active.dataset.kicker || 'PALAZ / 2026';
+          if (heroTitle) heroTitle.innerHTML = active.dataset.title || '';
+          if (heroNote) heroNote.textContent = active.dataset.note || '';
+          heroCaption.classList.remove('is-changing');
+        }, 180);
+      }
     };
 
     updateHeroMeta();
@@ -57,6 +72,18 @@ window.addEventListener('DOMContentLoaded', () => {
       if (dots[current]) dots[current].classList.add('active');
       updateHeroMeta();
     }, slideDuration);
+  }
+
+  if (heroArt && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    heroArt.addEventListener('pointermove', (event) => {
+      const rect = heroArt.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      heroArt.style.setProperty('--mx', x + '%');
+      heroArt.style.setProperty('--my', y + '%');
+      heroArt.style.setProperty('--mx-pos', (100 - x) + '%');
+      heroArt.style.setProperty('--my-pos', y + '%');
+    }, {passive:true});
   }
 
   const mobileMenu = document.querySelector('.mobile-menu');

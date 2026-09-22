@@ -34,4 +34,4 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
 
 EXPOSE 80
 
-CMD ["sh","-c","php artisan migrate --force && php artisan db:seed --force && apache2-foreground"]
+CMD ["sh","-c","php artisan migrate --force && php artisan db:seed --class='Database\\Seeders\\DatabaseSeeder' --force && apache2-foreground"]

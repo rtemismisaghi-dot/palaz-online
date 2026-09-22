@@ -1,0 +1,18 @@
+/* PALAZ HOME / dynamic motion layer */
+.reveal-item{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal-item.is-visible{opacity:1;transform:none}
+.hero-art{transition:transform .18s ease-out}
+.hero-art .art-card{transition:transform .5s cubic-bezier(.2,.7,.2,1),filter .5s ease}
+.hero-art:hover .art-one{transform:translate(8px,-6px) rotate(.4deg)}
+.hero-art:hover .art-two{transform:translate(-7px,6px) rotate(-.5deg)}
+.hero-art:hover .art-three{transform:translate(5px,-8px) rotate(.7deg)}
+.category-card,.service-card,.product-card{will-change:transform}
+.category-card:nth-child(2),.product-card:nth-child(2){transition-delay:.05s}
+.category-card:nth-child(3),.product-card:nth-child(3){transition-delay:.1s}
+.category-card:nth-child(4),.product-card:nth-child(4){transition-delay:.15s}
+.category-card:nth-child(5),.product-card:nth-child(5){transition-delay:.2s}
+.category-card:nth-child(6),.product-card:nth-child(6){transition-delay:.25s}
+@media (prefers-reduced-motion:reduce){
+ .reveal-item{opacity:1;transform:none;transition:none}
+ .hero-art,.hero-art .art-card{transition:none!important}
+}

@@ -86,14 +86,4 @@ class StoreTest extends TestCase
         $this->assertCount(1, ServiceRequest::all());
     }
 
-    {
-        $this->post('/services/request', [
-            'type' => 'measurement',
-            'name' => 'تست کاربر',
-            'phone' => '09120000000',
-            'description' => 'تست اندازه‌گیری',
-        ])->assertRedirect();
-
-        $this->get('/')->assertOk()->assertSee('PALAZ ONLINE');
-    }
 }

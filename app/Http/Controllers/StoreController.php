@@ -55,6 +55,49 @@ class StoreController extends Controller
         return redirect()->route('cart')->with('success', 'محصول به سبد خرید اضافه شد.');
     }
 
+    public function checkout(Request $request)
+    {
+        $cart = collect($request->session()->get('cart', []));
+        $items = $cart->map(fn ($item) => StoreCatalog::find($item['id']))->filter()->values();
+        if ($items->isEmpty()) {
+            return redirect()->route('shop')->with('error', 'برای ادامه، ابتدا محصولی به سبد خرید اضافه کنید.');
+        }
+
+        return view('store.checkout', ['items' => $items]);
+    }
+
+    public function placeOrder(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['required', 'string', 'max:30'],
+            'city' => ['required', 'string', 'max:100'],
+            'address' => ['required', 'string', 'max:500'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'service' => ['nullable', 'in:none,measurement,installation,design'],
+            'payment' => ['required', 'in:pending,offline'],
+        ]);
+
+        $cart = $request->session()->get('cart', []);
+        if (!$cart) {
+            return redirect()->route('shop')->with('error', 'سبد خرید شما خالی است.');
+        }
+
+        $order = $data + [
+            'items' => $cart,
+            'tracking' => 'PO-' . strtoupper(substr(bin2hex(random_bytes(5)), 0, 10)),
+            'created_at' => now()->toIso8601String(),
+            'status' => 'received',
+        ];
+
+        $orders = $request->session()->get('orders', []);
+        $orders[] = $order;
+        $request->session()->put('orders', $orders);
+        $request->session()->forget('cart');
+
+        return view('store.order-success', ['order' => $order]);
+    }
+
     public function serviceRequest(Request $request)
     {
         $data = $request->validate([

@@ -98,3 +98,33 @@
 .hero-slide-dots span{display:block;width:24px;height:3px;background:#fff6;transition:.3s}
 .hero-slide-dots span.active{background:#fff;width:38px}
 @media(max-width:700px){.hero-slide-dots{left:16px;bottom:16px}.hero-slide-dots span{width:18px}.hero-slide-dots span.active{width:30px}}
+
+
+/* PALAZ HOME / header + category polish */
+.site-header{box-shadow:0 8px 28px #17171908}
+.header-main{position:relative}
+.brand{transition:transform .25s ease}
+.brand:hover{transform:translateY(-2px)}
+.brand-mark{transition:transform .25s ease,box-shadow .25s ease}
+.brand:hover .brand-mark{transform:rotate(-4deg) scale(1.04);box-shadow:0 8px 20px #c51f2c30}
+.search{transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+.search:focus-within{border-color:#d9c8c8;box-shadow:0 8px 25px #1717190b;transform:translateY(-1px)}
+.nav-inner a,.nav-dropdown>span{position:relative}
+.nav-inner a:not(.active):after,.nav-dropdown>span:after{content:'';position:absolute;right:0;left:0;bottom:10px;height:2px;background:var(--red);transform:scaleX(0);transform-origin:center;transition:transform .22s ease}
+.nav-inner a:hover:after,.nav-dropdown:hover>span:after{transform:scaleX(1)}
+.category-card{isolation:isolate}
+.category-card:before{content:'';position:absolute;inset:-4%;background:inherit;background-size:cover;background-position:center;transition:transform .7s cubic-bezier(.2,.7,.2,1),filter .7s ease;z-index:-2}
+.category-card:after{z-index:-1;transition:opacity .35s ease}
+.category-card:hover:before{transform:scale(1.08);filter:saturate(1.08)}
+.category-card:hover:after{opacity:.78}
+.category-card strong,.category-card b,.category-card span{transition:transform .3s ease}
+.category-card:hover strong{transform:translateX(-4px)}
+.category-card:hover b{transform:translateX(-2px)}
+@media(max-width:700px){
+  .main-nav.is-open{display:block}
+  .main-nav.is-open .nav-inner{height:auto;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:8px 0}
+  .main-nav.is-open .nav-inner>a{height:42px;border-bottom:1px solid var(--line)}
+  .main-nav.is-open .nav-inner>a:after{display:none}
+  .main-nav.is-open .nav-dropdown{display:none}
+  .main-nav{display:none}
+}

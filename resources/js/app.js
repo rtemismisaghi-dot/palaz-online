@@ -67,4 +67,27 @@ window.addEventListener('DOMContentLoaded', () => {
       mobileMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   }
+
+
+  // Shop catalog sorting / lightweight interaction
+  const shopSort = document.querySelector('#shopSort');
+  const shopProducts = document.querySelector('#shopProducts');
+
+  if (shopSort && shopProducts) {
+    shopSort.addEventListener('change', () => {
+      const cards = Array.from(shopProducts.querySelectorAll('.shop-product'));
+      if (shopSort.value === 'name') {
+        cards.sort((a, b) => (a.dataset.productName || '').localeCompare(b.dataset.productName || '', 'fa'));
+      } else {
+        cards.sort((a, b) => Number(a.dataset.productIndex || 0) - Number(b.dataset.productIndex || 0));
+      }
+
+      cards.forEach((card, index) => {
+        card.classList.remove('is-sorted');
+        card.style.order = index;
+        void card.offsetWidth;
+        card.classList.add('is-sorted');
+      });
+    });
+  }
 });

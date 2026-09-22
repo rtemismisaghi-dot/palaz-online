@@ -82,3 +82,19 @@
 .buy-btn{transition:transform .2s ease,box-shadow .2s ease}.buy-btn:hover{transform:translateY(-2px);box-shadow:0 12px 25px #c51f2c2b}
 .product-card{transition:transform .28s ease,box-shadow .28s ease}.product-card:hover{transform:translateY(-7px);box-shadow:0 22px 55px #17171918}.product-card .product-visual{transition:transform .45s ease}.product-card:hover .product-visual{transform:scale(1.025)}
 .category-card{transition:transform .3s ease,box-shadow .3s ease}.category-card:hover{transform:translateY(-6px);box-shadow:0 20px 45px #17171918}
+
+
+/* PALAZ HERO / full-frame timed image slider */
+.hero-art{overflow:hidden}
+.hero-slides{position:absolute;inset:0;z-index:1}
+.hero-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.035);transition:opacity .9s ease,transform 6s ease}
+.hero-slide.is-active{opacity:1;transform:scale(1)}
+.hero-slide-one{background-image:linear-gradient(180deg,#17171918,#17171952),url('https://palazonline.com/storage/uploads/IMG_5796.jpg')}
+.hero-slide-two{background-image:linear-gradient(180deg,#17171918,#17171952),url('https://palazonline.com/storage/uploads/IMG_5777.PNG')}
+.hero-slide-three{background-image:linear-gradient(180deg,#17171918,#17171952),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.hero-art .art-grid{z-index:2;pointer-events:none;background-color:transparent}
+.hero-art .art-label,.hero-art .art-stamp{z-index:3}
+.hero-slide-dots{position:absolute;z-index:4;left:24px;bottom:24px;display:flex;gap:7px}
+.hero-slide-dots span{display:block;width:24px;height:3px;background:#fff6;transition:.3s}
+.hero-slide-dots span.active{background:#fff;width:38px}
+@media(max-width:700px){.hero-slide-dots{left:16px;bottom:16px}.hero-slide-dots span{width:18px}.hero-slide-dots span.active{width:30px}}

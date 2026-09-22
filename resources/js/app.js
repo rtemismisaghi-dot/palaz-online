@@ -1,5 +1,5 @@
 import './bootstrap';
-import './palaz-dynamic.css';
+import '../css/palaz-dynamic.css';
 
 // PALAZ micro-interactions
 window.addEventListener('DOMContentLoaded', () => {
@@ -22,8 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const reveal = () => {
     document.querySelectorAll('.reveal-item').forEach(el => {
-      const top = el.getBoundingClientRect().top;
-      if (top < window.innerHeight * .9) el.classList.add('is-visible');
+      if (el.getBoundingClientRect().top < window.innerHeight * .9) el.classList.add('is-visible');
     });
   };
   reveal();

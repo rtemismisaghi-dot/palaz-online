@@ -1,5 +1,5 @@
 import './bootstrap';
-
+import './palaz-dynamic.css';
 
 // PALAZ micro-interactions
 window.addEventListener('DOMContentLoaded', () => {
@@ -13,4 +13,31 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+  const homeSections = document.querySelectorAll('.hero-copy, .hero-art, .intro-section > .container > *, .section-head, .category-card, .service-card, .product-card, .project-grid > *');
+  homeSections.forEach((el, index) => {
+    el.classList.add('reveal-item');
+    el.style.transitionDelay = Math.min(index * 35, 280) + 'ms';
+  });
+
+  const reveal = () => {
+    document.querySelectorAll('.reveal-item').forEach(el => {
+      const top = el.getBoundingClientRect().top;
+      if (top < window.innerHeight * .9) el.classList.add('is-visible');
+    });
+  };
+  reveal();
+  window.addEventListener('scroll', reveal, {passive:true});
+
+  const art = document.querySelector('.hero-art');
+  if (art && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    window.addEventListener('pointermove', (event) => {
+      const rect = art.getBoundingClientRect();
+      if (rect.top > window.innerHeight || rect.bottom < 0) return;
+      const x = ((event.clientX - rect.left) / rect.width - .5) * 8;
+      const y = ((event.clientY - rect.top) / rect.height - .5) * 6;
+      art.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+    }, {passive:true});
+    window.addEventListener('pointerleave', () => { art.style.transform = ''; });
+  }
 });

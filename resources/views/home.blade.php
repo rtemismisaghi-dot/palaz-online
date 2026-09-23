@@ -15,7 +15,7 @@
         <button class="mobile-menu" type="button" aria-label="باز کردن منو" aria-expanded="false">☰</button>
 
         <a href="{{ route('home') }}" class="brand brand-real" aria-label="پالاز آنلاین">
-            <img class="brand-logo" src="{{ asset("images/palaz-logo.png") }}" alt="پالاز آنلاین">
+            <img class="brand-logo" src="{{ asset('images/palaz-logo.png') }}?v=b12b1299" alt="پالاز آنلاین">
         </a>
 
         <div class="search search-real">

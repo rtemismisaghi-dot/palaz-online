@@ -186,21 +186,14 @@
   .main-nav.is-open .nav-dropdown .mega{display:none}
 }
 
-/* PALAZ WORDMARK FIX */
-.brand-real{min-width:250px;display:flex;align-items:center;justify-content:flex-start;gap:12px;direction:ltr}
-.brand-logo{display:block;width:46px;height:46px;flex:0 0 46px;object-fit:contain;object-position:center}
-.brand-wordmark{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;line-height:1}
-.brand-wordmark strong{display:block;font-size:22px;font-weight:800;letter-spacing:2px;color:var(--red)}
-.brand-wordmark small{display:block;margin-top:5px;font-size:9px;font-weight:600;letter-spacing:4px;color:#777}
+/* PALAZ ORIGINAL LOGO */
+.brand-real{min-width:0;display:flex;align-items:center;justify-content:flex-start}
+.brand-logo{display:block;width:138px;height:30px;object-fit:contain;object-position:center}
 @media(max-width:1000px){
-  .brand-real{min-width:205px;gap:9px}
-  .brand-logo{width:40px;height:40px;flex-basis:40px}
-  .brand-wordmark strong{font-size:18px}
-  .brand-wordmark small{font-size:8px}
+  .brand-real{min-width:0}
+  .brand-logo{width:125px;height:auto}
 }
 @media(max-width:700px){
-  .brand-real{min-width:0;gap:8px;justify-content:center}
-  .brand-logo{width:38px;height:38px;flex-basis:38px}
-  .brand-wordmark strong{font-size:16px;letter-spacing:1.5px}
-  .brand-wordmark small{font-size:7px;letter-spacing:3px}
+  .brand-real{min-width:0;justify-content:center}
+  .brand-logo{width:116px;height:auto}
 }

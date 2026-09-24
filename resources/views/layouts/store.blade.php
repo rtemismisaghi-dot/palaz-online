@@ -10,9 +10,11 @@
 <div class="announcement"><span class="announcement-pulse"></span> مسیر خرید تا اجرا، یک تجربه واحد <span>•</span> مشاوره تخصصی پالاز</div>
 <header class="site-header">
 <div class="container header-main">
-<a href="{{ route('home') }}" class="brand"><span class="brand-mark">P</span><span><strong>PALAZ</strong><small>ONLINE</small></span></a>
-<form class="search" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، مدل، رنگ یا کد..." aria-label="جستجو"><button type="submit">جستجو</button></form>
-<div class="header-actions"><a href="{{ route('services') }}" class="consult-link">مشاوره</a><a href="{{ route('cart') }}" class="cart">سبد خرید <b>{{ count(session('cart', [])) }}</b></a><button class="mobile-menu" type="button" aria-label="منو">☰</button></div>
+<a href="{{ route('home') }}" class="brand-real" aria-label="PALAZ ONLINE">
+    <img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE" class="brand-logo">
+</a>
+<form class="search search-real" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، مدل، رنگ یا کد..." aria-label="جستجو"><button type="submit">جستجو</button></form>
+<div class="header-actions"><a href="{{ route('services') }}" class="header-action consult-link"><span class="action-icon">◌</span><span>مشاوره</span></a><a href="{{ route('cart') }}" class="header-action cart"><span class="action-icon">🛒</span><span>سبد خرید</span> <b>{{ count(session('cart', [])) }}</b></a><button class="mobile-menu" type="button" aria-label="منو">☰</button></div>
 </div>
 <nav class="main-nav"><div class="container nav-inner">
 <a href="{{ route('home') }}" class="{{ request()->routeIs('home')?'active':'' }}">خانه</a>

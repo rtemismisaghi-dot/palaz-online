@@ -925,85 +925,99 @@
   .ph-cat strong{font-size:11px!important}
 }
 
-/* DESKTOP V2 — complete homepage reconstruction */
-.desktop-home-v2{display:none}
-@media(min-width:1101px){
-  .desktop-home-v2{display:block;background:#fff;color:#171717}
-  .desktop-home-v2~.palaz-home{display:none}
-  .desktop-home-v2~.footer{display:none}
-  .v2-hero{width:min(1440px,calc(100% - 48px));height:610px;margin:0 auto;display:grid;grid-template-columns:1.55fr 1fr;direction:ltr;position:relative;overflow:hidden;background:#eee}
-  .v2-hero-image{background-image:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG');background-size:cover;background-position:center;min-width:0}
-  .v2-hero-panel{direction:rtl;background:#171717;color:#fff;padding:78px 65px 45px;display:flex;flex-direction:column;justify-content:center;position:relative}
-  .v2-hero-panel:before{content:'PALAZ';position:absolute;top:28px;left:38px;color:#d51f2f;font-size:11px;letter-spacing:5px}
-  .v2-eyebrow{font-size:10px;letter-spacing:2px;color:#aaa;margin-bottom:24px}
-  .v2-hero-panel h1{font-size:55px;line-height:1.32;margin:0 0 22px;font-weight:500;letter-spacing:-1px}
-  .v2-hero-panel h1 b{color:#e12635;font-weight:800}
-  .v2-hero-panel>p{font-size:13px;color:#bbb;line-height:2.1;max-width:470px;margin:0 0 30px}
-  .v2-actions{display:flex;gap:10px;align-items:center}
-  .v2-actions a{padding:13px 23px;border:1px solid #555;color:#fff;font-size:11px}
-  .v2-actions a:first-child{background:#d51f2f;border-color:#d51f2f}
-  .v2-actions span{margin-right:18px}
-  .v2-proof{display:flex;gap:35px;border-top:1px solid #393939;margin-top:55px;padding-top:18px}
-  .v2-proof span{font-size:9px;color:#aaa;display:flex;gap:7px;align-items:center}
-  .v2-proof b{color:#fff;font-size:12px}
+/* FINAL DESKTOP HOME — clean PALAZ reference layout */
+@media (min-width:1101px){
+  body:has(.palaz-home){background:#fff;color:#171717}
+  .palaz-topbar{height:30px!important;background:#1b1b1b!important;color:#d7d7d7!important;border:0!important}
+  .palaz-topbar .container{width:min(1440px,calc(100% - 56px))!important;height:30px!important;font-size:9px!important}
+  .palaz-topbar b{color:#fff!important}
 
-  .v2-collections,.v2-services{width:min(1320px,calc(100% - 80px));margin:0 auto;padding:72px 0 55px}
-  .v2-heading{display:flex;align-items:end;justify-content:space-between;margin-bottom:25px}
-  .v2-heading small,.v2-feature-copy>small,.v2-studio-copy>small{font-size:9px;color:#999;letter-spacing:2px}
-  .v2-heading h2{font-size:28px;margin:7px 0 0;font-weight:800}
-  .v2-heading>a{font-size:10px;color:#d51f2f}
-  .v2-collection-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-  .v2-collection{height:225px;position:relative;overflow:hidden;background:#ddd}
-  .v2-collection img{position:absolute;width:100%;height:100%;object-fit:cover;transition:.45s}
-  .v2-collection:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.78))}
-  .v2-collection:hover img{transform:scale(1.08)}
-  .v2-collection>div{position:absolute;z-index:2;bottom:0;right:0;left:0;padding:17px;color:#fff}
-  .v2-collection small{display:block;color:#ddd;font-size:9px;margin-bottom:7px}
-  .v2-collection strong{display:block;font-size:15px}
-  .v2-collection span{font-size:9px;color:#ddd;display:block;margin-top:8px}
+  .site-header{background:#fff!important;box-shadow:none!important;border-bottom:1px solid #e9e6e1!important}
+  .site-header .header-main{
+    width:min(1440px,calc(100% - 56px))!important;height:92px!important;
+    grid-template-columns:270px minmax(360px,1fr) 210px!important;
+    gap:36px!important;direction:ltr!important
+  }
+  .brand-real{justify-self:end!important;direction:rtl!important;grid-column:3!important;grid-row:1!important}
+  .brand-logo{width:128px!important;height:auto!important}
+  .search-real{grid-column:2!important;grid-row:1!important;height:44px!important;border:1px solid #dedbd6!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
+  .header-actions{grid-column:1!important;grid-row:1!important;justify-self:start!important;direction:rtl!important;gap:20px!important}
+  .header-action{font-size:10px!important;color:#222!important}
+  .header-action .action-icon{font-size:18px!important}
+  .header-action.cart b{background:#c91e2d!important}
+  .main-nav{border-top:1px solid #f0eeeb!important;background:#fff!important}
+  .nav-inner{width:min(1440px,calc(100% - 56px))!important;height:48px!important;gap:38px!important;font-size:11px!important;justify-content:center!important}
+  .nav-inner a,.nav-dropdown>span{font-weight:500!important;color:#333!important}
+  .nav-inner a.active{color:#c91e2d!important}
 
-  .v2-feature{background:#f3f1ed;padding:65px max(40px,calc((100vw - 1320px)/2));display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:stretch;direction:ltr}
-  .v2-feature-copy{direction:rtl;padding:28px 0}
-  .v2-feature-copy h2{font-size:31px;line-height:1.55;margin:15px 0}
-  .v2-feature-copy h2 b{color:#d51f2f}
-  .v2-feature-copy p{font-size:11px;color:#777;line-height:2}
-  .v2-feature-copy>a{display:inline-block;margin-top:20px;font-size:10px;color:#d51f2f}
-  .v2-feature-products{direction:rtl;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-  .v2-product{background:#fff}
-  .v2-product-img{height:255px;display:block;position:relative;background:#e9e9e7;overflow:hidden}
-  .v2-product-img img{width:100%;height:100%;object-fit:cover;transition:.4s}
-  .v2-product:hover img{transform:scale(1.05)}
-  .v2-product-img span{position:absolute;top:10px;right:10px;background:#fff;width:27px;height:27px;display:grid;place-items:center;border-radius:50%;font-size:15px}
-  .v2-product-info{padding:14px 15px 17px}
-  .v2-product-info small{font-size:8px;color:#999}
-  .v2-product-info h3{font-size:12px;margin:5px 0}
-  .v2-product-info p{font-size:9px;color:#888;margin:0 0 11px}
-  .v2-product-info strong{font-size:10px;color:#d51f2f}
+  .ph-hero{
+    width:min(1440px,calc(100% - 56px))!important;height:500px!important;margin:0 auto!important;
+    background:#eeeae3!important;overflow:hidden!important
+  }
+  .ph-hero-bg{
+    width:54%!important;right:auto!important;left:0!important;
+    background-image:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')!important;
+    background-position:center!important;background-size:cover!important;
+    opacity:1!important
+  }
+  .ph-hero:after{display:none!important}
+  .ph-hero-inner{width:100%!important;height:100%!important;display:block!important}
+  .ph-hero-copy{
+    width:46%!important;max-width:none!important;height:100%!important;
+    margin-right:0!important;padding:82px 68px 40px!important;
+    color:#171717!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important
+  }
+  .ph-hero-copy>span:first-of-type{color:#c91e2d!important}
+  .desktop-kicker{font-size:9px!important;letter-spacing:3px!important;margin-bottom:22px!important}
+  .ph-hero-copy>span:not(.desktop-kicker){color:#777!important;font-size:10px!important;letter-spacing:2px!important}
+  .ph-hero-copy h1{font-size:50px!important;line-height:1.25!important;letter-spacing:-1.4px!important;color:#171717!important;margin:8px 0 18px!important}
+  .ph-hero-copy h1 em{color:#c91e2d!important;font-style:normal!important}
+  .ph-hero-copy p{font-size:12px!important;line-height:2!important;color:#777!important;max-width:420px!important}
+  .desktop-hero-actions{margin-top:18px!important}
+  .ph-primary-btn{background:#c91e2d!important;color:#fff!important;border-radius:0!important;padding:13px 25px!important;font-size:10px!important}
+  .desktop-hero-secondary{border:1px solid #bdb9b2!important;color:#222!important;background:transparent!important;border-radius:0!important;padding:12px 25px!important;font-size:10px!important}
+  .desktop-hero-meta{margin-top:auto!important;width:100%!important;border-top:1px solid #d4d0c9!important;padding-top:15px!important;gap:35px!important}
+  .desktop-hero-meta b{color:#c91e2d!important}
+  .desktop-hero-meta span{color:#666!important}
+  .ph-hero-tools,.ph-slider-dots{display:none!important}
 
-  .v2-services{padding-top:70px}
-  .v2-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#ddd}
-  .v2-service-grid>a{background:#fff;padding:30px;min-height:205px;position:relative}
-  .v2-service-grid>a:hover{background:#171717;color:#fff}
-  .v2-service-grid>b{font-size:10px}
-  .v2-service-grid>a>b{position:absolute;top:20px;left:22px;color:#bbb;font-size:10px}
-  .v2-service-grid>a>span{display:block;color:#d51f2f;font-size:27px;margin-bottom:22px}
-  .v2-service-grid h3{font-size:18px;margin:0 0 9px}
-  .v2-service-grid p{font-size:10px;color:#888;line-height:2}
-  .v2-service-grid i{font-size:9px;color:#d51f2f;font-style:normal}
+  .ph-categories{padding:48px 0 38px!important;background:#fff!important}
+  .desktop-section-label{width:min(1320px,calc(100% - 80px))!important;margin-bottom:18px!important}
+  .desktop-section-label span{font-size:8px!important;letter-spacing:2px!important;color:#aaa!important}
+  .desktop-section-label strong{font-size:22px!important}
+  .ph-category-row{width:min(1320px,calc(100% - 80px))!important;height:150px!important;grid-template-columns:150px repeat(6,minmax(0,1fr))!important;gap:10px!important}
+  .ph-all-cat,.ph-cat{height:150px!important;border-radius:0!important}
+  .ph-all-cat{background:#171717!important}
+  .ph-cat img{height:150px!important;object-fit:cover!important}
+  .ph-cat strong{font-size:12px!important}
 
-  .v2-studio{width:min(1320px,calc(100% - 80px));height:370px;margin:15px auto 70px;display:grid;grid-template-columns:1.35fr 1fr;direction:ltr;background:#e8e1d8}
-  .v2-studio-image{background:url('https://palazonline.com/storage/uploads/IMG_5796.jpg') center/cover}
-  .v2-studio-copy{direction:rtl;background:#171717;color:#fff;padding:65px 55px}
-  .v2-studio-copy h2{font-size:27px;line-height:1.65;margin:14px 0}
-  .v2-studio-copy h2 b{color:#d51f2f}
-  .v2-studio-copy p{font-size:11px;line-height:2;color:#aaa;max-width:430px}
-  .v2-studio-copy>a{display:inline-block;margin-top:18px;background:#d51f2f;padding:11px 22px;font-size:10px;color:#fff}
+  .ph-services{padding:48px 0 42px!important;background:#f6f4f1!important}
+  .ph-services>.container{width:min(1320px,calc(100% - 80px))!important}
+  .ph-section-intro h2{font-size:27px!important}
+  .ph-service-cards{gap:12px!important}
+  .ph-service-card{border-radius:0!important;background:#fff!important}
+  .ph-service-card img{height:170px!important;object-fit:cover!important}
 
-  .v2-benefits{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid #ddd;border-bottom:1px solid #ddd;background:#fafafa;width:100%}
-  .v2-benefits>div{min-height:105px;padding:24px 30px;border-left:1px solid #ddd;display:grid;grid-template-columns:35px 1fr;column-gap:10px;align-content:center}
-  .v2-benefits b{grid-row:1/3;font-size:22px;color:#d51f2f}
-  .v2-benefits strong{font-size:11px}
-  .v2-benefits small{font-size:8px;color:#999;margin-top:5px}
+  .ph-products{padding:45px 0 35px!important;background:#fff!important}
+  .ph-products>.container{width:min(1320px,calc(100% - 80px))!important}
+  .ph-section-head{border-bottom:1px solid #e4e1dc!important;padding-bottom:15px!important}
+  .ph-section-head h2{font-size:22px!important}
+  .ph-product-grid{grid-template-columns:repeat(5,1fr)!important;gap:12px!important}
+  .ph-product{border:1px solid #e8e5e0!important;border-radius:0!important;background:#fff!important}
+  .ph-product-image{height:235px!important;background:#f2f1ee!important}
+  .ph-product-body{padding:14px!important}
+  .ph-product-body h3{font-size:12px!important}
+  .ph-product-bottom button{background:#171717!important;border-radius:0!important;height:34px!important;font-size:9px!important}
 
-  .desktop-home-v2 + .palaz-home + .footer{display:none!important}
+  .ph-promo{width:min(1320px,calc(100% - 80px))!important;height:285px!important;margin:18px auto 0!important;border-radius:0!important}
+  .ph-promo-inner{padding:0 35px!important}
+  .ph-promo-inner>div{width:43%!important;max-width:520px!important;padding:28px 32px!important}
+  .ph-promo h2{font-size:28px!important}
+
+  .ph-trust{margin-top:34px!important;background:#f4f4f2!important;border-top:1px solid #ddd!important;border-bottom:1px solid #ddd!important}
+  .ph-trust>.container{width:min(1320px,calc(100% - 80px))!important;min-height:90px!important}
+  .ph-trust .container>div{padding:12px 18px!important}
+
+  .footer{margin-top:0!important;padding:45px 0 15px!important;background:#181818!important}
+  .footer-grid{width:min(1320px,calc(100% - 80px))!important}
 }

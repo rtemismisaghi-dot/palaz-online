@@ -1405,3 +1405,14 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
 .nav-dropdown:hover .mega{transform:translate(50%,0)}.mega a{min-height:72px;padding:13px 15px;border:1px solid transparent;border-radius:13px;background:rgba(247,245,242,.7);transition:background .2s ease,border-color .2s ease,transform .2s ease}.mega a:hover{background:#fff;border-color:rgba(197,31,44,.14);transform:translateY(-2px)}.mega b{font-size:13px}.mega small{font-size:9px;margin-top:6px;color:#817a74}
 @media(max-width:1000px){.header-main{gap:12px}.brand-real{min-width:150px}.brand-logo{max-width:150px;height:43px}.header-action{padding:7px 9px}.header-action>span:last-of-type{display:none}.nav-inner{border-radius:14px;justify-content:flex-start;padding:5px;overflow-x:auto}.nav-inner>a,.nav-dropdown>span{padding:0 14px}}
 @media(max-width:700px){.site-header{position:relative}.header-main{height:auto;padding:12px 0}.mobile-menu{display:grid;place-items:center;width:42px;height:42px;border:1px solid rgba(190,183,176,.4);border-radius:13px;background:rgba(255,255,255,.75);color:#333}.brand-real{min-width:0;flex:1;justify-content:center}.brand-logo{height:40px;max-width:145px}.header-actions{gap:5px}.header-actions .header-action:not(.cart){display:none}.header-action.cart{width:42px;height:42px;justify-content:center;padding:0}.search-real{order:3;flex-basis:100%;height:46px;border-radius:14px}.main-nav{padding:5px 0}.nav-inner{height:48px;border-radius:13px}.nav-inner>a,.nav-dropdown>span{height:38px;padding:0 13px;font-size:10px;border-radius:10px}.nav-dropdown{height:38px}.mega{display:none}}
+
+
+/* PALAZ GLASSY HEADER — LOGO + SEPARATOR CLEANUP */
+.site-header{border-bottom:0!important;box-shadow:none!important}
+.site-header .brand-real{overflow:visible!important;min-width:210px!important}
+.site-header .brand-logo{width:auto!important;height:62px!important;max-width:215px!important;object-fit:contain!important;object-position:center!important;display:block!important}
+.site-header .main-nav{border-top:0!important;border-bottom:0!important;box-shadow:none!important}
+.site-header .nav-inner{border-top-color:transparent!important}
+.site-header .search-real{border:1px solid rgba(190,183,176,.45)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 25px rgba(23,23,25,.045)!important}
+@media(max-width:1000px){.site-header .brand-real{min-width:165px!important}.site-header .brand-logo{height:54px!important;max-width:175px!important}}
+@media(max-width:700px){.site-header .brand-real{min-width:0!important}.site-header .brand-logo{height:46px!important;max-width:165px!important}.site-header .main-nav{border-top:0!important;border-bottom:0!important}}

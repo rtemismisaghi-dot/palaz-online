@@ -12,18 +12,19 @@
             <a href="{{ route('services',['type'=>'design']) }}" class="ph-tool"><span class="ph-tool-icon">▤</span><span><b>طراحی و محاسبه</b><small>DTZ Tablet</small></span><i>‹</i></a>
         </div>
         <div class="ph-hero-copy">
+            <span class="desktop-kicker">PALAZ / INTERIOR COLLECTION 2026</span>
             <span>PALAZ ONLINE</span>
             <h1 class="desktop-hero-title">فضای خانه‌ات را<br><em>از اینجا شروع کن</em></h1>
             <h1 class="mobile-hero-title">انتخابی مطمئن<br>برای <em>فضای بهتر زندگی</em></h1>
             <p class="desktop-hero-copy">موکت، لمینیت، کاغذ دیواری و ...<br>انتخاب کن، فضای خودت را ببین و سفارش بده.</p>
             <p class="mobile-hero-copy">از خرید محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
-            <a class="ph-primary-btn" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a>
+            <div class="desktop-hero-actions"><a class="ph-primary-btn" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a><a class="desktop-hero-secondary" href="{{ route('services') }}">خدمات اجرا <b>←</b></a></div><div class="desktop-hero-meta"><div><b>01</b><span>انتخاب محصول</span></div><div><b>02</b><span>اندازه‌گیری</span></div><div><b>03</b><span>اجرای حرفه‌ای</span></div></div>
         </div>
     </div>
     <div class="ph-slider-dots"><i></i><i class="on"></i><i></i></div>
 </section>
 
-<section class="ph-categories">
+<section class="ph-categories"><div class="desktop-section-label"><span>01 / COLLECTIONS</span><strong>برای هر فضا، یک انتخاب</strong></div>
     <div class="container ph-category-row">
         <a class="ph-all-cat" href="{{ route('shop') }}"><span>‹</span><b>همه محصولات</b></a>
         @php
@@ -71,7 +72,7 @@
     </div>
 </section>
 
-<section class="ph-products">
+<section class="ph-products"><div class="desktop-section-label"><span>02 / PRODUCTS</span><strong>انتخاب‌های منتخب پالاز</strong></div>
     <div class="container">
         <div class="ph-section-head"><div><span>محصولات منتخب</span><h2>پرفروش‌ترین‌ها با بهترین قیمت</h2></div><a href="{{ route('shop') }}">مشاهده همه <b>‹</b></a></div>
         <div class="ph-product-grid">
@@ -86,7 +87,7 @@
     </div>
 </section>
 
-<section class="ph-promo">
+<section class="ph-promo"><div class="desktop-promo-tag">PALAZ DESIGN STUDIO</div>
     <div class="container ph-promo-inner">
         <div><span>الهام بگیرید</span><h2>کوراسیون، یعنی ساختن<br><em>فضای واقعی شما</em></h2><p>ایده‌هایی برای یک زندگی زیباتر، با انتخاب درست کفپوش و پوشش دیوار.</p><a href="{{ route('shop') }}" class="ph-white-btn">مشاهده گالری <b>‹</b></a></div>
     </div>

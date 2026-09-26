@@ -17,7 +17,7 @@ jobs:
           php-version: "8.3"
           extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, sqlite3, pdo_sqlite
           coverage: none
-      - run: mkdir -p bootstrap/cache
+      - run: mkdir -p bootstrap/cache storage/framework/views storage/framework/cache storage/framework/sessions storage/logs
       - run: chmod -R u+rwX bootstrap/cache
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: composer dump-autoload --no-interaction

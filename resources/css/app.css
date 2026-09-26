@@ -605,7 +605,8 @@
 
   .main-nav{
     height:50px!important;background:#fff!important;border-top:1px solid #f0f0f0!important;
-    border-bottom:1px solid #e7e7e7!important
+    border-bottom:1px solid #e7e7e7!important;
+    margin-top:10px!important
   }
   .nav-inner{
     height:50px!important;width:min(1410px,calc(100% - 64px));max-width:none!important;

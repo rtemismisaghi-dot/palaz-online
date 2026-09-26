@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <header class="site-header">
 <div class="container header-main">
 <button class="mobile-menu" type="button" aria-label="منو" aria-expanded="false">☰</button>
-<a href="{{ route('home') }}" class="brand-real" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-original-logo.png') }}?v=20260926" alt="PALAZ ONLINE" class="brand-logo"></a>
+<a href="{{ route('home') }}" class="brand-real" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-logo.png') }}?v=20260926" alt="" class="brand-logo"><span class="brand-wordmark"><strong>PALAZ</strong><small>ONLINE</small></span></a>
 <form class="search search-real" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته یا برند..." aria-label="جستجو"><button type="submit">⌕</button></form>
 <div class="header-actions">
 <a href="{{ route('services') }}" class="header-action"><span class="action-icon">♙</span><span>حساب کاربری</span></a>

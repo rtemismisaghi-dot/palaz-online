@@ -96,7 +96,12 @@ document.addEventListener('DOMContentLoaded',function(){
   .site-header,
   .site-header .header-main,
   .site-header .brand-real{
+    border-bottom:0!important;
     overflow:visible!important;
+  }
+  .site-header .main-nav,
+  .site-header .nav-inner{
+    border-bottom:0!important;
   }
   .site-header .header-main{
     position:relative!important;
@@ -113,7 +118,7 @@ document.addEventListener('DOMContentLoaded',function(){
     display:flex!important;
     align-items:center!important;
     justify-content:flex-start!important;
-    transform:translate(18px,10px)!important;
+    transform:translate(28px,10px)!important;
   }
   .site-header .brand-logo{
     position:relative!important;

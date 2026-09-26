@@ -1218,3 +1218,50 @@ body:has(.palaz-reference-home)>.palaz-topbar,
 body:has(.palaz-reference-home)>.site-header,
 body:has(.palaz-reference-home)>.footer{display:none!important}
 body:has(.palaz-reference-home)>.flash{z-index:100}
+
+/* EXACT REFERENCE V4 - final visual pass */
+.palaz-reference-home{font-size:14px}
+.palaz-reference-home .ref-wrap{width:min(1440px,calc(100% - 100px))}
+.palaz-reference-home .ref-head-main{height:76px;grid-template-columns:260px minmax(420px,680px) 210px;gap:28px}
+.palaz-reference-home .ref-logo img{width:158px}
+.palaz-reference-home .ref-search{height:42px;border-radius:7px}
+.palaz-reference-home .ref-search button{width:45px;border-radius:0 6px 6px 0}
+.palaz-reference-home .ref-actions{gap:25px}
+.palaz-reference-home .ref-nav .ref-wrap{height:42px;gap:48px}
+.palaz-reference-home .ref-nav a{height:42px;font-size:11px}
+.palaz-reference-home .ref-hero{height:455px}
+.palaz-reference-home .ref-hero-bg{background-image:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG');background-position:center 58%}
+.palaz-reference-home .ref-hero-overlay{background:linear-gradient(90deg,rgba(8,10,12,.02) 20%,rgba(12,10,9,.12) 48%,rgba(10,7,7,.88) 100%)}
+.palaz-reference-home .ref-hero-copy{width:49%;padding-right:35px}
+.palaz-reference-home .ref-hero-copy h1{font-size:47px;line-height:1.27}
+.palaz-reference-home .ref-hero-copy p{font-size:12px}
+.palaz-reference-home .ref-hero-services{width:250px;margin-left:12px}
+.palaz-reference-home .ref-hero-services a{min-height:59px}
+.palaz-reference-home .ref-category-grid-full{grid-template-columns:135px repeat(10,minmax(88px,1fr));gap:10px;overflow:hidden}
+.palaz-reference-home .ref-category-grid-full .ref-category{height:122px}
+.palaz-reference-home .ref-category-grid-full .ref-category strong{font-size:10px}
+.palaz-reference-home .ref-category-grid-full .ref-category>div{padding:9px}
+.palaz-reference-home .ref-category-grid-full .ref-category.all span{font-size:24px}
+.palaz-reference-home .ref-services{padding:32px 0}
+.palaz-reference-home .ref-services-layout{grid-template-columns:350px 1fr;gap:28px}
+.palaz-reference-home .ref-services-intro h2{font-size:30px}
+.palaz-reference-home .ref-service-grid{gap:15px}
+.palaz-reference-home .ref-service-grid>a{min-height:165px}
+.palaz-reference-home .ref-service-grid img{height:94px}
+.palaz-reference-home .ref-product-grid{grid-template-columns:repeat(6,1fr)}
+.palaz-reference-home .ref-product-image{height:155px}
+.palaz-reference-home .ref-product-promo{min-height:270px}
+.palaz-reference-home .ref-design-inner{height:230px}
+.palaz-reference-home .ref-trust .ref-wrap>div{min-height:78px}
+@media (min-width:768px) and (max-width:1100px){
+ .palaz-reference-home .ref-wrap{width:calc(100% - 32px)}
+ .palaz-reference-home .ref-category-grid-full{grid-template-columns:repeat(5,1fr)}
+ .palaz-reference-home .ref-category-grid-full .ref-category{height:112px}
+ .palaz-reference-home .ref-product-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:767px){
+ .palaz-reference-home .ref-wrap{width:calc(100% - 24px)}
+ .palaz-reference-home .ref-category-grid-full{grid-template-columns:repeat(4,1fr)}
+ .palaz-reference-home .ref-category-grid-full .ref-category{height:82px}
+ .palaz-reference-home .ref-product-grid{grid-template-columns:1fr 1fr}
+}

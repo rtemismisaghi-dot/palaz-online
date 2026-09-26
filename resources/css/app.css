@@ -940,7 +940,7 @@
   }
   .brand-real{justify-self:end!important;direction:rtl!important;grid-column:3!important;grid-row:1!important}
   .brand-logo{width:128px!important;height:auto!important}
-  .search-real{grid-column:2!important;grid-row:1!important;height:44px!important;border:1px solid #dedbd6!important;background:#fff!important;border-radius:0!important;box-shadow:none!important}
+  .search-real{grid-column:2!important;grid-row:1!important;height:44px!important;border:1px solid #dedbd6!important;background:#fff!important;border-radius:0!important;box-shadow:none!important;align-self:center!important;transform:translateY(-6px)!important}
   .header-actions{grid-column:1!important;grid-row:1!important;justify-self:start!important;direction:rtl!important;gap:20px!important}
   .header-action{font-size:10px!important;color:#222!important}
   .header-action .action-icon{font-size:18px!important}

@@ -1,7 +1,7 @@
 @extends('layouts.store')
 @section('title','PALAZ ONLINE | خانه')
 @section('content')
-<div class="palaz-home">
+<div class="palaz-home" dir="rtl">
 <section class="ph-hero">
     <div class="ph-hero-bg"></div>
     <div class="container ph-hero-inner">
@@ -96,7 +96,7 @@
         <div><b>⌁</b><strong>نصب حرفه‌ای</strong><small>توسط تیم متخصص</small></div>
         <div><b>⌗</b><strong>اندازه‌گیری دقیق</strong><small>با اپراتورهای مجرب</small></div>
         <div><b>♧</b><strong>مشاوره تخصصی</strong><small>همیشه در کنار شما</small></div>
-        <div><b>♧</b><strong>پشتیبانی دائمی</strong><small>همراه شما در مسیر</small></div>
+        <div><b>✓</b><strong>پشتیبانی دائمی</strong><small>همراه شما در مسیر</small></div>
     </div>
 </section>
 </div>

@@ -3,7 +3,7 @@
 @section('content')
 <div class="palaz-home" dir="rtl">
 <section class="ph-hero">
-    <div class="ph-hero-bg"></div>
+    <div class="ph-hero-bg" aria-hidden="true"></div>
     <div class="container ph-hero-inner">
         <div class="ph-hero-tools">
             <a href="{{ route('shop') }}" class="ph-tool"><span class="ph-tool-icon">▣</span><span><b>خرید محصول</b><small>موکت، لمینیت، کاغذدیواری و...</small></span><i>‹</i></a>
@@ -37,7 +37,7 @@
             ];
         @endphp
         @foreach($categories as $slug=>$category)
-            <a class="ph-cat" href="{{ route('shop',['category'=>$slug]) }}">
+            <a class="ph-cat cat-{{ $slug }}" href="{{ route('shop',['category'=>$slug]) }}">
                 <img src="{{ $catImages[$slug] ?? $catImages['carpet'] }}" alt="{{ $category['title'] }}" loading="lazy">
                 <strong>{{ $category['title'] }}</strong>
             </a>

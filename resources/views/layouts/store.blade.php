@@ -15,69 +15,7 @@
 .site-header.header-variant-3 .nav-inner{box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 6px 20px rgba(20,20,20,.035)}
 }
 </style>
-<style id="palaz-header-correction">
-@media (min-width:1101px){
-  .site-header .header-main{
-    width:min(1410px,calc(100% - 64px))!important;
-    height:88px!important;
-    min-height:88px!important;
-    display:grid!important;
-    grid-template-columns:270px minmax(480px,1fr) 230px!important;
-    grid-template-areas:"actions search logo"!important;
-    align-items:center!important;
-    gap:30px!important;
-    direction:ltr!important;
-    overflow:visible!important;
-  }
-  .site-header .brand-real{
-    grid-area:logo!important;
-    width:230px!important;
-    min-width:230px!important;
-    height:82px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-end!important;
-    overflow:visible!important;
-    direction:rtl!important;
-  }
-  .site-header .brand-logo{
-    display:block!important;
-    width:auto!important;
-    height:68px!important;
-    max-width:225px!important;
-    max-height:68px!important;
-    object-fit:contain!important;
-    object-position:center!important;
-    margin:0!important;
-  }
-  .site-header .search-real{
-    grid-area:search!important;
-    width:100%!important;
-    max-width:none!important;
-    height:46px!important;
-    min-height:46px!important;
-    margin:0!important;
-    transform:none!important;
-  }
-  .site-header .header-actions{
-    grid-area:actions!important;
-    width:auto!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:18px!important;
-    direction:rtl!important;
-  }
-  .site-header .main-nav{
-    height:54px!important;
-    min-height:54px!important;
-  }
-  .site-header .nav-inner{
-    height:54px!important;
-    min-height:54px!important;
-  }
-}
-</style>
+
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  const header=document.querySelector('.site-header');
@@ -91,51 +29,7 @@ document.addEventListener('DOMContentLoaded',function(){
  },5000);
 });
 </script>
-<style id="palaz-header-logo-final">
-@media (min-width:1101px){
-  .site-header,
-  .site-header .header-main,
-  .site-header .brand-real{
-    border-bottom:0!important;
-    overflow:visible!important;
-  }
-  .site-header .main-nav,
-  .site-header .nav-inner{
-    border-bottom:0!important;
-  }
-  .site-header .header-main{
-    position:relative!important;
-    z-index:60!important;
-  }
-  .site-header .brand-real{
-    position:relative!important;
-    z-index:70!important;
-    width:276px!important;
-    min-width:276px!important;
-    height:60px!important;
-    justify-self:end!important;
-    align-self:center!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    transform:translate(28px,10px)!important;
-  }
-  .site-header .brand-logo{
-    position:relative!important;
-    z-index:71!important;
-    display:block!important;
-    width:276px!important;
-    height:60px!important;
-    max-width:none!important;
-    max-height:none!important;
-    min-width:276px!important;
-    object-fit:contain!important;
-    object-position:center!important;
-    margin:0!important;
-    transform:none!important;
-  }
-}
-</style>
+
 </head>
 <body>
 <div class="palaz-topbar"><div class="container"><span>☎ 021-12345678</span><span>⌖ تهران، جردن، خیابان پالاز</span><b>پشتیبانی ۲۴ ساعته ◔</b></div></div>

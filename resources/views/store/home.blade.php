@@ -1,106 +1,176 @@
 @extends('layouts.store')
-@section('title','PALAZ ONLINE | خانه')
+@section('title','PALAZ ONLINE | صفحه اصلی')
 @section('content')
-<div class="palaz-home" dir="rtl">
-<section class="ph-hero">
-    <div class="ph-hero-bg" aria-hidden="true"></div>
-    <div class="container ph-hero-inner">
-        <div class="ph-hero-tools">
-            <a href="{{ route('shop') }}" class="ph-tool"><span class="ph-tool-icon">▣</span><span><b>خرید محصول</b><small>موکت، لمینیت، کاغذدیواری و...</small></span><i>‹</i></a>
-            <a href="{{ route('services',['type'=>'measurement']) }}" class="ph-tool active"><span class="ph-tool-icon">⌗</span><span><b>درخواست اندازه‌گیری</b><small>با DTZ</small></span><i>‹</i></a>
-            <a href="{{ route('services',['type'=>'installation']) }}" class="ph-tool"><span class="ph-tool-icon">⌁</span><span><b>درخواست نصب</b><small>با DTZ</small></span><i>‹</i></a>
-            <a href="{{ route('services',['type'=>'design']) }}" class="ph-tool"><span class="ph-tool-icon">▤</span><span><b>طراحی و محاسبه</b><small>DTZ Tablet</small></span><i>‹</i></a>
-        </div>
-        <div class="ph-hero-copy">
-            <span class="desktop-kicker">PALAZ / INTERIOR COLLECTION 2026</span>
-            <span>PALAZ ONLINE</span>
-            <h1 class="desktop-hero-title">فضای خانه‌ات را<br><em>از اینجا شروع کن</em></h1>
-            <h1 class="mobile-hero-title">انتخابی مطمئن<br>برای <em>فضای بهتر زندگی</em></h1>
-            <p class="desktop-hero-copy">موکت، لمینیت، کاغذ دیواری و ...<br>انتخاب کن، فضای خودت را ببین و سفارش بده.</p>
-            <p class="mobile-hero-copy">از خرید محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
-            <div class="desktop-hero-actions"><a class="ph-primary-btn" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a><a class="desktop-hero-secondary" href="{{ route('services') }}">خدمات اجرا <b>←</b></a></div><div class="desktop-hero-meta"><div><b>01</b><span>انتخاب محصول</span></div><div><b>02</b><span>اندازه‌گیری</span></div><div><b>03</b><span>اجرای حرفه‌ای</span></div></div>
-        </div>
-    </div>
-    <div class="ph-slider-dots"><i></i><i class="on"></i><i></i></div>
-</section>
+<div class="palaz-reference-home" dir="rtl">
 
-<section class="ph-categories"><div class="desktop-section-label"><span>01 / COLLECTIONS</span><strong>برای هر فضا، یک انتخاب</strong></div>
-    <div class="container ph-category-row">
-        <a class="ph-all-cat" href="{{ route('shop') }}"><span>‹</span><b>همه محصولات</b></a>
-        @php
-            $catImages = [
-                'carpet'=>'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                'laminate'=>'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
-                'spc'=>'https://palazonline.com/storage/uploads/IMG_5777.PNG',
-                'wallpaper'=>'https://palazonline.com/storage/uploads/IMG_5796.jpg',
-                'tile'=>'https://palazonline.com/storage/uploads/4.jpg',
-                'grass'=>'https://palazonline.com/storage/uploads/IMG_5795.PNG',
-            ];
-        @endphp
-        @foreach($categories as $slug=>$category)
-            <a class="ph-cat cat-{{ $slug }}" href="{{ route('shop',['category'=>$slug]) }}">
-                <img src="{{ $catImages[$slug] ?? $catImages['carpet'] }}" alt="{{ $category['title'] }}" loading="lazy">
-                <strong>{{ $category['title'] }}</strong>
-            </a>
-        @endforeach
-        <a class="ph-cat ph-cat-extra" href="{{ route('shop') }}"><img src="https://palazonline.com/storage/uploads/010-1.jpg" alt="سایر محصولات" loading="lazy"><strong>سایر محصولات</strong></a>
+  <header class="ref-header">
+    <div class="ref-topbar">
+      <div class="ref-wrap">
+        <span>☎ 021-12345678</span>
+        <span>⌖ تهران، جردن، خیابان پالاز</span>
+        <b>پشتیبانی ۲۴ ساعته ◔</b>
+      </div>
     </div>
-</section>
-
-<section class="ph-services" id="journey">
-    <div class="container">
-        <div class="ph-section-intro">
-            <span>خدمات هوشمند پالاز</span>
-            <h2>از انتخاب تا اجرا، با خیال راحت</h2>
-            <p>در تمام مراحل همراه شما هستیم؛ از مشاوره و بازدید تا نصب و پشتیبانی.</p>
-            <a href="{{ route('services') }}" class="ph-outline-btn">بیشتر بدانید <b>‹</b></a>
-        </div>
-        <div class="ph-service-cards">
-            <a href="{{ route('services',['type'=>'measurement']) }}" class="ph-service-card">
-                <img src="https://palazonline.com/storage/uploads/IMG_5777.PNG" alt="اندازه‌گیری" loading="lazy">
-                <span class="ph-round-icon">⌗</span><div><h3>اندازه‌گیری</h3><small>با DTZ</small><b>مشاهده جزئیات ←</b></div>
-            </a>
-            <a href="{{ route('services',['type'=>'installation']) }}" class="ph-service-card">
-                <img src="https://palazonline.com/storage/uploads/IMG_1100-4.PNG" alt="نصب" loading="lazy">
-                <span class="ph-round-icon">⌁</span><div><h3>نصب</h3><small>با DTZ</small><b>مشاهده جزئیات ←</b></div>
-            </a>
-            <a href="{{ route('services',['type'=>'design']) }}" class="ph-service-card">
-                <img src="https://palazonline.com/storage/uploads/010-1.jpg" alt="طراحی و محاسبه" loading="lazy">
-                <span class="ph-round-icon">▤</span><div><h3>طراحی و محاسبه</h3><small>DTZ Tablet</small><b>مشاهده جزئیات ←</b></div>
-            </a>
-        </div>
+    <div class="ref-head-main ref-wrap">
+      <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
+      <a href="{{ route('home') }}" class="ref-logo"><img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE"></a>
+      <form class="ref-search" action="{{ route('shop') }}">
+        <input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته‌بندی یا برند...">
+        <button type="submit">⌕</button>
+      </form>
+      <div class="ref-actions">
+        <a href="{{ route('services') }}"><i>♙</i><span>حساب کاربری</span></a>
+        <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>
+        <a href="{{ route('cart') }}" class="ref-cart"><i>🛒</i><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
+      </div>
+      <a href="{{ route('cart') }}" class="ref-mobile-cart">🛒<b>{{ count(session('cart', [])) }}</b></a>
     </div>
-</section>
+    <nav class="ref-nav">
+      <div class="ref-wrap">
+        <a class="active" href="{{ route('home') }}">صفحه اصلی</a>
+        <a href="{{ route('shop') }}">فروشگاه</a>
+        <a href="{{ route('shop') }}">محصولات⌄</a>
+        <a href="{{ route('services',['type'=>'design']) }}">ایده‌های دکوراسیون</a>
+        <a href="{{ route('services') }}">خدمات</a>
+        <a href="{{ route('home') }}">درباره ما</a>
+        <a href="{{ route('home') }}">تماس با ما</a>
+      </div>
+    </nav>
+  </header>
 
-<section class="ph-products"><div class="desktop-section-label"><span>02 / PRODUCTS</span><strong>انتخاب‌های منتخب پالاز</strong></div>
-    <div class="container">
-        <div class="ph-section-head"><div><span>محصولات منتخب</span><h2>پرفروش‌ترین‌ها با بهترین قیمت</h2></div><a href="{{ route('shop') }}">مشاهده همه <b>‹</b></a></div>
-        <div class="ph-product-grid">
+  <main>
+    <section class="ref-hero">
+      <div class="ref-hero-bg"></div>
+      <div class="ref-hero-overlay"></div>
+      <div class="ref-wrap ref-hero-content">
+        <div class="ref-hero-copy">
+          <small>PALAZ ONLINE</small>
+          <h1>انتخاب مطمئن<br><em>برای فضای بهتر زندگی</em></h1>
+          <p>محصولات باکیفیت، خدمات حرفه‌ای و اجرای تخصصی؛<br>همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
+          <div class="ref-buttons">
+            <a class="ref-btn red" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a>
+            <a class="ref-btn light" href="{{ route('services',['type'=>'design']) }}">طراحی فضای من <b>←</b></a>
+          </div>
+        </div>
+        <div class="ref-hero-services">
+          <a href="{{ route('shop') }}"><i>♙</i><span><b>خرید محصول</b><small>موکت، لمینیت، کاغذ دیواری و...</small></span><b>›</b></a>
+          <a class="selected" href="{{ route('services',['type'=>'measurement']) }}"><i>⌗</i><span><b>درخواست اندازه‌گیری</b><small>با DTZ</small></span><b>›</b></a>
+          <a href="{{ route('services',['type'=>'installation']) }}"><i>⌁</i><span><b>درخواست نصب</b><small>با DTZ</small></span><b>›</b></a>
+          <a href="{{ route('services',['type'=>'design']) }}"><i>▤</i><span><b>طراحی و محاسبه</b><small>DTZ Tablet</small></span><b>›</b></a>
+        </div>
+      </div>
+      <div class="ref-dots"><b></b><b class="on"></b><b></b></div>
+    </section>
+
+    @php
+      $refImages = [
+        'carpet'=>'https://palazonline.com/storage/uploads/005-1-2.jpg',
+        'laminate'=>'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
+        'spc'=>'https://palazonline.com/storage/uploads/IMG_5777.PNG',
+        'wallpaper'=>'https://palazonline.com/storage/uploads/IMG_5796.jpg',
+        'tile'=>'https://palazonline.com/storage/uploads/4.jpg',
+        'grass'=>'https://palazonline.com/storage/uploads/IMG_5795.PNG',
+      ];
+    @endphp
+
+    <section class="ref-section ref-categories">
+      <div class="ref-wrap">
+        <div class="ref-section-head">
+          <div><small>01 / COLLECTIONS</small><h2>دسته‌بندی محصولات</h2><p>محصول موردنظرت را انتخاب کن</p></div>
+          <a href="{{ route('shop') }}">مشاهده همه محصولات <b>‹</b></a>
+        </div>
+        <div class="ref-category-grid">
+          <a class="ref-category all" href="{{ route('shop') }}"><span>⌘</span><strong>همه محصولات</strong><b>‹</b></a>
+          @foreach($categories as $slug=>$category)
+            <a class="ref-category" href="{{ route('shop',['category'=>$slug]) }}">
+              <img src="{{ $refImages[$slug] ?? $refImages['carpet'] }}" alt="{{ $category['title'] }}" loading="lazy">
+              <div><strong>{{ $category['title'] }}</strong><b>‹</b></div>
+            </a>
+          @endforeach
+        </div>
+      </div>
+    </section>
+
+    <section class="ref-services">
+      <div class="ref-wrap ref-services-layout">
+        <div class="ref-services-intro">
+          <small>خدمات هوشمند پالاز</small>
+          <h2>از انتخاب تا اجرا،<br>با خیال راحت</h2>
+          <p>در تمام مراحل همراه شما هستیم؛ از مشاوره و بازدید تا نصب و پشتیبانی.</p>
+          <a href="{{ route('services') }}" class="ref-btn red">بیشتر بدانید <b>‹</b></a>
+        </div>
+        <div class="ref-service-grid">
+          <a href="{{ route('services',['type'=>'measurement']) }}"><img src="https://palazonline.com/storage/uploads/IMG_5777.PNG" alt="اندازه گیری"><i>⌗</i><h3>اندازه‌گیری دقیق</h3><small>با DTZ</small><b>مشاهده جزئیات ←</b></a>
+          <a href="{{ route('services',['type'=>'installation']) }}"><img src="https://palazonline.com/storage/uploads/IMG_1100-4.PNG" alt="نصب"><i>⌁</i><h3>نصب حرفه‌ای</h3><small>با DTZ</small><b>مشاهده جزئیات ←</b></a>
+          <a href="{{ route('services',['type'=>'design']) }}"><img src="https://palazonline.com/storage/uploads/010-1.jpg" alt="طراحی"><i>▤</i><h3>طراحی و محاسبه</h3><small>DTZ Tablet</small><b>مشاهده جزئیات ←</b></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="ref-section ref-products">
+      <div class="ref-wrap">
+        <div class="ref-section-head product-head">
+          <div><small>02 / PRODUCTS</small><h2>پیشنهادهای منتخب</h2><p>محبوب‌ترین محصولات با بهترین قیمت</p></div>
+          <a href="{{ route('shop') }}">مشاهده همه <b>‹</b></a>
+        </div>
+        <div class="ref-product-layout">
+          <div class="ref-product-grid">
             @foreach($products as $i=>$product)
-                @php $image = $catImages[$product['category']] ?? $catImages['carpet']; @endphp
-                <article class="ph-product">
-                    <a href="{{ route('product',$product['id']) }}" class="ph-product-image"><img src="{{ $image }}" alt="{{ $product['name'] }}" loading="lazy"><button type="button" aria-label="علاقه‌مندی">♡</button></a>
-                    <div class="ph-product-body"><small>{{ $product['category'] }}</small><a href="{{ route('product',$product['id']) }}"><h3>{{ $product['name'] }}</h3></a><p>{{ $product['unit'] }}</p><div class="ph-stars">★★★★★</div><div class="ph-product-bottom"><strong>{{ $product['price'] ? number_format($product['price']).' تومان' : 'تماس بگیرید' }}</strong><form method="POST" action="{{ route('cart.add',$product['id']) }}">@csrf<button type="submit">افزودن به سبد <span>🛒</span></button></form></div></div>
+              @if($i < 5)
+                @php $image = $refImages[$product['category']] ?? $refImages['carpet']; @endphp
+                <article class="ref-product">
+                  <a href="{{ route('product',$product['id']) }}" class="ref-product-image">
+                    <img src="{{ $image }}" alt="{{ $product['name'] }}" loading="lazy"><span>♡</span>
+                  </a>
+                  <div class="ref-product-body">
+                    <small>{{ $product['category'] }}</small>
+                    <h3><a href="{{ route('product',$product['id']) }}">{{ $product['name'] }}</a></h3>
+                    <p>{{ $product['unit'] }}</p>
+                    <div class="ref-stars">★★★★★</div>
+                    <strong>{{ $product['price'] ? number_format($product['price']).' تومان' : 'تماس بگیرید' }}</strong>
+                    <form method="POST" action="{{ route('cart.add',$product['id']) }}">@csrf<button type="submit">افزودن به سبد <span>🛒</span></button></form>
+                  </div>
                 </article>
+              @endif
             @endforeach
+          </div>
+          <a class="ref-product-promo" href="{{ route('services',['type'=>'design']) }}">
+            <div><small>الهام بگیرید</small><h3>کوراسیون<br><em>فضای واقعی</em></h3><p>ایده‌هایی برای یک زندگی زیباتر</p><span>مشاهده پروژه‌ها ←</span></div>
+          </a>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<section class="ph-promo"><div class="desktop-promo-tag">PALAZ DESIGN STUDIO</div>
-    <div class="container ph-promo-inner">
-        <div><span>الهام بگیرید</span><h2>کوراسیون، یعنی ساختن<br><em>فضای واقعی شما</em></h2><p>ایده‌هایی برای یک زندگی زیباتر، با انتخاب درست کفپوش و پوشش دیوار.</p><a href="{{ route('shop') }}" class="ph-white-btn">مشاهده گالری <b>‹</b></a></div>
-    </div>
-</section>
+    <section class="ref-design">
+      <div class="ref-wrap ref-design-inner">
+        <div class="ref-design-image"></div>
+        <div class="ref-design-copy">
+          <small>PALAZ DESIGN STUDIO</small>
+          <h2>فضای خودت را <em>طراحی کن</em></h2>
+          <p>عکس فضای خودت را وارد کن، محصول مناسب را انتخاب کن و نتیجه را قبل از اجرا ببین.</p>
+          <a href="{{ route('services',['type'=>'design']) }}" class="ref-btn red">شروع طراحی <b>‹</b></a>
+        </div>
+      </div>
+    </section>
 
-<section class="ph-trust">
-    <div class="container">
-        <div><b>◈</b><strong>اصالت کالا</strong><small>تضمین کیفیت و اصالت</small></div>
-        <div><b>⌁</b><strong>نصب حرفه‌ای</strong><small>توسط تیم متخصص</small></div>
-        <div><b>⌗</b><strong>اندازه‌گیری دقیق</strong><small>با اپراتورهای مجرب</small></div>
-        <div><b>♧</b><strong>مشاوره تخصصی</strong><small>همیشه در کنار شما</small></div>
-        <div><b>✓</b><strong>پشتیبانی دائمی</strong><small>همراه شما در مسیر</small></div>
+    <section class="ref-trust">
+      <div class="ref-wrap">
+        <div><i>✓</i><span><b>ضمانت کیفیت</b><small>محصولات اصیل و باکیفیت</small></span></div>
+        <div><i>▣</i><span><b>ارسال سریع</b><small>به سراسر کشور</small></span></div>
+        <div><i>♧</i><span><b>مشاوره تخصصی</b><small>پشتیبانی قبل و بعد خرید</small></span></div>
+        <div><i>⌗</i><span><b>اندازه‌گیری دقیق</b><small>توسط کارشناسان مجرب</small></span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="ref-footer">
+    <div class="ref-wrap ref-footer-grid">
+      <div class="ref-footer-brand"><img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE"><p>پالاز، انتخابی مطمئن برای زیبایی و دوام فضای زندگی شما.</p><div>◎　◉　in　◌</div></div>
+      <div><h4>دسته‌بندی محصولات</h4><a href="{{ route('shop',['category'=>'carpet']) }}">موکت</a><a href="{{ route('shop',['category'=>'laminate']) }}">لمینیت</a><a href="{{ route('shop',['category'=>'wallpaper']) }}">کاغذ دیواری</a><a href="{{ route('shop',['category'=>'grass']) }}">چمن مصنوعی</a></div>
+      <div><h4>لینک‌های مفید</h4><a href="{{ route('home') }}">درباره ما</a><a href="{{ route('home') }}">تماس با ما</a><a href="{{ route('services') }}">خدمات</a><a href="{{ route('services') }}">پیگیری سفارش</a></div>
+      <div class="ref-news"><h4>عضویت در خبرنامه</h4><p>برای دریافت جدیدترین محصولات و تخفیف‌ها ایمیل خود را وارد کنید.</p><form><input placeholder="ایمیل خود را وارد کنید"><button>←</button></form></div>
     </div>
-</section>
+    <div class="ref-wrap ref-footer-bottom"><span>© {{ date('Y') }} PALAZ ONLINE. All rights reserved.</span><span>صفحه اصلی　 |　 محصولات　 |　 خدمات　 |　 تماس با ما</span></div>
+  </footer>
 </div>
 @endsection

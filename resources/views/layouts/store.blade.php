@@ -5,7 +5,29 @@
 <meta name="description" content="PALAZ ONLINE — فروشگاه و خدمات تخصصی پالاز">
 <title>@yield('title','PALAZ ONLINE')</title>
 @vite(['resources/css/app.css','resources/js/app.js'])
-</head>
+<style id="palaz-header-rotator">
+@media (min-width:701px){
+.site-header.header-variant-1 .main-nav{background:transparent}
+.site-header.header-variant-2 .main-nav{background:rgba(255,255,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.site-header.header-variant-3 .main-nav{background:linear-gradient(90deg,rgba(255,255,255,.35),rgba(247,245,242,.78),rgba(255,255,255,.35))}
+.site-header.header-variant-2 .nav-inner,.site-header.header-variant-3 .nav-inner{border-color:transparent}
+.site-header.header-variant-2 .nav-inner{box-shadow:0 8px 24px rgba(20,20,20,.04)}
+.site-header.header-variant-3 .nav-inner{box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 6px 20px rgba(20,20,20,.035)}
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ const header=document.querySelector('.site-header');
+ if(!header)return;
+ let v=1;
+ header.classList.add('header-variant-1');
+ setInterval(function(){
+   header.classList.remove('header-variant-1','header-variant-2','header-variant-3');
+   v=v===3?1:v+1;
+   header.classList.add('header-variant-'+v);
+ },5000);
+});
+</script>\n</head>
 <body>
 <div class="palaz-topbar"><div class="container"><span>☎ 021-12345678</span><span>⌖ تهران، جردن، خیابان پالاز</span><b>پشتیبانی ۲۴ ساعته ◔</b></div></div>
 <header class="site-header">

@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Order;
 use App\Models\ServiceRequest;
-use Database\Seeders\StoreCatalogSeeder;
+use App\Seeders\StoreCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

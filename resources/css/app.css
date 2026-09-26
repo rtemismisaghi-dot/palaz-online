@@ -1268,48 +1268,45 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
 
 
 
-/* HEADER SEARCH VERTICAL POSITION FIX - V2 */
-.palaz-reference-home .ref-head-main{
-  height:76px;
-  min-height:76px;
-  display:grid;
-  align-items:center;
-  box-sizing:border-box;
-  padding:0;
-}
-.palaz-reference-home .ref-search{
-  grid-column:2;
-  grid-row:1;
-  align-self:center;
-  justify-self:stretch;
-  position:relative;
-  top:0;
-  transform:none;
-  height:42px;
-  min-height:42px;
-  max-height:42px;
-  margin:0 !important;
-  padding:0 !important;
-  box-sizing:border-box;
-  display:flex;
-  align-items:center;
-}
-.palaz-reference-home .ref-search input{
-  height:40px;
-  min-height:40px;
-  margin:0 !important;
-  padding:0 14px !important;
-  line-height:40px;
-  box-sizing:border-box;
-  transform:none;
-}
-.palaz-reference-home .ref-search button{
-  height:42px;
-  min-height:42px;
-  max-height:42px;
-  margin:0 !important;
-  padding:0 !important;
-  align-self:center;
-  box-sizing:border-box;
-  transform:none;
+/* HEADER SEARCH POSITION FIX - V3 */
+@media (min-width:1101px){
+  .palaz-reference-home .ref-head-main{
+    position:relative;
+    height:76px;
+    min-height:76px;
+    display:grid;
+    align-items:center;
+  }
+  .palaz-reference-home .ref-head-main .ref-search{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:min(680px,calc(100% - 576px));
+    height:42px;
+    min-height:42px;
+    max-height:42px;
+    margin:0 !important;
+    padding:0 !important;
+    transform:translate(-50%,-50%);
+    box-sizing:border-box;
+    display:flex;
+    align-items:center;
+  }
+  .palaz-reference-home .ref-head-main .ref-search input{
+    height:40px;
+    min-height:40px;
+    margin:0 !important;
+    padding:0 14px !important;
+    line-height:40px;
+    box-sizing:border-box;
+  }
+  .palaz-reference-home .ref-head-main .ref-search button{
+    width:45px;
+    height:42px;
+    min-height:42px;
+    max-height:42px;
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing:border-box;
+  }
 }

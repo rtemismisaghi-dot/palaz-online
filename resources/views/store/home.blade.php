@@ -79,14 +79,18 @@
           <div><small>01 / COLLECTIONS</small><h2>دسته‌بندی محصولات</h2><p>محصول موردنظرت را انتخاب کن</p></div>
           <a href="{{ route('shop') }}">مشاهده همه محصولات <b>‹</b></a>
         </div>
-        <div class="ref-category-grid">
+        <div class="ref-category-grid ref-category-grid-full">
           <a class="ref-category all" href="{{ route('shop') }}"><span>⌘</span><strong>همه محصولات</strong><b>‹</b></a>
-          @foreach($categories as $slug=>$category)
-            <a class="ref-category" href="{{ route('shop',['category'=>$slug]) }}">
-              <img src="{{ $refImages[$slug] ?? $refImages['carpet'] }}" alt="{{ $category['title'] }}" loading="lazy">
-              <div><strong>{{ $category['title'] }}</strong><b>‹</b></div>
-            </a>
-          @endforeach
+          <a class="ref-category" href="{{ route('shop',['category'=>'carpet']) }}"><img src="{{ $refImages['carpet'] }}" alt="موکت"><div><strong>موکت</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'laminate']) }}"><img src="{{ $refImages['laminate'] }}" alt="لمینیت"><div><strong>لمینیت</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'spc']) }}"><img src="{{ $refImages['spc'] }}" alt="SPC"><div><strong>SPC</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'wallpaper']) }}"><img src="{{ $refImages['wallpaper'] }}" alt="کاغذ دیواری"><div><strong>کاغذ دیواری</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'tile']) }}"><img src="{{ $refImages['tile'] }}" alt="موکت تایل"><div><strong>موکت تایل</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'grass']) }}"><img src="{{ $refImages['grass'] }}" alt="چمن مصنوعی"><div><strong>چمن مصنوعی</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'parquet']) }}"><img src="{{ $refImages['laminate'] }}" alt="پارکت"><div><strong>پارکت</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'carpet-tile']) }}"><img src="{{ $refImages['tile'] }}" alt="کفپوش ورزشی"><div><strong>کفپوش ورزشی</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop',['category'=>'decorative']) }}"><img src="{{ $refImages['wallpaper'] }}" alt="دکوراسیون"><div><strong>دکوراسیون</strong><b>‹</b></div></a>
+          <a class="ref-category" href="{{ route('shop') }}"><img src="{{ $refImages['carpet'] }}" alt="سایر محصولات"><div><strong>سایر محصولات</strong><b>‹</b></div></a>
         </div>
       </div>
     </section>
@@ -116,7 +120,7 @@
         <div class="ref-product-layout">
           <div class="ref-product-grid">
             @foreach($products as $i=>$product)
-              @if($i < 5)
+              @if($i < 6)
                 @php $image = $refImages[$product['category']] ?? $refImages['carpet']; @endphp
                 <article class="ref-product">
                   <a href="{{ route('product',$product['id']) }}" class="ref-product-image">

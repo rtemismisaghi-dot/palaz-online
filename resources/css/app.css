@@ -197,3 +197,79 @@
   .brand-real{min-width:0;justify-content:center}
   .brand-logo{width:116px;height:auto}
 }
+
+
+/* =========================================================
+   PALAZ ONLINE REFERENCE HOME — desktop / tablet / mobile
+   ========================================================= */
+.palaz-topbar{height:28px;background:#20272c;color:#fff;font-size:10px}
+.palaz-topbar .container{height:28px;display:flex;align-items:center;gap:34px}
+.palaz-topbar b{margin-right:auto;font-weight:500}
+.palaz-home{background:#fff;color:#222}
+.ph-hero{height:430px;position:relative;overflow:hidden;color:#fff;background:#241816}
+.ph-hero-bg{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(12,12,13,.78) 0%,rgba(12,12,13,.08) 52%,rgba(50,4,7,.78) 100%),url('https://palazonline.com/storage/uploads/IMG_5777.PNG');background-size:cover;background-position:center 56%;transform:scale(1.01)}
+.ph-hero-inner{height:100%;position:relative;display:flex;align-items:center;justify-content:space-between}
+.ph-hero-copy{width:47%;text-align:right;margin-right:2%;direction:rtl}
+.ph-hero-copy>span{font-size:10px;letter-spacing:4px}
+.ph-hero-copy h1{font-size:42px;line-height:1.35;margin:12px 0 8px;font-weight:800}
+.ph-hero-copy h1 em{font-style:normal;color:#ed1524}
+.ph-hero-copy p{font-size:13px;line-height:2;color:#eee;max-width:470px;margin:0 0 20px}
+.ph-primary-btn,.ph-white-btn,.ph-outline-btn{display:inline-flex;align-items:center;justify-content:center;gap:24px;border-radius:24px;padding:11px 27px;font-size:12px;font-weight:700}
+.ph-primary-btn{background:#e30b1b;color:#fff}
+.ph-primary-btn b,.ph-white-btn b,.ph-outline-btn b{font-size:20px;line-height:10px}
+.ph-hero-tools{width:240px;display:grid;gap:4px;order:2}
+.ph-tool{height:55px;display:grid;grid-template-columns:34px 1fr 15px;align-items:center;gap:9px;padding:0 13px;border-radius:8px;background:rgba(25,29,32,.88);border:1px solid rgba(255,255,255,.5);color:#fff;backdrop-filter:blur(5px);transition:.2s}
+.ph-tool:hover,.ph-tool.active{background:#e20c1b;border-color:#ff6570;transform:translateX(-3px)}
+.ph-tool-icon{font-size:23px;text-align:center}.ph-tool b{display:block;font-size:12px}.ph-tool small{display:block;font-size:9px;color:#ddd;margin-top:2px}.ph-tool i{font-style:normal;font-size:22px}
+.ph-slider-dots{position:absolute;bottom:13px;right:50%;display:flex;gap:6px;transform:translateX(50%)}.ph-slider-dots i{width:14px;height:5px;border-radius:8px;background:#fff8}.ph-slider-dots i.on{width:24px;background:#e10d1c}
+
+.ph-categories{background:#fff;padding:18px 0 22px;border-bottom:1px solid #eee}
+.ph-category-row{display:grid;grid-template-columns:145px repeat(7,minmax(100px,1fr));gap:10px;align-items:stretch}
+.ph-cat,.ph-all-cat{height:90px;border:1px solid #ece9e6;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 3px 10px #1111110a;position:relative}
+.ph-cat img{display:block;width:100%;height:62px;object-fit:cover}.ph-cat strong{display:block;text-align:center;font-size:11px;padding:6px 3px}
+.ph-cat:hover{border-color:#e11;transform:translateY(-2px);box-shadow:0 10px 20px #11111112}
+.ph-all-cat{display:flex;align-items:center;justify-content:center;gap:8px;background:#fafafa;font-size:11px}.ph-all-cat span{order:2;font-size:22px;color:#999}.ph-all-cat b{font-weight:600}
+
+.ph-services{background:#f5f7f8;padding:24px 0}
+.ph-services>.container{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center}
+.ph-section-intro{padding:0 5px;text-align:right}
+.ph-section-intro>span,.ph-section-head>div>span{display:block;color:#c71928;font-size:11px;font-weight:800}
+.ph-section-intro h2{font-size:25px;margin:7px 0 8px}.ph-section-intro p{font-size:12px;color:#65676a;line-height:1.9;margin:0 0 12px}
+.ph-outline-btn{border:1px solid #d71929;color:#d71929;padding:8px 18px}
+.ph-service-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.ph-service-card{height:155px;position:relative;overflow:hidden;background:#fff;border-radius:10px;box-shadow:0 5px 15px #1111110d;transition:.2s}
+.ph-service-card img{width:100%;height:90px;object-fit:cover;display:block}.ph-service-card:after{content:'';position:absolute;left:0;right:0;top:60px;height:65px;background:linear-gradient(transparent,#fff)}
+.ph-service-card>div{position:absolute;right:16px;bottom:10px;z-index:2}.ph-service-card h3{font-size:15px;margin:0}.ph-service-card small{font-size:10px;color:#777}.ph-service-card b{display:block;color:#d71828;font-size:9px;margin-top:4px}.ph-round-icon{position:absolute;z-index:3;left:13px;top:65px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#e30d1c;color:#fff;font-size:20px;border:4px solid #fff}
+.ph-service-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px #11111118}
+
+.ph-products{padding:28px 0 34px}
+.ph-section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:16px}.ph-section-head h2{font-size:20px;margin:5px 0 0}.ph-section-head>a{color:#d71828;font-size:10px}.ph-product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.ph-product{border:1px solid #e8e4e1;border-radius:7px;overflow:hidden;background:#fff;transition:.2s}.ph-product:hover{transform:translateY(-4px);box-shadow:0 14px 30px #1111}
+.ph-product-image{height:165px;display:block;position:relative;background:#eee;overflow:hidden}.ph-product-image img{width:100%;height:100%;object-fit:cover;transition:.4s}.ph-product:hover .ph-product-image img{transform:scale(1.05)}.ph-product-image button{position:absolute;top:8px;right:8px;width:26px;height:26px;border:1px solid #ddd;border-radius:50%;background:#fff;font-size:16px;color:#444}
+.ph-product-body{padding:9px 10px}.ph-product-body>small{font-size:8px;color:#777}.ph-product-body h3{font-size:11px;margin:4px 0}.ph-product-body p{font-size:9px;color:#888;margin:0}.ph-stars{font-size:9px;color:#ffb400;margin:5px 0}.ph-product-bottom{display:flex;align-items:center;justify-content:space-between;gap:5px}.ph-product-bottom strong{font-size:10px;color:#222}.ph-product-bottom form{margin:0}.ph-product-bottom button{border:0;background:#df0b1b;color:#fff;border-radius:16px;padding:6px 9px;font-size:8px;cursor:pointer}
+
+.ph-promo{height:250px;background-image:linear-gradient(90deg,rgba(20,20,20,.15),rgba(20,20,20,.65)),url('https://palazonline.com/storage/uploads/010-1.jpg');background-size:cover;background-position:center 47%;color:#fff}
+.ph-promo-inner{height:100%;display:flex;align-items:center}.ph-promo-inner>div{margin-right:auto;width:42%;text-align:right}.ph-promo span{font-size:10px;background:#fff;color:#222;padding:4px 9px;border-radius:3px}.ph-promo h2{font-size:27px;line-height:1.4;margin:11px 0}.ph-promo h2 em{font-style:normal;color:#ff1828}.ph-promo p{font-size:11px;line-height:1.9;max-width:400px}.ph-white-btn{background:#fff;color:#222;padding:8px 18px}
+
+.ph-trust{background:#1c252b;color:#fff}.ph-trust>.container{display:grid;grid-template-columns:repeat(5,1fr);min-height:58px}.ph-trust .container>div{display:grid;grid-template-columns:35px 1fr;grid-template-rows:1fr 1fr;align-items:center;padding:8px 18px;border-left:1px solid #343b40}.ph-trust b{grid-row:1/3;color:#e20d1c;font-size:23px;text-align:center}.ph-trust strong{font-size:10px}.ph-trust small{font-size:8px;color:#aab0b4}
+
+.footer{background:#111a20;padding:28px 0 12px}.footer-grid{grid-template-columns:1.5fr 1fr 1fr 1fr 1.6fr;gap:25px}.footer-brand{font-size:24px}.footer-brand span{display:block;font-size:8px;letter-spacing:5px;font-weight:400}.footer p,.footer a{font-size:10px;color:#aeb3b7}.footer h4{font-size:11px}.footer-news form{display:flex;margin-top:10px}.footer-news input{flex:1;min-width:0;border:0;padding:9px;font-size:9px}.footer-news button{width:38px;border:0;background:#df0b1b;color:#fff}.footer-social{font-size:12px;color:#fff;margin-top:15px}.footer-bottom{font-size:8px;margin-top:18px;padding-top:12px}
+
+@media(max-width:1100px){
+ .palaz-topbar .container{width:calc(100% - 30px)}
+ .ph-hero{height:470px}.ph-hero-copy h1{font-size:37px}.ph-category-row{grid-template-columns:110px repeat(5,1fr);overflow:hidden}.ph-cat-extra{display:none}
+ .ph-services>.container{grid-template-columns:1fr}.ph-section-intro{display:flex;align-items:center;gap:20px}.ph-section-intro h2{margin-left:auto}.ph-section-intro p{max-width:280px}.ph-service-cards{grid-template-columns:repeat(3,1fr)}
+ .ph-product-grid{grid-template-columns:repeat(3,1fr)}.ph-product:nth-child(4){display:none}.ph-trust>.container{grid-template-columns:repeat(5,1fr)}
+ .footer-grid{grid-template-columns:repeat(3,1fr)}.footer-news{grid-column:span 2}
+}
+@media(max-width:700px){
+ .palaz-topbar{display:none}.ph-hero{height:500px}.ph-hero-bg{background-position:center;height:100%}.ph-hero-inner{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;padding-bottom:20px}
+ .ph-hero-copy{width:100%;margin:0;padding:0 10px 15px;text-align:right}.ph-hero-copy h1{font-size:29px;line-height:1.35}.ph-hero-copy p{font-size:11px;max-width:290px}.ph-primary-btn{padding:10px 22px}
+ .ph-hero-tools{order:initial;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:auto}.ph-tool{height:62px;padding:0 9px}.ph-tool-icon{font-size:18px}.ph-tool b{font-size:10px}.ph-tool small{font-size:8px}.ph-tool i{display:none}
+ .ph-slider-dots{bottom:8px}.ph-categories{padding:10px 0}.ph-category-row{display:flex;overflow-x:auto;gap:8px;padding-bottom:3px;scrollbar-width:none}.ph-category-row::-webkit-scrollbar{display:none}.ph-all-cat,.ph-cat{flex:0 0 92px;height:82px}.ph-cat img{height:55px}.ph-cat strong{font-size:9px}
+ .ph-services{padding:22px 0}.ph-services>.container{display:block}.ph-section-intro{text-align:center;display:block}.ph-section-intro h2{font-size:21px}.ph-section-intro p{max-width:none;font-size:10px}.ph-outline-btn{margin-bottom:14px}.ph-service-cards{display:flex;overflow-x:auto;gap:10px;padding-bottom:4px}.ph-service-card{flex:0 0 245px;height:150px}
+ .ph-products{padding:24px 0}.ph-section-head h2{font-size:17px}.ph-section-head>a{font-size:9px}.ph-product-grid{grid-template-columns:repeat(2,1fr);gap:8px}.ph-product:nth-child(4){display:block}.ph-product-image{height:150px}.ph-product-body{padding:8px}.ph-product-body h3{font-size:10px}.ph-product-bottom{display:block}.ph-product-bottom strong{display:block;margin-bottom:6px}.ph-product-bottom button{width:100%}
+ .ph-promo{height:220px}.ph-promo-inner>div{width:78%;margin:0 auto;text-align:center}.ph-promo h2{font-size:22px}.ph-promo p{font-size:9px}
+ .ph-trust>.container{grid-template-columns:repeat(2,1fr);min-height:auto}.ph-trust .container>div{padding:8px 10px}.ph-trust .container>div:last-child{grid-column:1/-1}
+ .footer-grid{grid-template-columns:1fr 1fr;gap:18px}.footer-grid>div:first-child,.footer-news{grid-column:1/-1}.footer-bottom{display:block;line-height:2}
+}

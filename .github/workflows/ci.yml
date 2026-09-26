@@ -21,8 +21,7 @@ jobs:
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: cp .env.example .env
       - run: php artisan key:generate
-      - run: printf "APP_ENV=testing\nDB_CONNECTION=sqlite\nDB_DATABASE=:memory:\nCACHE_STORE=array\nSESSION_DRIVER=array\nQUEUE_CONNECTION=sync\n" > .env.testing
-      - run: php artisan key:generate --env=testing
+      - run: printf "APP_KEY=$(grep '^APP_KEY=' .env | cut -d= -f2-)\nAPP_ENV=testing\nDB_CONNECTION=sqlite\nDB_DATABASE=:memory:\nCACHE_STORE=array\nSESSION_DRIVER=array\nQUEUE_CONNECTION=sync\n" > .env.testing
       - run: php artisan test
       - run: php artisan route:list
       - run: php artisan view:cache

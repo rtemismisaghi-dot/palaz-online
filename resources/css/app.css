@@ -1021,3 +1021,200 @@
   .footer{margin-top:0!important;padding:45px 0 15px!important;background:#181818!important}
   .footer-grid{width:min(1320px,calc(100% - 80px))!important}
 }
+
+
+/* COMPLETE REFERENCE HOMEPAGE V3 */
+.palaz-reference-home{--r:#e21d2d;--ink:#15171a;--muted:#777;--line:#e7e7e7;--soft:#f6f7f8;background:#fff;color:var(--ink);overflow:hidden}
+.palaz-reference-home a{text-decoration:none}
+.palaz-reference-home .ref-wrap{width:min(1440px,calc(100% - 80px));margin:auto}
+.palaz-reference-home .ref-topbar{height:28px;background:#172026;color:#ddd;font-size:9px}
+.palaz-reference-home .ref-topbar .ref-wrap{height:28px;display:flex;align-items:center;justify-content:space-between}
+.palaz-reference-home .ref-topbar b{color:#fff}
+.palaz-reference-home .ref-head-main{height:74px;display:grid;grid-template-columns:270px minmax(360px,1fr) 220px;gap:38px;align-items:center;direction:ltr}
+.palaz-reference-home .ref-logo{grid-column:3;justify-self:end}
+.palaz-reference-home .ref-logo img{width:148px;display:block}
+.palaz-reference-home .ref-search{grid-column:2;height:40px;border:1px solid #dedfe1;background:#f8f9fa;display:flex;direction:rtl}
+.palaz-reference-home .ref-search input{flex:1;border:0;background:transparent;outline:0;padding:0 14px;font-size:11px}
+.palaz-reference-home .ref-search button{width:44px;border:0;background:var(--r);color:#fff;font-size:20px}
+.palaz-reference-home .ref-actions{grid-column:1;display:flex;direction:rtl;gap:19px;justify-self:start}
+.palaz-reference-home .ref-actions a{display:flex;align-items:center;gap:6px;font-size:9px;position:relative}
+.palaz-reference-home .ref-actions i{font-style:normal;font-size:19px}
+.palaz-reference-home .ref-cart b,.palaz-reference-home .ref-mobile-cart b{position:absolute;background:var(--r);color:#fff;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:8px;top:-7px;right:-5px}
+.palaz-reference-home .ref-nav{border-top:1px solid #eee;border-bottom:1px solid #eee;background:#fff}
+.palaz-reference-home .ref-nav .ref-wrap{height:43px;display:flex;justify-content:center;align-items:center;gap:43px}
+.palaz-reference-home .ref-nav a{font-size:10px;height:43px;display:flex;align-items:center;border-bottom:2px solid transparent}
+.palaz-reference-home .ref-nav a.active,.palaz-reference-home .ref-nav a:hover{color:var(--r);border-bottom-color:var(--r)}
+.palaz-reference-home .ref-mobile-btn,.palaz-reference-home .ref-mobile-cart{display:none}
+
+.palaz-reference-home .ref-hero{height:440px;position:relative;color:#fff;overflow:hidden}
+.palaz-reference-home .ref-hero-bg{position:absolute;inset:0;background:url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG') center/cover}
+.palaz-reference-home .ref-hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,13,15,.02) 22%,rgba(15,14,13,.18) 48%,rgba(12,9,8,.83) 100%)}
+.palaz-reference-home .ref-hero-content{height:100%;position:relative;display:flex;justify-content:space-between;align-items:center}
+.palaz-reference-home .ref-hero-copy{margin-right:0;width:48%;padding-right:18px;text-align:right}
+.palaz-reference-home .ref-hero-copy>small{letter-spacing:4px;font-size:9px}
+.palaz-reference-home .ref-hero-copy h1{font-size:45px;line-height:1.35;margin:12px 0 12px;font-weight:800}
+.palaz-reference-home .ref-hero-copy h1 em{font-style:normal;color:#ff3343}
+.palaz-reference-home .ref-hero-copy p{font-size:11px;line-height:2;color:#f0f0f0}
+.palaz-reference-home .ref-buttons{display:flex;gap:10px;margin-top:18px}
+.palaz-reference-home .ref-btn{display:inline-flex;align-items:center;justify-content:center;gap:20px;padding:11px 22px;font-size:10px}
+.palaz-reference-home .ref-btn.red{background:var(--r);color:#fff}
+.palaz-reference-home .ref-btn.light{border:1px solid rgba(255,255,255,.8);color:#fff}
+.palaz-reference-home .ref-hero-services{width:235px;display:flex;flex-direction:column;gap:3px}
+.palaz-reference-home .ref-hero-services a{display:grid;grid-template-columns:34px 1fr 15px;align-items:center;gap:8px;min-height:55px;padding:8px 12px;border:1px solid rgba(255,255,255,.45);border-radius:7px;background:rgba(20,24,27,.82);color:#fff;backdrop-filter:blur(4px)}
+.palaz-reference-home .ref-hero-services a.selected{background:var(--r);border-color:#ff6170}
+.palaz-reference-home .ref-hero-services i{font-style:normal;font-size:23px;text-align:center}
+.palaz-reference-home .ref-hero-services span{display:flex;flex-direction:column}
+.palaz-reference-home .ref-hero-services span b{font-size:11px}
+.palaz-reference-home .ref-hero-services span small{font-size:8px;color:#ddd;margin-top:2px}
+.palaz-reference-home .ref-hero-services>a>b{font-size:18px}
+.palaz-reference-home .ref-dots{position:absolute;bottom:13px;left:50%;display:flex;gap:6px}
+.palaz-reference-home .ref-dots b{width:9px;height:4px;border-radius:4px;background:#fff;opacity:.7}
+.palaz-reference-home .ref-dots b.on{background:var(--r);width:18px;opacity:1}
+
+.palaz-reference-home .ref-section{padding:43px 0}
+.palaz-reference-home .ref-section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px}
+.palaz-reference-home .ref-section-head small{display:block;color:#999;font-size:8px;letter-spacing:2px;direction:ltr;text-align:right}
+.palaz-reference-home .ref-section-head h2{font-size:21px;margin:6px 0 0}
+.palaz-reference-home .ref-section-head p{font-size:9px;color:#888;margin:3px 0 0}
+.palaz-reference-home .ref-section-head>a{font-size:9px;color:var(--r)}
+.palaz-reference-home .ref-category-grid{display:grid;grid-template-columns:145px repeat(6,1fr);gap:10px}
+.palaz-reference-home .ref-category{height:126px;border:1px solid #e9eaeb;border-radius:7px;overflow:hidden;position:relative;background:#f4f4f4}
+.palaz-reference-home .ref-category img{width:100%;height:100%;object-fit:cover;display:block}
+.palaz-reference-home .ref-category:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.58))}
+.palaz-reference-home .ref-category>div{position:absolute;z-index:2;right:0;bottom:0;left:0;padding:12px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.palaz-reference-home .ref-category strong{font-size:11px}
+.palaz-reference-home .ref-category>div b{width:22px;height:22px;border-radius:50%;background:#fff;color:#222;display:grid;place-items:center}
+.palaz-reference-home .ref-category.all{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;background:#f7f8f9;color:#15171a}
+.palaz-reference-home .ref-category.all:after{display:none}
+.palaz-reference-home .ref-category.all span{font-size:27px;color:var(--r)}
+.palaz-reference-home .ref-category.all strong{font-size:11px}
+.palaz-reference-home .ref-category.all>b{width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #ddd;display:grid;place-items:center}
+
+.palaz-reference-home .ref-services{background:#f3f6f8;padding:38px 0}
+.palaz-reference-home .ref-services-layout{display:grid;grid-template-columns:300px 1fr;gap:22px;align-items:center}
+.palaz-reference-home .ref-services-intro{padding:0 18px;text-align:right}
+.palaz-reference-home .ref-services-intro small{color:var(--r);font-weight:700;font-size:10px}
+.palaz-reference-home .ref-services-intro h2{font-size:27px;line-height:1.55;margin:7px 0}
+.palaz-reference-home .ref-services-intro p{font-size:10px;line-height:2;color:#777;margin-bottom:18px}
+.palaz-reference-home .ref-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.palaz-reference-home .ref-service-grid>a{position:relative;background:#fff;border-radius:7px;overflow:hidden;min-height:156px;padding-bottom:11px;border:1px solid #e5e7e8}
+.palaz-reference-home .ref-service-grid img{width:100%;height:86px;object-fit:cover;display:block}
+.palaz-reference-home .ref-service-grid i{position:absolute;top:67px;right:12px;width:34px;height:34px;border-radius:50%;background:var(--r);color:#fff;display:grid;place-items:center;font-style:normal;font-size:17px;border:3px solid #fff}
+.palaz-reference-home .ref-service-grid h3{font-size:12px;margin:16px 13px 2px}
+.palaz-reference-home .ref-service-grid small{font-size:8px;color:#777;margin:0 13px}
+.palaz-reference-home .ref-service-grid b{display:block;color:var(--r);font-size:8px;margin:7px 13px 0}
+
+.palaz-reference-home .ref-products{padding-top:38px}
+.palaz-reference-home .ref-product-layout{display:grid;grid-template-columns:1fr 270px;gap:13px}
+.palaz-reference-home .ref-product-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.palaz-reference-home .ref-product{border:1px solid #e5e5e5;border-radius:6px;background:#fff;overflow:hidden}
+.palaz-reference-home .ref-product-image{height:170px;background:#f1f1f1;display:block;position:relative;overflow:hidden}
+.palaz-reference-home .ref-product-image img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.palaz-reference-home .ref-product:hover img{transform:scale(1.04)}
+.palaz-reference-home .ref-product-image span{position:absolute;top:8px;right:8px;background:#fff;border:1px solid #ddd;width:24px;height:24px;border-radius:50%;display:grid;place-items:center}
+.palaz-reference-home .ref-product-body{padding:9px 10px 11px}
+.palaz-reference-home .ref-product-body>small{font-size:7px;color:#777}
+.palaz-reference-home .ref-product-body h3{font-size:10px;margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.palaz-reference-home .ref-product-body p{font-size:7px;color:#888;margin:0 0 4px}
+.palaz-reference-home .ref-stars{color:#f3ad00;font-size:8px;margin-bottom:4px}
+.palaz-reference-home .ref-product-body>strong{display:block;color:var(--r);font-size:10px;margin-bottom:7px}
+.palaz-reference-home .ref-product-body form button{width:100%;height:29px;background:var(--r);border:0;color:#fff;border-radius:4px;font-size:8px;cursor:pointer}
+.palaz-reference-home .ref-product-promo{min-height:268px;border-radius:7px;overflow:hidden;background:linear-gradient(90deg,rgba(0,0,0,.1),rgba(0,0,0,.65)),url('https://palazonline.com/storage/uploads/IMG_5796.jpg') center/cover;position:relative;color:#fff}
+.palaz-reference-home .ref-product-promo>div{position:absolute;inset:0;padding:25px 22px;display:flex;flex-direction:column;justify-content:flex-end}
+.palaz-reference-home .ref-product-promo small{font-size:8px}
+.palaz-reference-home .ref-product-promo h3{font-size:25px;line-height:1.25;margin:7px 0}
+.palaz-reference-home .ref-product-promo h3 em{font-style:normal;color:#ff3140}
+.palaz-reference-home .ref-product-promo p{font-size:9px;margin:0 0 12px}
+.palaz-reference-home .ref-product-promo span{display:inline-flex;width:max-content;border:1px solid #fff;border-radius:15px;padding:6px 14px;font-size:8px}
+
+.palaz-reference-home .ref-design{padding:20px 0 35px}
+.palaz-reference-home .ref-design-inner{height:220px;display:grid;grid-template-columns:1.25fr 1fr;direction:ltr;border-radius:7px;overflow:hidden;background:#f4f4f4}
+.palaz-reference-home .ref-design-image{background:url('https://palazonline.com/storage/uploads/IMG_5796.jpg') center/cover}
+.palaz-reference-home .ref-design-copy{direction:rtl;padding:38px 50px;background:#f5f5f4}
+.palaz-reference-home .ref-design-copy small{font-size:8px;letter-spacing:2px;color:#999}
+.palaz-reference-home .ref-design-copy h2{font-size:28px;margin:10px 0}
+.palaz-reference-home .ref-design-copy h2 em{font-style:normal;color:var(--r)}
+.palaz-reference-home .ref-design-copy p{font-size:9px;line-height:2;color:#777;max-width:380px}
+.palaz-reference-home .ref-trust{background:#f5f7f8;border-top:1px solid #e1e3e5;border-bottom:1px solid #e1e3e5}
+.palaz-reference-home .ref-trust .ref-wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.palaz-reference-home .ref-trust .ref-wrap>div{min-height:72px;display:flex;align-items:center;justify-content:center;gap:10px;border-left:1px solid #ddd}
+.palaz-reference-home .ref-trust i{font-style:normal;color:#222;font-size:22px}
+.palaz-reference-home .ref-trust span{display:flex;flex-direction:column}
+.palaz-reference-home .ref-trust b{font-size:10px}
+.palaz-reference-home .ref-trust small{font-size:7px;color:#777;margin-top:4px}
+.palaz-reference-home .ref-footer{background:#151c22;color:#fff;padding:42px 0 12px}
+.palaz-reference-home .ref-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:50px}
+.palaz-reference-home .ref-footer-brand img{width:105px;filter:brightness(0) invert(1);margin-bottom:12px}
+.palaz-reference-home .ref-footer p,.palaz-reference-home .ref-footer a{display:block;color:#aeb5ba;font-size:8px;line-height:2.2}
+.palaz-reference-home .ref-footer h4{font-size:10px;margin:0 0 10px}
+.palaz-reference-home .ref-news input{height:34px;width:calc(100% - 38px);border:0;padding:0 10px;font-size:9px}
+.palaz-reference-home .ref-news button{width:38px;height:34px;border:0;background:var(--r);color:#fff}
+.palaz-reference-home .ref-footer-bottom{border-top:1px solid #30383e;margin-top:25px;padding-top:10px;display:flex;justify-content:space-between;color:#778087;font-size:7px}
+
+@media (min-width:768px) and (max-width:1100px){
+  .palaz-reference-home .ref-wrap{width:calc(100% - 36px)}
+  .palaz-reference-home .ref-head-main{height:68px;grid-template-columns:150px 1fr 150px;gap:16px}
+  .palaz-reference-home .ref-logo img{width:120px}
+  .palaz-reference-home .ref-actions{gap:10px}.palaz-reference-home .ref-actions a span{display:none}
+  .palaz-reference-home .ref-nav .ref-wrap{gap:22px}
+  .palaz-reference-home .ref-hero{height:390px}
+  .palaz-reference-home .ref-hero-copy{width:54%}.palaz-reference-home .ref-hero-copy h1{font-size:35px}
+  .palaz-reference-home .ref-hero-services{width:200px}
+  .palaz-reference-home .ref-category-grid{grid-template-columns:120px repeat(3,1fr);grid-auto-rows:120px}
+  .palaz-reference-home .ref-category{height:120px}
+  .palaz-reference-home .ref-services-layout{grid-template-columns:1fr}
+  .palaz-reference-home .ref-services-intro{display:flex;align-items:center;gap:18px}.palaz-reference-home .ref-services-intro h2{margin:0}.palaz-reference-home .ref-services-intro p{margin:0}
+  .palaz-reference-home .ref-service-grid{grid-template-columns:repeat(3,1fr)}
+  .palaz-reference-home .ref-product-layout{grid-template-columns:1fr}.palaz-reference-home .ref-product-grid{grid-template-columns:repeat(4,1fr)}.palaz-reference-home .ref-product-promo{min-height:210px}
+  .palaz-reference-home .ref-design-inner{height:210px}
+}
+
+@media (max-width:767px){
+  .palaz-reference-home .ref-wrap{width:calc(100% - 28px)}
+  .palaz-reference-home .ref-topbar,.palaz-reference-home .ref-nav{display:none}
+  .palaz-reference-home .ref-head-main{height:64px;display:grid;grid-template-columns:40px 1fr 40px;gap:4px;direction:ltr;padding:0}
+  .palaz-reference-home .ref-mobile-btn{display:block;grid-column:1;border:0;background:none;font-size:22px;color:#222}
+  .palaz-reference-home .ref-logo{grid-column:2;justify-self:center}
+  .palaz-reference-home .ref-logo img{width:105px}
+  .palaz-reference-home .ref-search,.palaz-reference-home .ref-actions{display:none}
+  .palaz-reference-home .ref-mobile-cart{display:block;grid-column:3;position:relative;font-size:19px;text-align:center}
+  .palaz-reference-home .ref-mobile-cart b{top:-5px;right:0}
+  .palaz-reference-home .ref-hero{height:285px}
+  .palaz-reference-home .ref-hero-bg{background-position:center}
+  .palaz-reference-home .ref-hero-overlay{background:linear-gradient(90deg,rgba(0,0,0,.12),rgba(0,0,0,.72))}
+  .palaz-reference-home .ref-hero-content{display:block}
+  .palaz-reference-home .ref-hero-copy{width:100%;padding:36px 12px 0;text-align:right}
+  .palaz-reference-home .ref-hero-copy>small{font-size:7px}
+  .palaz-reference-home .ref-hero-copy h1{font-size:25px;line-height:1.4;margin:6px 0}
+  .palaz-reference-home .ref-hero-copy p{font-size:8px;line-height:1.9;margin:4px 0;max-width:240px}
+  .palaz-reference-home .ref-buttons{margin-top:9px}.palaz-reference-home .ref-btn{padding:8px 13px;font-size:8px;gap:8px}
+  .palaz-reference-home .ref-hero-services{display:none}
+  .palaz-reference-home .ref-dots{bottom:9px;left:50%}
+  .palaz-reference-home .ref-section{padding:30px 0}
+  .palaz-reference-home .ref-section-head{margin-bottom:13px}.palaz-reference-home .ref-section-head h2{font-size:18px}.palaz-reference-home .ref-section-head p{font-size:7px}
+  .palaz-reference-home .ref-section-head>a{font-size:7px}
+  .palaz-reference-home .ref-category-grid{grid-template-columns:repeat(4,1fr);gap:7px}
+  .palaz-reference-home .ref-category{height:84px;border-radius:6px}
+  .palaz-reference-home .ref-category.all{order:0}
+  .palaz-reference-home .ref-category:nth-child(n+6){display:none}
+  .palaz-reference-home .ref-category>div{padding:7px}.palaz-reference-home .ref-category strong{font-size:8px}.palaz-reference-home .ref-category>div b{width:17px;height:17px;font-size:9px}
+  .palaz-reference-home .ref-category.all span{font-size:18px}.palaz-reference-home .ref-category.all strong{font-size:8px}.palaz-reference-home .ref-category.all>b{width:17px;height:17px}
+  .palaz-reference-home .ref-services{padding:28px 0}
+  .palaz-reference-home .ref-services-layout{display:block}
+  .palaz-reference-home .ref-services-intro{padding:0 4px 17px}.palaz-reference-home .ref-services-intro h2{font-size:21px;margin:5px 0}.palaz-reference-home .ref-services-intro p{font-size:8px;line-height:1.9;margin:0 0 10px}
+  .palaz-reference-home .ref-service-grid{grid-template-columns:1fr 1fr;gap:7px}.palaz-reference-home .ref-service-grid>a{min-height:128px}.palaz-reference-home .ref-service-grid img{height:60px}.palaz-reference-home .ref-service-grid i{top:42px;width:27px;height:27px;font-size:13px}.palaz-reference-home .ref-service-grid h3{font-size:10px;margin:12px 9px 1px}.palaz-reference-home .ref-service-grid small{font-size:7px;margin:0 9px}.palaz-reference-home .ref-service-grid b{font-size:7px;margin:5px 9px}
+  .palaz-reference-home .ref-product-layout{display:block}
+  .palaz-reference-home .ref-product-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .palaz-reference-home .ref-product:nth-child(n+5){display:none}
+  .palaz-reference-home .ref-product-image{height:145px}.palaz-reference-home .ref-product-body{padding:8px}.palaz-reference-home .ref-product-body h3{font-size:9px}.palaz-reference-home .ref-product-body>strong{font-size:9px}.palaz-reference-home .ref-product-body form button{height:28px;font-size:7px}
+  .palaz-reference-home .ref-product-promo{height:150px;min-height:0;margin-top:9px}.palaz-reference-home .ref-product-promo h3{font-size:20px}.palaz-reference-home .ref-product-promo>div{padding:16px}
+  .palaz-reference-home .ref-design{padding:12px 0 25px}.palaz-reference-home .ref-design-inner{height:185px;display:block;position:relative}.palaz-reference-home .ref-design-image{position:absolute;inset:0}.palaz-reference-home .ref-design-inner:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(0,0,0,.7))}
+  .palaz-reference-home .ref-design-copy{position:relative;z-index:2;background:transparent;color:#fff;height:100%;padding:28px 22px}.palaz-reference-home .ref-design-copy small{color:#eee}.palaz-reference-home .ref-design-copy h2{font-size:21px;color:#fff;margin:6px 0}.palaz-reference-home .ref-design-copy p{font-size:8px;color:#eee;max-width:260px}.palaz-reference-home .ref-trust .ref-wrap{grid-template-columns:1fr 1fr}.palaz-reference-home .ref-trust .ref-wrap>div{min-height:62px}.palaz-reference-home .ref-trust i{font-size:17px}.palaz-reference-home .ref-trust b{font-size:8px}.palaz-reference-home .ref-trust small{font-size:6px}
+  .palaz-reference-home .ref-footer{padding:28px 0 10px}.palaz-reference-home .ref-footer-grid{grid-template-columns:1fr 1fr;gap:20px}.palaz-reference-home .ref-footer-brand{grid-column:1/-1}.palaz-reference-home .ref-footer p,.palaz-reference-home .ref-footer a{font-size:7px}.palaz-reference-home .ref-footer h4{font-size:8px}.palaz-reference-home .ref-news{grid-column:1/-1}.palaz-reference-home .ref-footer-bottom{display:block;line-height:2.2;font-size:6px}
+}
+
+/* hide the legacy shared storefront chrome only on the rebuilt homepage */
+body:has(.palaz-reference-home)>.palaz-topbar,
+body:has(.palaz-reference-home)>.site-header,
+body:has(.palaz-reference-home)>.footer{display:none!important}
+body:has(.palaz-reference-home)>.flash{z-index:100}

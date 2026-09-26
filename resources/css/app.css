@@ -273,3 +273,11 @@
  .ph-trust>.container{grid-template-columns:repeat(2,1fr);min-height:auto}.ph-trust .container>div{padding:8px 10px}.ph-trust .container>div:last-child{grid-column:1/-1}
  .footer-grid{grid-template-columns:1fr 1fr;gap:18px}.footer-grid>div:first-child,.footer-news{grid-column:1/-1}.footer-bottom{display:block;line-height:2}
 }
+
+/* PALAZ PRODUCT IMAGES / source imagery */
+.product-detail-carpet{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/005-1-2.jpg')}
+.product-detail-laminate{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')}
+.product-detail-spc{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_5777.PNG')}
+.product-detail-wallpaper{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_5796.jpg')}
+.product-detail-tile{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/4.jpg')}
+.product-detail-grass{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_5795.PNG')}

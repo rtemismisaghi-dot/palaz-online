@@ -1,0 +1,5 @@
+@extends('layouts.store')
+@section('title','سفارش ثبت شد | PALAZ ONLINE')
+@section('content')
+<section class="section order-success"><div class="container"><div class="success-card"><span class="success-mark">✓</span><span class="eyebrow">ORDER RECEIVED</span><h1>سفارش شما ثبت شد.</h1><p>اطلاعات سفارش دریافت شد و برای ادامه بررسی آماده است.</p><div class="tracking-box"><small>کد پیگیری</small><strong>{{ $order['tracking_code'] }}</strong></div><div class="success-meta"><span><b>وضعیت</b>دریافت شد</span><span><b>پرداخت</b>پس از تأیید سفارش</span><span><b>خدمات</b>{{ ['none'=>'بدون خدمات','measurement'=>'اندازه‌گیری','installation'=>'نصب','design'=>'طراحی و محاسبه'][$order['service']] ?? 'بدون خدمات' }}</span></div><a class="btn btn-primary" href="{{ route('shop') }}">ادامه خرید ←</a></div></div></section>
+@endsection

@@ -281,3 +281,69 @@
 .product-detail-wallpaper{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_5796.jpg')}
 .product-detail-tile{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/4.jpg')}
 .product-detail-grass{background-image:linear-gradient(180deg,#00000008,#00000035),url('https://palazonline.com/storage/uploads/IMG_5795.PNG')}
+
+
+/* REFERENCE POLISH — final responsive pass */
+.palaz-home{direction:rtl}
+.ph-hero,.ph-categories,.ph-services,.ph-products,.ph-promo,.ph-trust{direction:rtl}
+.ph-hero-bg{background-position:center 50%;will-change:transform}
+.ph-hero-copy{max-width:590px}
+.ph-hero-tools{direction:rtl}
+.ph-tool{direction:rtl}
+.ph-tool i{transform:scaleX(-1)}
+.ph-category-row{direction:rtl}
+.ph-all-cat,.ph-cat{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.ph-services .container,.ph-section-intro,.ph-section-head,.ph-product-body,.ph-promo-inner{direction:rtl}
+.ph-service-card{direction:rtl}
+.ph-service-card>div{text-align:right}
+.ph-products .container{overflow:visible}
+.ph-product{min-width:0}
+.ph-product-image img{object-position:center}
+.ph-product-body h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-promo-inner>div{max-width:520px}
+.ph-trust .container>div:last-child{border-left:0}
+
+@media (min-width:1101px){
+  .ph-hero{height:450px}
+  .ph-hero-inner{max-width:1320px}
+  .ph-hero-copy h1{font-size:44px}
+  .ph-hero-tools{width:255px}
+  .ph-tool{height:58px}
+  .ph-category-row{grid-template-columns:150px repeat(7,minmax(105px,1fr))}
+  .ph-product-image{height:185px}
+}
+
+@media (min-width:701px) and (max-width:1100px){
+  .ph-hero{height:430px}
+  .ph-hero-inner{padding-inline:15px}
+  .ph-hero-copy{width:52%}
+  .ph-hero-tools{width:220px}
+  .ph-tool{height:54px}
+  .ph-category-row{grid-template-columns:115px repeat(5,minmax(100px,1fr));overflow-x:auto;scrollbar-width:none}
+  .ph-category-row::-webkit-scrollbar{display:none}
+  .ph-service-card{height:165px}
+  .ph-product-image{height:175px}
+}
+
+@media (max-width:700px){
+  .ph-hero{height:540px}
+  .ph-hero-inner{padding-inline:14px}
+  .ph-hero-copy{padding-inline:2px}
+  .ph-hero-copy>span{font-size:9px}
+  .ph-hero-copy h1{font-size:28px}
+  .ph-hero-copy p{max-width:100%;font-size:10px}
+  .ph-hero-tools{grid-template-columns:1fr 1fr}
+  .ph-tool{height:64px;border-radius:7px}
+  .ph-categories{border-bottom:1px solid #e7e2de}
+  .ph-category-row{padding-inline:14px}
+  .ph-services .container,.ph-products .container,.ph-promo .container{width:calc(100% - 24px)}
+  .ph-section-head{align-items:center}
+  .ph-section-head h2{font-size:16px}
+  .ph-product-image{height:145px}
+  .ph-promo-inner>div{width:100%;max-width:330px}
+  .ph-trust .container>div{min-height:64px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ph-cat,.ph-service-card,.ph-product,.ph-product-image img,.ph-tool{transition:none!important}
+}

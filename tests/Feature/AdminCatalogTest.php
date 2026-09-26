@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use Database\Seeders\StoreCatalogSeeder;
+use App\Seeders\StoreCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -3,7 +3,10 @@
 @section('content')
 <div class="palaz-home">
 <section class="ph-hero">
-    <div class="ph-hero-bg ph-hero-bg-a"></div><div class="ph-hero-bg ph-hero-bg-b"></div>
+    <div class="ph-hero-bg ph-hero-bg-1"></div>
+    <div class="ph-hero-bg ph-hero-bg-2"></div>
+    <div class="ph-hero-bg ph-hero-bg-3"></div>
+    <div class="ph-hero-bg ph-hero-bg-4"></div>
     <div class="container ph-hero-inner">
         <div class="ph-hero-tools">
             <a href="{{ route('shop') }}" class="ph-tool"><span class="ph-tool-icon">▣</span><span><b>خرید محصول</b><small>موکت، لمینیت، کاغذدیواری و...</small></span><i>‹</i></a>
@@ -19,38 +22,6 @@
         </div>
     </div>
     <div class="ph-slider-dots"><i class="on"></i><i></i><i></i><i></i></div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function(){
-        const hero = document.querySelector('.ph-hero');
-        if (!hero) return;
-        const layers = hero.querySelectorAll('.ph-hero-bg');
-        const dots = hero.querySelectorAll('.ph-slider-dots i');
-        const images = [
-            'https://palazonline.com/storage/uploads/IMG_5777.PNG',
-            'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
-            'https://palazonline.com/storage/uploads/IMG_5796.jpg',
-            'https://palazonline.com/storage/uploads/005-1-2.jpg'
-        ];
-        let index = 0;
-        let visible = 0;
-        images.forEach(function(src){
-            const img = new Image();
-            img.src = src;
-        });
-        layers[0].style.backgroundImage = "linear-gradient(90deg,rgba(12,12,13,.78) 0%,rgba(12,12,13,.08) 52%,rgba(50,4,7,.78) 100%),url('" + images[0] + "')";
-        layers[1].style.backgroundImage = "linear-gradient(90deg,rgba(12,12,13,.78) 0%,rgba(12,12,13,.08) 52%,rgba(50,4,7,.78) 100%),url('" + images[1] + "')";
-        layers[1].classList.add('is-hidden');
-        setInterval(function(){
-            index = (index + 1) % images.length;
-            const next = visible === 0 ? 1 : 0;
-            layers[next].style.backgroundImage = "linear-gradient(90deg,rgba(12,12,13,.78) 0%,rgba(12,12,13,.08) 52%,rgba(50,4,7,.78) 100%),url('" + images[index] + "')";
-            layers[next].classList.remove('is-hidden');
-            layers[visible].classList.add('is-hidden');
-            visible = next;
-            dots.forEach(function(dot, i){ dot.classList.toggle('on', i === index); });
-        }, 4000);
-    });
-    </script>
 </section>
 
 <section class="ph-categories">

@@ -13,8 +13,10 @@
         </div>
         <div class="ph-hero-copy">
             <span>PALAZ ONLINE</span>
-            <h1>انتخابی مطمئن<br>برای <em>فضای بهتر زندگی</em></h1>
-            <p>از خرید محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
+            <h1 class="desktop-hero-title">فضای خانه‌ات را<br><em>از اینجا شروع کن</em></h1>
+            <h1 class="mobile-hero-title">انتخابی مطمئن<br>برای <em>فضای بهتر زندگی</em></h1>
+            <p class="desktop-hero-copy">موکت، لمینیت، کاغذ دیواری و ...<br>انتخاب کن، فضای خودت را ببین و سفارش بده.</p>
+            <p class="mobile-hero-copy">از خرید محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
             <a class="ph-primary-btn" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a>
         </div>
     </div>

@@ -90,7 +90,46 @@ document.addEventListener('DOMContentLoaded',function(){
    header.classList.add('header-variant-'+v);
  },5000);
 });
-</script>\n</head>
+</script>\n<style id="palaz-header-logo-final">
+@media (min-width:1101px){
+  .site-header,
+  .site-header .header-main,
+  .site-header .brand-real{
+    overflow:visible!important;
+  }
+  .site-header .header-main{
+    position:relative!important;
+    z-index:60!important;
+  }
+  .site-header .brand-real{
+    position:relative!important;
+    z-index:70!important;
+    width:276px!important;
+    min-width:276px!important;
+    height:60px!important;
+    justify-self:end!important;
+    align-self:center!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+  }
+  .site-header .brand-logo{
+    position:relative!important;
+    z-index:71!important;
+    display:block!important;
+    width:276px!important;
+    height:60px!important;
+    max-width:none!important;
+    max-height:none!important;
+    min-width:276px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    margin:0!important;
+    transform:none!important;
+  }
+}
+</style>
+</head>
 <body>
 <div class="palaz-topbar"><div class="container"><span>☎ 021-12345678</span><span>⌖ تهران، جردن، خیابان پالاز</span><b>پشتیبانی ۲۴ ساعته ◔</b></div></div>
 <header class="site-header">

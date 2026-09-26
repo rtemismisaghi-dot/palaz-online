@@ -784,3 +784,55 @@
   .footer-social{font-size:13px!important}
   .footer-bottom{font-size:8px!important;color:#858b90!important;border-color:#30353a!important}
 }
+
+/* RADICAL DESKTOP HOMEPAGE — full visual reset */
+@media (min-width:1101px){
+  body:has(.palaz-home){background:#fff}
+  .desktop-section-label{width:min(1410px,calc(100% - 64px));margin:0 auto 18px;display:flex;align-items:end;justify-content:space-between;direction:rtl}
+  .desktop-section-label span{font-size:9px;letter-spacing:2px;color:#a2a2a2;direction:ltr}
+  .desktop-section-label strong{font-size:25px;font-weight:800;color:#171717}
+  .ph-categories{padding-top:34px!important}
+  .ph-category-row{height:154px!important;grid-template-columns:170px repeat(5,minmax(0,1fr))!important;gap:12px!important}
+  .ph-all-cat,.ph-cat{height:154px!important;border-radius:0!important}
+  .ph-all-cat{background:#17191b!important;color:#fff!important;justify-content:flex-end!important;align-items:flex-start!important;padding:20px!important;position:relative}
+  .ph-all-cat:before{content:'PALAZ';position:absolute;top:17px;right:20px;font-size:10px;letter-spacing:3px;color:#d7192b}
+  .ph-all-cat span{color:#fff!important;font-size:30px!important;align-self:flex-end}
+  .ph-all-cat b{font-size:14px!important}
+  .ph-cat{border:0!important;background:#f3f3f1!important;position:relative!important;justify-content:flex-end!important}
+  .ph-cat:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.58));pointer-events:none}
+  .ph-cat img{height:154px!important;position:absolute!important;inset:0!important;object-fit:cover!important;filter:saturate(.85)!important;transition:.35s}
+  .ph-cat:hover img{transform:scale(1.06)}
+  .ph-cat strong{position:relative!important;z-index:2;color:#fff!important;text-shadow:0 1px 10px #000!important;font-size:15px!important;padding:16px!important;align-self:flex-start!important}
+  .ph-products{padding-top:0!important}
+  .ph-section-head{border-bottom:1px solid #dedede;padding-bottom:14px}
+  .ph-product-grid{gap:10px!important}
+  .ph-product{border:0!important;background:#f7f7f5!important;border-radius:0!important}
+  .ph-product-image{height:235px!important;background:#ececea!important}
+  .ph-product-image img{transition:.4s!important}
+  .ph-product:hover .ph-product-image img{transform:scale(1.035)}
+  .ph-product-body{padding:16px!important;background:#fff}
+  .ph-product-body h3{font-size:13px!important}
+  .ph-product-bottom button{background:#17191b!important;border-radius:0!important;height:36px!important}
+  .ph-product-bottom button:hover{background:var(--palaz-red)!important}
+  .ph-promo{position:relative!important;height:275px!important;margin-top:20px!important;border-radius:0!important}
+  .desktop-promo-tag{position:absolute;top:22px;right:28px;z-index:3;font-size:9px;letter-spacing:3px;color:#fff;background:#17191b;padding:8px 13px}
+  .ph-promo-inner>div{background:#fff;padding:28px 32px!important;width:43%!important;max-width:510px!important;margin-right:0!important;box-shadow:0 12px 45px #00000012}
+  .ph-promo h2{font-size:32px!important}
+  .ph-trust{margin-top:20px!important;border-top:1px solid #ddd;border-bottom:1px solid #ddd}
+  .ph-trust>.container{min-height:92px!important}
+  .footer{margin-top:0!important;padding-top:48px!important}
+  .ph-hero{height:520px!important;background:#191a1c!important}
+  .ph-hero-bg{background-image:linear-gradient(90deg,rgba(0,0,0,.02) 20%,rgba(0,0,0,.22) 48%,rgba(0,0,0,.9) 100%),url('https://palazonline.com/storage/uploads/IMG_1100-4.PNG')!important;background-position:center!important}
+  .ph-hero-inner{width:min(1410px,calc(100% - 64px))!important}
+  .ph-hero-copy{width:54%!important;max-width:690px!important;padding-top:104px!important}
+  .desktop-kicker{display:block!important;color:#fff!important;font-size:9px!important;letter-spacing:4px!important;margin-bottom:20px!important;opacity:.72}
+  .ph-hero-copy h1{font-size:62px!important;line-height:1.16!important;letter-spacing:-1.4px!important;margin-bottom:18px!important}
+  .ph-hero-copy p{font-size:15px!important;max-width:540px!important;line-height:2.1!important;opacity:.9}
+  .desktop-hero-actions{display:flex;gap:10px;align-items:center}
+  .desktop-hero-secondary{border:1px solid rgba(255,255,255,.55);color:#fff;padding:10px 23px;border-radius:4px;font-size:11px}
+  .desktop-hero-meta{display:flex;gap:38px;margin-top:54px;border-top:1px solid rgba(255,255,255,.25);padding-top:17px;width:500px}
+  .desktop-hero-meta div{display:flex;flex-direction:column;gap:3px}
+  .desktop-hero-meta b{color:#fff;font-size:13px}
+  .desktop-hero-meta span{color:#ddd;font-size:9px}
+  .ph-slider-dots{left:0!important;bottom:27px!important}
+}

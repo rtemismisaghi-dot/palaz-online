@@ -112,7 +112,8 @@ document.addEventListener('DOMContentLoaded',function(){
     align-self:center!important;
     display:flex!important;
     align-items:center!important;
-    justify-content:flex-end!important;
+    justify-content:flex-start!important;
+    transform:translate(18px,10px)!important;
   }
   .site-header .brand-logo{
     position:relative!important;

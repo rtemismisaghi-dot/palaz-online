@@ -20,7 +20,7 @@ class StoreTest extends TestCase
 
     public function test_home_page_loads(): void
     {
-        $this->get('/')->assertOk()->assertSee('PALAZ ONLINE')->assertSee('دسته‌بندی‌ها');
+        $this->get('/')->assertOk()->assertSee('PALAZ ONLINE')->assertSee('دسته‌بندی محصولات');
     }
 
     public function test_shop_can_filter_by_category(): void

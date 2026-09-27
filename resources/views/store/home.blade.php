@@ -224,7 +224,7 @@
 .palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,20,20,.18)}
 .palaz-advisor-shortcut-icon{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#b71929,#8e1420);color:#fff;display:grid;place-items:center;position:relative;box-shadow:0 6px 14px rgba(183,25,41,.22)}
 .palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:15px;animation:palazAdvisorRing 2.2s ease-out infinite}
-.palaz-advisor-shortcut-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.palaz-advisor-shortcut-icon img{width:24px;height:24px;object-fit:contain;display:block;filter:brightness(0) invert(1)}
 @keyframes palazAdvisorPulse{0%,100%{box-shadow:0 10px 30px rgba(20,20,20,.14)}50%{box-shadow:0 10px 30px rgba(183,25,41,.24)}}
 @keyframes palazAdvisorRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.35);opacity:0}}
 @media(max-width:1100px){.palaz-advisor-shortcut{right:18px;top:84px}.palaz-advisor-shortcut>span:last-child{display:inline}}
@@ -352,8 +352,8 @@
         <a href="{{ route('cart') }}" class="ref-cart"><i>🛒</i><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
       </div>
       <button class="palaz-advisor-shortcut" type="button" aria-label="باز کردن مشاور هوشمند پالاز" aria-controls="palaz-advisor-panel" aria-expanded="false">
-        <span class="palaz-advisor-shortcut-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false"><path d="M6 7.2A3.2 3.2 0 0 1 9.2 4h5.6A3.2 3.2 0 0 1 18 7.2v5.1a3.2 3.2 0 0 1-3.2 3.2h-2.3l-2.9 2.2.6-2.2H9.2A3.2 3.2 0 0 1 6 12.3Z"/><path d="M9.2 10.2h.01M12 10.2h.01M14.8 10.2h.01"/><path d="M17.8 5.2l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5.5-1.1Z"/></svg>
+        <span class="palaz-advisor-shortcut-icon palaz-advisor-palaz-mark" aria-hidden="true">
+          <img src="{{ asset('images/palaz-p-mark.png') }}" alt="" loading="eager">
         </span>
         <span>مشاور هوشمند</span>
       </button>

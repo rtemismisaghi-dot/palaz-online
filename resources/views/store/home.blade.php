@@ -149,6 +149,21 @@
 .palaz-experience .px-pill.active{border-color:#b71929;color:#b71929;background:#fff7f8}
 .palaz-experience .px-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}
 .palaz-experience .px-quick a{padding:15px;border:1px solid #e7e4df;border-radius:16px;background:#fff;text-decoration:none;color:#292c30}
+
+.palaz-experience .px-visualizer-shell{position:relative}
+.palaz-experience .px-visualizer-preview{display:flex;align-items:center;justify-content:center;background-image:url('https://palazonline.com/storage/uploads/005-1-2.jpg');background-position:center;background-size:cover;transition:background-image .25s ease}
+.palaz-experience .px-preview-empty{position:relative;z-index:3;width:min(330px,calc(100% - 40px));padding:28px 24px;text-align:center;border:1px solid rgba(255,255,255,.55);border-radius:22px;background:rgba(255,255,255,.88);box-shadow:0 18px 45px rgba(0,0,0,.12);backdrop-filter:blur(8px)}
+.palaz-experience .px-preview-empty>span{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 12px;border-radius:50%;background:#b71929;color:#fff;font-size:25px}
+.palaz-experience .px-preview-empty strong{display:block;color:#25282c;font-size:17px;margin-bottom:5px}
+.palaz-experience .px-preview-empty small{display:block;color:#777;line-height:1.8;margin-bottom:16px}
+.palaz-experience .px-upload-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 18px;border-radius:12px;background:#25282c;color:#fff;font-weight:800;font-size:12px;cursor:pointer}
+.palaz-experience .px-preview-badge{position:absolute;z-index:4;left:18px;top:18px;padding:7px 10px;border-radius:999px;background:rgba(0,0,0,.52);color:#fff;font-size:9px;font-weight:900;letter-spacing:.12em}
+.palaz-experience .px-visualizer-pills button{font:inherit;cursor:pointer}
+.palaz-experience .px-visualizer-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 20px;padding:11px 13px;border:1px solid #e8e4df;border-radius:13px;background:#fff}
+.palaz-experience .px-visualizer-status>span{width:8px;height:8px;border-radius:50%;background:#b71929}
+.palaz-experience .px-visualizer-status b{font-size:12px;color:#333}
+.palaz-experience .px-visualizer-status small{width:100%;padding-right:16px;color:#888;font-size:10px}
+@media(max-width:900px){.palaz-experience .px-visualizer-preview{min-height:320px}}
 .palaz-experience .px-quick b{display:block;margin-bottom:4px}
 .palaz-experience .px-quick span{font-size:11px;color:#888}
 .palaz-experience .px-connected{padding:8px 0 58px}
@@ -372,21 +387,76 @@
 
       <section class="px-tools" id="visualizer">
         <div class="px-wrap">
-          <div class="px-tool-shell">
-            <div class="px-tool-image" role="img" aria-label="پیش‌نمایش فضای داخلی"></div>
+          <div class="px-tool-shell px-visualizer-shell">
+            <div class="px-tool-image px-visualizer-preview" role="img" aria-label="پیش‌نمایش فضای انتخابی">
+              <div class="px-preview-empty">
+                <span>＋</span>
+                <strong>عکس فضای خودت را اضافه کن</strong>
+                <small>یک عکس از پذیرایی، اتاق یا دفترت انتخاب کن</small>
+                <label class="px-upload-btn">انتخاب عکس<input id="px-space-upload" type="file" accept="image/*" hidden></label>
+              </div>
+              <div class="px-preview-badge">PREVIEW</div>
+            </div>
             <div class="px-tool-copy">
               <span class="px-kicker">02 / VISUALIZER</span>
               <h2 class="px-title">قبل از انتخاب،<br>ببین.</h2>
-              <p class="px-sub">ایده تصویرسازی پالاز از همین‌جا شروع می‌شود: یک فضا، چند انتخاب و مقایسه‌ای که تصمیم را راحت‌تر می‌کند.</p>
-              <div class="px-pills"><span class="px-pill active">موکت</span><span class="px-pill">لمینیت</span><span class="px-pill">SPC</span><span class="px-pill">کفپوش</span></div>
-              <a class="px-btn red" href="{{ route('services',['type'=>'design']) }}">شروع طراحی فضای من ←</a>
+              <p class="px-sub">عکس فضای خودت را وارد کن و نوع کف‌پوش را انتخاب کن تا اولین پیش‌نمایش را همین‌جا ببینی.</p>
+              <div class="px-pills px-visualizer-pills">
+                <button type="button" class="px-pill active" data-surface="carpet">موکت</button>
+                <button type="button" class="px-pill" data-surface="laminate">لمینیت</button>
+                <button type="button" class="px-pill" data-surface="spc">SPC</button>
+                <button type="button" class="px-pill" data-surface="floor">کفپوش</button>
+              </div>
+              <div class="px-visualizer-status"><span></span><b>آماده برای انتخاب</b><small>پیش‌نمایش اولیه؛ موتور تصویرسازی پیشرفته بعداً متصل می‌شود.</small></div>
+              <a class="px-btn red" href="{{ route('services',['type'=>'design']) }}">ادامه طراحی فضای من ←</a>
               <div class="px-quick">
-                <a href="{{ route('services',['type'=>'design']) }}"><b>📷 عکس فضای من</b><span>در نسخه بعدی تصویرسازی روی عکس واقعی فعال می‌شود.</span></a>
-                <a href="{{ route('shop') }}"><b>🧩 انتخاب محصول</b><span>از کاتالوگ پالاز شروع کن.</span></a>
+                <a href="{{ route('shop') }}"><b>🧩 انتخاب محصول</b><span>بعد از پیش‌نمایش، محصول واقعی را انتخاب کن.</span></a>
+                <a href="{{ route('services',['type'=>'measurement']) }}"><b>⌗ درخواست اندازه‌گیری</b><span>اگر آماده اجرا هستی، اندازه‌گیری را ثبت کن.</span></a>
               </div>
             </div>
           </div>
         </div>
+        <script>
+          (() => {
+            const root = document.querySelector('.palaz-reference-home #visualizer');
+            if (!root) return;
+            const preview = root.querySelector('.px-visualizer-preview');
+            const empty = root.querySelector('.px-preview-empty');
+            const upload = root.querySelector('#px-space-upload');
+            const pills = [...root.querySelectorAll('[data-surface]')];
+            const status = root.querySelector('.px-visualizer-status');
+            const surfaces = {
+              carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
+              laminate: 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
+              spc: 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
+              floor: 'https://palazonline.com/storage/uploads/IMG_5796.jpg'
+            };
+            let uploadedUrl = '';
+            const applySurface = (key) => {
+              pills.forEach(p => p.classList.toggle('active', p.dataset.surface === key));
+              if (uploadedUrl) {
+                preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08)),url('${uploadedUrl}')`;
+                preview.dataset.surface = key;
+                status.querySelector('b').textContent = 'فضای شما آماده پیش‌نمایش است';
+              } else {
+                preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url('${surfaces[key]}')`;
+                empty.style.display = 'none';
+                status.querySelector('b').textContent = 'نمونه فضای انتخاب‌شده';
+              }
+            };
+            pills.forEach(p => p.addEventListener('click', () => applySurface(p.dataset.surface)));
+            upload?.addEventListener('change', e => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
+              uploadedUrl = URL.createObjectURL(file);
+              preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.12)),url('${uploadedUrl}')`;
+              empty.style.display = 'none';
+              status.querySelector('b').textContent = 'عکس شما آماده پیش‌نمایش است';
+              status.querySelector('small').textContent = 'حالا نوع کف‌پوش را انتخاب کن.';
+            });
+          })();
+        </script>
       </section>
 
       <section class="px-connected" id="tour">

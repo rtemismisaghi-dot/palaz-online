@@ -6,7 +6,7 @@
   <header class="ref-header">
     <div class="ref-topbar">
       <div class="ref-wrap">
-        <span>☎ 021-12345678</span>
+        <span>☎ 75332</span>
         <span>⌖ تهران، جردن، خیابان پالاز</span>
         <b>پشتیبانی ۲۴ ساعته ◔</b>
       </div>

@@ -1723,3 +1723,92 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
   .site-header .nav-dropdown{display:none}
   .site-header .mega{display:none}
 }
+
+/* HEADER OVERLAP + DIVIDER FIX */
+@media (min-width:1101px){
+  .palaz-reference-home .ref-header{
+    position:relative;
+    z-index:30;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-head-main{
+    position:relative;
+    height:76px;
+    min-height:76px;
+    display:grid!important;
+    grid-template-columns:260px minmax(420px,680px) 260px!important;
+    grid-template-areas:"actions search logo"!important;
+    align-items:center;
+    gap:28px;
+    direction:ltr;
+    overflow:visible!important;
+  }
+  .palaz-reference-home .ref-logo{
+    grid-area:logo!important;
+    justify-self:end;
+    align-self:center;
+    width:158px;
+    min-width:158px;
+    height:auto;
+    position:relative;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    overflow:visible!important;
+  }
+  .palaz-reference-home .ref-logo img{
+    display:block;
+    width:158px!important;
+    height:auto!important;
+    max-width:none!important;
+    object-fit:contain;
+    object-position:center;
+  }
+  .palaz-reference-home .ref-search{
+    grid-area:search!important;
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:680px;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    z-index:2;
+    overflow:hidden;
+  }
+  .palaz-reference-home .ref-search input{
+    flex:1 1 auto;
+    width:auto!important;
+    height:40px!important;
+    min-height:40px!important;
+    margin:0!important;
+    padding:0 14px!important;
+    line-height:40px!important;
+  }
+  .palaz-reference-home .ref-search button{
+    flex:0 0 45px;
+    width:45px!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .palaz-reference-home .ref-actions{
+    grid-area:actions!important;
+    width:100%;
+    min-width:0;
+    justify-content:flex-start;
+    position:relative;
+    z-index:5;
+  }
+  .palaz-reference-home .ref-nav{
+    border:0!important;
+    box-shadow:none!important;
+  }
+}

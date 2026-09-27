@@ -341,7 +341,7 @@ class StoreController extends Controller
             if ($product['name'] && str_contains($text, mb_strtolower($product['name']))) {
                 $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']])];
             } elseif (str_contains($text, 'لمینت') && str_contains($haystack, 'laminate')) {
-                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']]);
+                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']])];
             }
             if (count($actions) >= 3) break;
         }

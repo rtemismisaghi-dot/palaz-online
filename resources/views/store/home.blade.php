@@ -172,7 +172,7 @@
 .palaz-experience .px-connected-card.light{background:#f7f5f2;color:#25282c}
 .palaz-experience .px-tour-card{background:#111!important;padding:0!important;min-height:250px;position:relative;isolation:isolate;}
 .palaz-experience .px-tour-card iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;transform:scale(1.02);transform-origin:center;z-index:0;}
-.palaz-experience .px-tour-card:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.08) 68%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 45%);z-index:1;pointer-events:none;}
+
 .palaz-experience .px-tour-card .px-tour-content{position:relative;z-index:2;pointer-events:none;padding:30px;max-width:70%;}
 .palaz-experience .px-tour-card .px-tour-content .px-icon,.palaz-experience .px-tour-card .px-tour-content .px-kicker,.palaz-experience .px-tour-card .px-tour-content h3,.palaz-experience .px-tour-card .px-tour-content p{pointer-events:none;}
 .palaz-experience .px-tour-card .px-btn{z-index:3;}

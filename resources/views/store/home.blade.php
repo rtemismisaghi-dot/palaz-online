@@ -191,12 +191,24 @@
 
 @media (min-width:1101px){
   .palaz-reference-home .ref-head-main{padding-right:0!important;padding-left:0!important;}
-  .palaz-reference-home .ref-logo{
+  .palaz-reference-home .ref-logo-clean{
     display:flex!important;align-items:center!important;justify-content:flex-start!important;
-    position:absolute!important;right:0!important;top:8px!important;transform:none!important;
-    width:276px!important;height:60px!important;min-width:276px!important;text-decoration:none!important;z-index:10!important;overflow:visible!important;background:transparent!important;padding:0!important;box-sizing:border-box!important;isolation:auto!important;
+    position:absolute!important;right:0!important;top:10px!important;transform:none!important;
+    width:220px!important;height:52px!important;min-width:220px!important;
+    text-decoration:none!important;z-index:20!important;overflow:visible!important;
+    background:transparent!important;padding:0!important;box-sizing:border-box!important;
+    direction:ltr!important;gap:12px!important;
   }
-  .palaz-reference-home .ref-logo img{display:block!important;width:276px!important;height:60px!important;max-width:none!important;max-height:none!important;object-fit:fill!important;object-position:center!important;margin:0!important;}
+  .palaz-reference-home .ref-logo-clean .ref-logo-p{
+    width:52px!important;height:52px!important;flex:0 0 52px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    border-radius:50%!important;background:#ed1c2e!important;color:#fff!important;
+    font:800 34px/1 Arial,sans-serif!important;
+  }
+  .palaz-reference-home .ref-logo-clean .ref-logo-text{
+    color:#111!important;font:800 30px/1 Arial,sans-serif!important;
+    letter-spacing:-1.5px!important;
+  }
   .palaz-reference-home .ref-actions{left:0!important;right:auto!important;}
 }
 </style>
@@ -233,7 +245,7 @@
     </div>
     <div class="ref-head-main ref-wrap">
       <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
-      <a href="{{ route('home') }}" class="ref-logo" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-logo.png') }}?v=20260927" alt="PALAZ ONLINE"></a>
+      <a href="{{ route('home') }}" class="ref-logo ref-logo-clean" aria-label="PALAZ ONLINE"><span class="ref-logo-p">P</span><span class="ref-logo-text">PALAZ</span></a>
       <div class="ref-actions">
         <a href="{{ route('services') }}"><i>♙</i><span>حساب کاربری</span></a>
         <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>

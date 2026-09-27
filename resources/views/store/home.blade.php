@@ -186,6 +186,45 @@
 .palaz-experience .px-chat-avatar{width:46px;height:46px;border-radius:50%;background:#b71929;color:#fff;display:grid;place-items:center;font-weight:900;flex:0 0 auto}
 .palaz-experience .px-chat-bubble strong{display:block;margin-bottom:5px}
 .palaz-experience .px-chat-bubble span{color:#777;font-size:13px;line-height:1.8}
+.palaz-experience .px-advisor-teaser{border:1px solid #ebe7e3;border-radius:26px;padding:30px;background:linear-gradient(135deg,#fff 0%,#faf7f5 100%);box-shadow:0 12px 40px rgba(20,20,20,.05);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.palaz-experience .px-advisor-teaser .px-title{margin-bottom:8px}
+.palaz-experience .px-advisor-teaser .px-title em{font-style:normal;color:#b71929}
+.palaz-advisor-backdrop{position:fixed;inset:0;z-index:99999;background:rgba(20,22,25,.38);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:flex;align-items:stretch;justify-content:flex-start;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
+.palaz-advisor-backdrop.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.palaz-advisor-panel{width:min(470px,100%);height:100%;margin-left:auto;background:#fff;box-shadow:-20px 0 70px rgba(0,0,0,.18);display:flex;flex-direction:column;transform:translateX(24px);transition:transform .28s ease;direction:rtl}
+.palaz-advisor-backdrop.is-open .palaz-advisor-panel{transform:translateX(0)}
+.palaz-advisor-header{min-height:76px;padding:12px 18px;border-bottom:1px solid #eee9e5;display:flex;align-items:center;justify-content:space-between;gap:14px;flex:0 0 auto}
+.palaz-advisor-brand{display:flex;align-items:center;gap:11px;min-width:0}
+.palaz-advisor-brand img{width:86px;height:auto;max-height:42px;object-fit:contain;object-position:right center}
+.palaz-advisor-brand strong{display:block;color:#202327;font-size:14px}
+.palaz-advisor-brand span{display:flex;align-items:center;gap:5px;color:#8a8d91;font-size:10px;margin-top:5px}
+.palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
+.palaz-advisor-close{width:38px;height:38px;border:1px solid #ebe7e3;border-radius:50%;background:#fff;color:#555;font-size:25px;line-height:1;cursor:pointer;flex:0 0 auto}
+.palaz-advisor-messages{flex:1;overflow:auto;padding:24px 18px 14px;background:linear-gradient(#fbfaf9,#fff)}
+.palaz-advisor-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:16px}
+.palaz-advisor-avatar{width:32px;height:32px;border-radius:50%;background:#25282c;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}
+.palaz-advisor-bubble{max-width:82%;padding:12px 15px;border-radius:17px 17px 5px 17px;background:#f2efec;color:#333;font-size:13px;line-height:1.9}
+.palaz-advisor-message.user{justify-content:flex-start;direction:ltr}
+.palaz-advisor-message.user .palaz-advisor-bubble{background:#b71929;color:#fff;border-radius:17px 17px 17px 5px;direction:rtl}
+.palaz-advisor-message.user .palaz-advisor-avatar{background:#eee;color:#555;order:2}
+.palaz-advisor-suggestions{display:flex;gap:7px;overflow-x:auto;padding:10px 18px 7px;border-top:1px solid #f0ece8;scrollbar-width:none}
+.palaz-advisor-suggestions::-webkit-scrollbar{display:none}
+.palaz-advisor-suggestions button{border:1px solid #e3ddd8;background:#fff;border-radius:999px;padding:8px 11px;color:#555;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}
+.palaz-advisor-suggestions button:hover{border-color:#b71929;color:#b71929}
+.palaz-advisor-input{margin:0 14px;padding:8px;border:1px solid #ded9d4;border-radius:17px;background:#fff;display:flex;align-items:center;gap:6px;box-shadow:0 8px 25px rgba(20,20,20,.05)}
+.palaz-advisor-input input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#25282c;font:inherit;font-size:13px;padding:7px 4px}
+.palaz-advisor-input input::placeholder{color:#a3a1a0}
+.palaz-advisor-mic,.palaz-advisor-send{width:36px;height:36px;border:0;border-radius:11px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
+.palaz-advisor-mic{background:#f4f1ef;color:#555}
+.palaz-advisor-mic.is-listening{background:#b71929;color:#fff}
+.palaz-advisor-send{background:#25282c;color:#fff;font-size:20px;font-weight:800}
+.palaz-advisor-mic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.palaz-advisor-note{text-align:center;color:#aaa;font-size:9px;padding:9px 14px 13px;line-height:1.7}
+.palaz-advisor-shortcut{position:absolute;right:238px;top:50%;transform:translateY(-50%);height:38px;padding:0 13px;border:1px solid #e5dfdb;border-radius:12px;background:#fff;color:#34383d;display:flex;align-items:center;gap:7px;font:inherit;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 5px 16px rgba(20,20,20,.05);transition:.2s ease;z-index:30}
+.palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-52%)}
+.palaz-advisor-shortcut-icon{width:21px;height:21px;border-radius:7px;background:#f9e9eb;color:#b71929;display:grid;place-items:center}
+.palaz-advisor-shortcut-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:1100px){.palaz-advisor-shortcut{right:auto;left:116px;top:50%;}.palaz-advisor-shortcut>span:last-child{display:none}}
 @media(max-width:900px){
  .palaz-experience .px-wrap{width:min(100% - 28px,700px)}
  .palaz-experience .px-grid{grid-template-columns:repeat(2,1fr)}
@@ -207,6 +246,10 @@
  .palaz-experience .px-quick{grid-template-columns:1fr}
  .palaz-experience .px-connected-card{min-height:235px;padding:24px;border-radius:20px}
  .palaz-experience .px-connected-card .px-btn{right:24px;bottom:22px}
+ .palaz-experience .px-advisor-teaser{padding:24px 20px;align-items:stretch;flex-direction:column}
+ .palaz-advisor-panel{width:100%}
+ .palaz-advisor-header{min-height:70px}
+ .palaz-advisor-brand img{width:78px}
 }
 
 
@@ -304,6 +347,12 @@
         <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>
         <a href="{{ route('cart') }}" class="ref-cart"><i>🛒</i><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
       </div>
+      <button class="palaz-advisor-shortcut" type="button" aria-label="باز کردن مشاور هوشمند پالاز" aria-controls="palaz-advisor-panel" aria-expanded="false">
+        <span class="palaz-advisor-shortcut-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M6.4 6.5h11.2A2.9 2.9 0 0 1 20.5 9.4v6.1a2.9 2.9 0 0 1-2.9 2.9h-6.1l-3.7 2.7.8-2.7H6.4a2.9 2.9 0 0 1-2.9-2.9V9.4a2.9 2.9 0 0 1 2.9-2.9Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+        </span>
+        <span>مشاور هوشمند</span>
+      </button>
       <a href="{{ route('cart') }}" class="ref-mobile-cart">🛒<b>{{ count(session('cart', [])) }}</b></a>
     </div>
     <div class="ref-search-row">
@@ -483,17 +532,53 @@
         </div>
       </section>
 
-      <section class="px-chat">
+      <section class="px-chat" id="smart-advisor">
         <div class="px-wrap">
-          <div class="px-chat-box">
-            <div class="px-chat-bubble">
-              <div class="px-chat-avatar">P</div>
-              <div><strong>مشاور هوشمند پالاز، ۲۴ ساعته</strong><span>درباره انتخاب محصول، کاربرد، محاسبه، اندازه‌گیری و مسیر اجرا سؤال بپرس. این بخش به‌صورت مرحله‌ای و با اطلاعات واقعی پالاز تکمیل می‌شود.</span></div>
+          <div class="px-advisor-teaser">
+            <div>
+              <span class="px-kicker">03 / SMART ADVISOR</span>
+              <h2 class="px-title">هر سؤالی داری، <em>بپرس.</em></h2>
+              <p class="px-sub">برای انتخاب محصول، کاربرد، اندازه‌گیری و مسیر اجرا با مشاور پالاز گفتگو کن.</p>
             </div>
-            <a class="px-btn red" href="{{ route('services') }}">گفت‌وگو با مشاور ←</a>
+            <button class="px-btn red px-open-advisor" type="button">شروع گفتگو ←</button>
           </div>
         </div>
       </section>
+
+      <div class="palaz-advisor-backdrop" id="palaz-advisor-panel" aria-hidden="true">
+        <section class="palaz-advisor-panel" role="dialog" aria-modal="true" aria-labelledby="palaz-advisor-title">
+          <header class="palaz-advisor-header">
+            <div class="palaz-advisor-brand">
+              <img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE">
+              <div><strong id="palaz-advisor-title">مشاور هوشمند پالاز</strong><span><i></i> آماده گفتگو</span></div>
+            </div>
+            <button class="palaz-advisor-close" type="button" aria-label="بستن مشاور">×</button>
+          </header>
+
+          <div class="palaz-advisor-messages" aria-live="polite">
+            <div class="palaz-advisor-message assistant">
+              <div class="palaz-advisor-avatar">P</div>
+              <div class="palaz-advisor-bubble">سلام 👋 من مشاور پالاز هستم.<br>برای انتخاب بهترین پوشش، از فضای شما شروع کنیم؟</div>
+            </div>
+          </div>
+
+          <div class="palaz-advisor-suggestions" aria-label="پیشنهادهای سریع">
+            <button type="button" data-message="برای پذیرایی چه محصولی پیشنهاد می‌دهید؟">برای پذیرایی</button>
+            <button type="button" data-message="برای اتاق خواب راهنمایی می‌خواهم.">برای اتاق خواب</button>
+            <button type="button" data-message="می‌خواهم قیمت و محاسبه را بدانم.">قیمت و محاسبه</button>
+            <button type="button" data-message="برای اندازه‌گیری راهنمایی می‌خواهم.">اندازه‌گیری</button>
+          </div>
+
+          <form class="palaz-advisor-input" autocomplete="off">
+            <button class="palaz-advisor-mic" type="button" aria-label="ورودی صوتی" title="گفتگوی صوتی">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V7a3.5 3.5 0 0 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
+            </button>
+            <input type="text" name="message" placeholder="پیامتان را بنویسید..." aria-label="پیام شما">
+            <button class="palaz-advisor-send" type="submit" aria-label="ارسال پیام">↑</button>
+          </form>
+          <div class="palaz-advisor-note">مشاور پالاز می‌تواند درباره انتخاب، مقایسه، محاسبه و اجرای محصول راهنمایی کند.</div>
+        </section>
+      </div>
     </div>
 
     @php
@@ -611,5 +696,93 @@
     </div>
     <div class="ref-wrap ref-footer-bottom"><span>© {{ date('Y') }} PALAZ ONLINE. All rights reserved.</span><span>صفحه اصلی　 |　 محصولات　 |　 خدمات　 |　 تماس با ما</span></div>
   </footer>
+
+  <script>
+    (() => {
+      const backdrop = document.getElementById('palaz-advisor-panel');
+      if (!backdrop) return;
+      const panel = backdrop.querySelector('.palaz-advisor-panel');
+      const openers = [...document.querySelectorAll('.palaz-advisor-shortcut, .px-open-advisor')];
+      const close = backdrop.querySelector('.palaz-advisor-close');
+      const form = backdrop.querySelector('.palaz-advisor-input');
+      const input = form?.querySelector('input');
+      const messages = backdrop.querySelector('.palaz-advisor-messages');
+      const mic = backdrop.querySelector('.palaz-advisor-mic');
+      const suggestions = [...backdrop.querySelectorAll('.palaz-advisor-suggestions button')];
+
+      const openAdvisor = () => {
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden','false');
+        openers.forEach(btn => btn.setAttribute('aria-expanded','true'));
+        window.setTimeout(() => input?.focus(), 180);
+      };
+      const closeAdvisor = () => {
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden','true');
+        openers.forEach(btn => btn.setAttribute('aria-expanded','false'));
+      };
+      openers.forEach(btn => btn.addEventListener('click', openAdvisor));
+      close?.addEventListener('click', closeAdvisor);
+      backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAdvisor(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeAdvisor(); });
+
+      const addMessage = (text, role) => {
+        const row = document.createElement('div');
+        row.className = 'palaz-advisor-message ' + role;
+        const avatar = document.createElement('div');
+        avatar.className = 'palaz-advisor-avatar';
+        avatar.textContent = role === 'assistant' ? 'P' : 'شما';
+        const bubble = document.createElement('div');
+        bubble.className = 'palaz-advisor-bubble';
+        bubble.textContent = text;
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        messages.appendChild(row);
+        messages.scrollTop = messages.scrollHeight;
+      };
+
+      const reply = () => {
+        window.setTimeout(() => {
+          addMessage('حتماً. چند سؤال کوتاه از فضای شما می‌پرسم تا بتوانیم گزینه‌های مناسب را دقیق‌تر بررسی کنیم.', 'assistant');
+        }, 550);
+      };
+
+      form?.addEventListener('submit', e => {
+        e.preventDefault();
+        const value = input.value.trim();
+        if (!value) return;
+        addMessage(value, 'user');
+        input.value = '';
+        reply();
+      });
+
+      suggestions.forEach(btn => btn.addEventListener('click', () => {
+        input.value = btn.dataset.message || btn.textContent.trim();
+        form?.requestSubmit();
+      }));
+
+      mic?.addEventListener('click', () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          input?.focus();
+          input?.setAttribute('placeholder','مرورگر شما ورودی صوتی را پشتیبانی نمی‌کند');
+          window.setTimeout(() => input?.setAttribute('placeholder','پیامتان را بنویسید...'), 2500);
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'fa-IR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        mic.classList.add('is-listening');
+        recognition.start();
+        recognition.onresult = e => {
+          input.value = e.results[0][0].transcript;
+          input.focus();
+        };
+        recognition.onerror = () => mic.classList.remove('is-listening');
+        recognition.onend = () => mic.classList.remove('is-listening');
+      });
+    })();
+  </script>
 </div>
 @endsection

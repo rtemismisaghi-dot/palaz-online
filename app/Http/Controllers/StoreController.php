@@ -184,7 +184,7 @@ class StoreController extends Controller
             $payloadMessages = array_merge([
                 [
                     'role' => 'system',
-                    'content' => "تو مشاور هوشمند فروشگاه پالاز آنلاین هستی. پاسخ‌ها فارسی، کوتاه، دقیق و کاربردی باشند. فقط بر اساس اطلاعات کاتالوگ زیر درباره محصولات و قیمت‌ها صحبت کن و اگر اطلاعات کافی نیست صریحاً بگو نیاز به بررسی بیشتر است. برای اندازه‌گیری، نصب و طراحی، کاربر را به مسیر خدمات پالاز راهنمایی کن. هیچ قیمت یا مشخصات محصولی را حدس نزن. کاتالوگ فعلی:\n" . $catalog,
+                    'content' => "تو مشاور هوشمند فروشگاه پالاز آنلاین هستی. فارسی، صمیمی، کوتاه و کاربردی پاسخ بده. نقش تو فروشنده صرف نیست؛ باید نیاز مشتری را مرحله‌ای کشف کنی. ترتیب پیشنهادی: کاربرد/فضا، متراژ، سبک یا اولویت، سپس محصول و پیشنهاد. در هر پیام فقط یک یا دو سؤال ضروری بپرس تا گفتگو طبیعی بماند. اگر کاربر اطلاعات کافی برای پیشنهاد دارد، پیشنهاد بده و دلیل کوتاه بیاور. فقط بر اساس کاتالوگ زیر درباره محصول و قیمت صحبت کن و هرگز قیمت یا مشخصات را حدس نزن. برای اندازه‌گیری، نصب و طراحی مسیر خدمات پالاز را معرفی کن. کاتالوگ فعلی:\n" . $catalog,
                 ],
             ], $history);
 
@@ -209,7 +209,11 @@ class StoreController extends Controller
                         ->implode("\n");
 
                     if ($text !== '') {
-                        return response()->json(['reply' => trim($text), 'mode' => 'ai']);
+                        return response()->json([
+                            'reply' => trim($text),
+                            'actions' => $this->advisorActions($data['message']),
+                            'mode' => 'ai',
+                        ]);
                     }
                 }
             } catch (\Throwable $e) {
@@ -217,7 +221,7 @@ class StoreController extends Controller
             }
         }
 
-        $fallback = $this->advisorFallback($data['message']);
+        $fallback = $this->advisorFallback($data['message'], $history);
 
         return response()->json([
             'reply' => $fallback['reply'],
@@ -226,11 +230,50 @@ class StoreController extends Controller
         ]);
     }
 
-    private function advisorFallback(string $message): array
+    private function advisorFallback(string $message, array $history = []): array
     {
         $text = mb_strtolower(trim($message));
-        $actions = [];
+        $actions = $this->advisorActions($message);
         $products = StoreCatalog::products();
+
+        $context = mb_strtolower(collect($history)
+            ->pluck('content')
+            ->implode(' '));
+
+        $area = $this->extractAdvisorArea($text . ' ' . $context);
+        $room = $this->detectAdvisorRoom($text . ' ' . $context);
+        $style = $this->detectAdvisorStyle($text . ' ' . $context);
+        $hasProduct = $this->detectAdvisorProduct($text . ' ' . $context);
+
+        if ($area === null && !$this->isGeneralQuestion($text) && !$hasProduct) {
+            return [
+                'reply' => 'حتماً. اول بگویید این پوشش را برای کدام فضا می‌خواهید؟ مثلاً پذیرایی، اتاق خواب، دفتر یا فضای ورزشی.',
+                'actions' => $actions,
+            ];
+        }
+
+        if ($area === null && ($room !== null || $hasProduct)) {
+            return [
+                'reply' => 'خیلی خوب. حدود متراژ فضا چند متر است؟ اگر دقیق نمی‌دانید، یک عدد تقریبی هم کافی است.',
+                'actions' => $actions,
+            ];
+        }
+
+        if ($style === null && $room !== null && !$hasProduct) {
+            return [
+                'reply' => 'متوجه شدم. برای این فضا بیشتر چه چیزی برایتان مهم است: ظاهر و حس فضا، دوام و نظافت، یا قیمت مناسب؟',
+                'actions' => $actions,
+            ];
+        }
+
+        if ($hasProduct || ($room !== null && $area !== null)) {
+            $sizeText = $area !== null ? ' برای حدود ' . $area . ' مترمربع' : '';
+            $roomText = $room !== null ? ' در ' . $room : '';
+            return [
+                'reply' => 'عالیه.' . $roomText . $sizeText . ' حالا می‌توانیم گزینه‌های مناسب را بررسی کنیم. اگر سبک یا اولویت‌تان را بگویید، پیشنهاد را دقیق‌تر می‌کنم؛ اگر هم محصول مشخصی مدنظر دارید، همان را بررسی کنیم.',
+                'actions' => $actions,
+            ];
+        }
 
         $keywords = [
             'کاغذ دیواری' => ['wallpaper', 'کاغذ'],
@@ -276,6 +319,70 @@ class StoreController extends Controller
         }
 
         return ['reply' => $reply, 'actions' => array_values(array_unique($actions, SORT_REGULAR))];
+    }
+
+    private function advisorActions(string $message): array
+    {
+        $text = mb_strtolower(trim($message));
+        $actions = [];
+
+        if (str_contains($text, 'اندازه')) {
+            $actions[] = ['label' => 'درخواست اندازه‌گیری', 'url' => route('services')];
+        }
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            $actions[] = ['label' => 'درخواست نصب', 'url' => route('services')];
+        }
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            $actions[] = ['label' => 'محاسبه و برآورد', 'url' => route('shop')];
+        }
+
+        foreach (StoreCatalog::products() as $product) {
+            $haystack = mb_strtolower(($product['name'] ?? '') . ' ' . ($product['description'] ?? ''));
+            if ($product['name'] && str_contains($text, mb_strtolower($product['name']))) {
+                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']])];
+            } elseif (str_contains($text, 'لمینت') && str_contains($haystack, 'laminate')) {
+                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id'])];
+            }
+            if (count($actions) >= 3) break;
+        }
+
+        return array_values(array_unique($actions, SORT_REGULAR));
+    }
+
+    private function extractAdvisorArea(string $text): ?float
+    {
+        if (preg_match('/(?:حدود|تقریباً|تقریبا)?\s*(\d+(?:[\.,]\d+)?)\s*(?:متر|متری|مترمربع|متر مربع)/u', $text, $m)) {
+            return (float) str_replace(',', '.', $m[1]);
+        }
+        return null;
+    }
+
+    private function detectAdvisorRoom(string $text): ?string
+    {
+        foreach (['پذیرایی', 'اتاق خواب', 'اتاق', 'دفتر', 'راهرو', 'فروشگاه', 'فضای ورزشی'] as $room) {
+            if (str_contains($text, $room)) return $room;
+        }
+        return null;
+    }
+
+    private function detectAdvisorStyle(string $text): ?string
+    {
+        foreach (['مدرن', 'مینیمال', 'کلاسیک', 'گرم', 'اقتصادی', 'بادوام', 'قابل شستشو', 'نظافت'] as $style) {
+            if (str_contains($text, $style)) return $style;
+        }
+        return null;
+    }
+
+    private function detectAdvisorProduct(string $text): bool
+    {
+        return collect(['موکت', 'لمینت', 'فرش', 'فرش‌گونه', 'کاغذ دیواری', 'کاغذدیواری', 'کفپوش ورزشی', 'پادری'])
+            ->contains(fn ($word) => str_contains($text, $word));
+    }
+
+    private function isGeneralQuestion(string $text): bool
+    {
+        return collect(['قیمت', 'هزینه', 'محاسبه', 'اندازه', 'نصب', 'اجرا', 'مقایسه', 'محصول'])
+            ->contains(fn ($word) => str_contains($text, $word));
     }
 
     private function advisorFallbackReply(string $message, string $catalog): string

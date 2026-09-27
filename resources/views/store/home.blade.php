@@ -44,7 +44,8 @@
     display:flex!important;
     align-items:center!important;
     justify-content:center!important;
-    border:1px solid transparent!important;
+    border:0!important;
+    outline:0!important;
     border-radius:14px!important;
     background:transparent!important;
     color:#30343a!important;
@@ -55,7 +56,7 @@
   .palaz-reference-home .ref-nav a:hover{
     color:#b91e2d!important;
     background:rgba(255,255,255,.48)!important;
-    border-color:rgba(255,255,255,.72)!important;
+    border-color:transparent!important;
     box-shadow:0 5px 16px rgba(20,25,30,.07)!important;
     transform:translateY(-1px)!important;
   }

@@ -1,0 +1,403 @@
+{
+  "generated_at": "2026-09-27",
+  "source": "https://palazonline.com",
+  "vat_percent": 10,
+  "rule": "final_unit_price = base_unit_price * 1.10",
+  "note": "Initial verified extraction batch. Image URLs are source URLs; optimized WebP/AVIF should be generated in the site's asset pipeline.",
+  "products": [
+    {
+      "category": "موکت",
+      "album": "کات سی",
+      "product_name": "موکت کات پالاز آلبوم کات سی",
+      "code": "9727",
+      "base_unit_price": 6000000,
+      "final_unit_price": 6600000.000000001,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "کات سی",
+      "product_name": "موکت کات پالاز آلبوم کات سی",
+      "code": "5427",
+      "base_unit_price": 6000000,
+      "final_unit_price": 6600000.000000001,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "کات سی",
+      "product_name": "موکت کات پالاز آلبوم کات سی",
+      "code": "5127",
+      "base_unit_price": 6000000,
+      "final_unit_price": 6600000.000000001,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "کات سی",
+      "product_name": "موکت کات پالاز آلبوم کات سی",
+      "code": "5627",
+      "base_unit_price": 6000000,
+      "final_unit_price": 6600000.000000001,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "کات سی",
+      "product_name": "موکت کات پالاز آلبوم کات سی",
+      "code": "5727",
+      "base_unit_price": 6000000,
+      "final_unit_price": 6600000.000000001,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "پامچال",
+      "product_name": "موکت لوپ پالاز آلبوم پامچال",
+      "code": "9171",
+      "base_unit_price": 12700000,
+      "final_unit_price": 13970000.000000002,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "پامچال",
+      "product_name": "موکت لوپ پالاز آلبوم پامچال",
+      "code": "9971",
+      "base_unit_price": 12700000,
+      "final_unit_price": 13970000.000000002,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "نرمینه مخملی",
+      "product_name": "موکت پالاز آلبوم نرمینه مخملی",
+      "code": "8116",
+      "base_unit_price": 4500000,
+      "final_unit_price": 4950000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "نرمینه کبریتی مکس",
+      "product_name": "موکت پالاز آلبوم نرمینه کبریتی مکس",
+      "code": "5422",
+      "base_unit_price": 4500000,
+      "final_unit_price": 4950000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "نرمینه کبریتی مکس",
+      "product_name": "موکت پالاز آلبوم نرمینه کبریتی مکس",
+      "code": "9922",
+      "base_unit_price": 4500000,
+      "final_unit_price": 4950000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "نرمینه کبریتی مکس",
+      "product_name": "موکت پالاز آلبوم نرمینه کبریتی مکس",
+      "code": "5522",
+      "base_unit_price": 4500000,
+      "final_unit_price": 4950000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "موکت",
+      "album": "نرمینه اسپرت",
+      "product_name": "موکت پالاز آلبوم نرمینه اسپرت",
+      "code": "9923",
+      "base_unit_price": 4500000,
+      "final_unit_price": 4950000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": null,
+      "abrasion": null,
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس جناغی",
+      "product_name": "لمینیت پالاز آلبوم سدروس جناغی",
+      "code": "1811JE",
+      "base_unit_price": 27270000,
+      "final_unit_price": 29997000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1806",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1805",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1804",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1803",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1802",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "سدروس",
+      "product_name": "لمینیت پالاز آلبوم سدروس",
+      "code": "1801",
+      "base_unit_price": 25450000,
+      "final_unit_price": 27995000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "روت پلاس",
+      "product_name": "لمینیت پالاز آلبوم روت پلاس",
+      "code": "RP1708",
+      "base_unit_price": 21100000,
+      "final_unit_price": 23210000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "روت پلاس",
+      "product_name": "لمینیت پالاز آلبوم روت پلاس",
+      "code": "RP1700",
+      "base_unit_price": 21100000,
+      "final_unit_price": 23210000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "روت پلاس",
+      "product_name": "لمینیت پالاز آلبوم روت پلاس",
+      "code": "RP1728",
+      "base_unit_price": 21100000,
+      "final_unit_price": 23210000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "روت پلاس",
+      "product_name": "لمینیت پالاز آلبوم روت پلاس",
+      "code": "RP1727",
+      "base_unit_price": 21100000,
+      "final_unit_price": 23210000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    },
+    {
+      "category": "لمینیت",
+      "album": "روت پلاس",
+      "product_name": "لمینیت پالاز آلبوم روت پلاس",
+      "code": "RP1731",
+      "base_unit_price": 21100000,
+      "final_unit_price": 23210000.000000004,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "8mm",
+      "abrasion": "AC4",
+      "source_url": "https://palazonline.com/category/%D9%84%D9%85%DB%8C%D9%86%DB%8C%D8%AA"
+    }
+  ],
+  "filters": {
+    "موکت": {
+      "albums": [
+        "الماس",
+        "یاس",
+        "یاسمن",
+        "راش",
+        "پامچال",
+        "نیلوفر",
+        "کات بی",
+        "سایه",
+        "شبنم",
+        "پونه",
+        "صنوبر",
+        "افرا",
+        "زیبا",
+        "پتینه",
+        "ونوس",
+        "باران",
+        "دالیا",
+        "آسا",
+        "زیبا اسپرت",
+        "نعنا",
+        "نرمینه مخملی",
+        "کات بی مینیمال",
+        "بافتین",
+        "آیلین",
+        "نیکاس",
+        "هلیا",
+        "نرمینه اسپرت",
+        "نرمینه کبریتی",
+        "کات سی"
+      ],
+      "uses": [
+        "خانگی",
+        "کودک",
+        "هتلی",
+        "اداری"
+      ],
+      "weaves": [
+        "کات",
+        "پرز بلند",
+        "لوپ"
+      ]
+    },
+    "لمینیت": {
+      "albums": [
+        "روت",
+        "HANZA",
+        "روت پلاس",
+        "سدروس",
+        "سدروس جناغی",
+        "هانزا نیو"
+      ],
+      "thickness": [
+        "5mm",
+        "8mm"
+      ],
+      "abrasion": [
+        "AC4",
+        "AC5"
+      ],
+      "click": [
+        "4 Clicks",
+        "2 Clicks"
+      ],
+      "colors": [
+        "قهوه ای",
+        "طوسی",
+        "کرم",
+        "سفید"
+      ],
+      "patterns": [
+        "چوب",
+        "پارکت"
+      ],
+      "countries": [
+        "آلمان",
+        "ایران"
+      ]
+    }
+  }
+}

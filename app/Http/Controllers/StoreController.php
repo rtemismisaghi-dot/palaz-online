@@ -151,6 +151,105 @@ class StoreController extends Controller
         return view('store.order-success', ['order' => $order]);
     }
 
+    public function advisorChat(Request $request)
+    {
+        $data = $request->validate([
+            'message' => ['required', 'string', 'max:1200'],
+            'messages' => ['nullable', 'array', 'max:12'],
+            'messages.*.role' => ['required', 'in:user,assistant'],
+            'messages.*.content' => ['required', 'string', 'max:1200'],
+        ]);
+
+        $catalog = collect(StoreCatalog::products())
+            ->map(fn (array $product) => implode(' | ', array_filter([
+                'نام: ' . $product['name'],
+                'دسته: ' . ($product['category'] ?? ''),
+                'قیمت: ' . ($product['price'] !== null ? number_format((float) $product['price']) : 'استعلامی'),
+                'واحد: ' . ($product['unit'] ?? ''),
+                'توضیح: ' . ($product['description'] ?? ''),
+            ])))
+            ->take(80)
+            ->implode("\n");
+
+        $history = collect($data['messages'] ?? [])
+            ->map(fn (array $message) => [
+                'role' => $message['role'],
+                'content' => $message['content'],
+            ])
+            ->values()
+            ->all();
+
+        $apiKey = (string) config('services.openai.key');
+        if ($apiKey !== '') {
+            $payloadMessages = array_merge([
+                [
+                    'role' => 'system',
+                    'content' => "تو مشاور هوشمند فروشگاه پالاز آنلاین هستی. پاسخ‌ها فارسی، کوتاه، دقیق و کاربردی باشند. فقط بر اساس اطلاعات کاتالوگ زیر درباره محصولات و قیمت‌ها صحبت کن و اگر اطلاعات کافی نیست صریحاً بگو نیاز به بررسی بیشتر است. برای اندازه‌گیری، نصب و طراحی، کاربر را به مسیر خدمات پالاز راهنمایی کن. هیچ قیمت یا مشخصات محصولی را حدس نزن. کاتالوگ فعلی:\n" . $catalog,
+                ],
+            ], $history);
+
+            $payloadMessages[] = ['role' => 'user', 'content' => $data['message']];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                    ->acceptJson()
+                    ->timeout(20)
+                    ->post('https://api.openai.com/v1/responses', [
+                        'model' => config('services.openai.model', 'gpt-5.6-luna'),
+                        'input' => $payloadMessages,
+                        'max_output_tokens' => 500,
+                    ]);
+
+                if ($response->successful()) {
+                    $json = $response->json();
+                    $text = collect($json['output'] ?? [])
+                        ->flatMap(fn ($item) => $item['content'] ?? [])
+                        ->pluck('text')
+                        ->filter()
+                        ->implode("\n");
+
+                    if ($text !== '') {
+                        return response()->json(['reply' => trim($text), 'mode' => 'ai']);
+                    }
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return response()->json([
+            'reply' => $this->advisorFallbackReply($data['message'], $catalog),
+            'mode' => 'catalog',
+        ]);
+    }
+
+    private function advisorFallbackReply(string $message, string $catalog): string
+    {
+        $text = mb_strtolower(trim($message));
+
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            return 'حتماً. برای قیمت دقیق، نام محصول و متراژ فضا را بگویید. اگر اندازه دقیق ندارید، می‌توانیم ابتدا درخواست اندازه‌گیری ثبت کنیم.';
+        }
+
+        if (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
+            return 'برای اندازه‌گیری، می‌توانیم درخواست شما را ثبت کنیم تا مسیر اندازه‌گیری و اجرای پالاز ادامه پیدا کند. اگر متراژ تقریبی را دارید، همان را هم بگویید.';
+        }
+
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            return 'برای نصب و اجرا می‌توانید درخواست نصب ثبت کنید. اگر نوع محصول و شهر را بگویید، راهنمایی دقیق‌تری می‌دهم.';
+        }
+
+        if (str_contains($text, 'پذیرایی') || str_contains($text, 'اتاق') || str_contains($text, 'خواب')) {
+            return 'برای پیشنهاد دقیق، کاربرد فضا، متراژ تقریبی و سبک مورد علاقه‌تان را بگویید؛ مثلاً مدرن، گرم، مینیمال یا کلاسیک.';
+        }
+
+        if (str_contains($text, 'موکت') || str_contains($text, 'فرش') || str_contains($text, 'لمینت') || str_contains($text, 'کاغذ دیواری')) {
+            return 'حتماً. نوع محصول، متراژ و کاربرد فضا را بگویید تا از بین اطلاعات کاتالوگ پالاز گزینه‌های مرتبط را بررسی کنیم.';
+        }
+
+        return 'در خدمتم. درباره انتخاب محصول، مقایسه، قیمت و محاسبه، اندازه‌گیری یا نصب سؤال کنید. اگر نام محصول یا متراژ را هم بگویید، پاسخ دقیق‌تر می‌شود.';
+    }
+
     public function serviceRequest(Request $request)
     {
         $data = $request->validate([

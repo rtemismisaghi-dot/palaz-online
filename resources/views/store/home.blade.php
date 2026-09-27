@@ -4,7 +4,7 @@
 <style>
 @media (min-width:1101px){
   .palaz-reference-home .ref-search-row{
-    width:min(1120px,calc(100% - 120px))!important;
+    width:min(600px,calc(100% - 120px))!important;
     height:42px!important;
     min-height:42px!important;
     margin:0 auto 4px!important;
@@ -116,6 +116,78 @@
     background:#bd1827!important;
   }
 }
+
+/* Palaz experience layer — lightweight, responsive, visual-first */
+.palaz-experience{font-family:inherit}
+.palaz-experience .px-wrap{width:min(1240px,calc(100% - 40px));margin:auto}
+.palaz-experience .px-kicker{font-size:11px;letter-spacing:.08em;color:#9b1825;font-weight:800}
+.palaz-experience .px-title{font-size:clamp(28px,4vw,48px);line-height:1.2;margin:8px 0 10px;color:#202327}
+.palaz-experience .px-sub{color:#73777c;line-height:1.9;margin:0}
+.palaz-experience .px-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:14px;text-decoration:none;font-weight:800;transition:.2s ease}
+.palaz-experience .px-btn.red{background:#b71929;color:#fff;box-shadow:0 10px 28px rgba(183,25,41,.16)}
+.palaz-experience .px-btn.soft{background:#fff;color:#25282c;border:1px solid #e8e8e8}
+.palaz-experience .px-btn:hover{transform:translateY(-2px)}
+.palaz-experience .px-journey{padding:58px 0 24px}
+.palaz-experience .px-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:24px}
+.palaz-experience .px-head a{color:#b71929;text-decoration:none;font-weight:800}
+.palaz-experience .px-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.palaz-experience .px-card{position:relative;min-height:190px;border-radius:22px;overflow:hidden;background:#eee;text-decoration:none;color:#fff;isolation:isolate}
+.palaz-experience .px-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:transform .45s ease}
+.palaz-experience .px-card:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.62),rgba(0,0,0,.04) 70%)}
+.palaz-experience .px-card:hover img{transform:scale(1.035)}
+.palaz-experience .px-card-content{position:absolute;z-index:2;right:18px;left:18px;bottom:16px}
+.palaz-experience .px-card-content strong{display:block;font-size:19px;margin-bottom:3px}
+.palaz-experience .px-card-content span{font-size:12px;opacity:.85}
+.palaz-experience .px-tools{padding:34px 0 64px}
+.palaz-experience .px-tool-shell{display:grid;grid-template-columns:1.15fr .85fr;min-height:410px;border-radius:28px;overflow:hidden;background:#f3f1ee}
+.palaz-experience .px-tool-image{position:relative;background:url('https://palazonline.com/storage/uploads/005-1-2.jpg') center/cover;min-height:410px}
+.palaz-experience .px-tool-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
+.palaz-experience .px-tool-copy{padding:46px 42px;display:flex;flex-direction:column;justify-content:center}
+.palaz-experience .px-tool-copy .px-title{font-size:clamp(28px,3.5vw,42px)}
+.palaz-experience .px-pills{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 24px}
+.palaz-experience .px-pill{border:1px solid #dedbd6;background:#fff;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:800;color:#555}
+.palaz-experience .px-pill.active{border-color:#b71929;color:#b71929;background:#fff7f8}
+.palaz-experience .px-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}
+.palaz-experience .px-quick a{padding:15px;border:1px solid #e7e4df;border-radius:16px;background:#fff;text-decoration:none;color:#292c30}
+.palaz-experience .px-quick b{display:block;margin-bottom:4px}
+.palaz-experience .px-quick span{font-size:11px;color:#888}
+.palaz-experience .px-connected{padding:8px 0 58px}
+.palaz-experience .px-connected-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.palaz-experience .px-connected-card{min-height:250px;border-radius:24px;padding:30px;position:relative;overflow:hidden;background:#202327;color:#fff}
+.palaz-experience .px-connected-card.light{background:#f7f5f2;color:#25282c}
+.palaz-experience .px-connected-card .px-icon{font-size:30px;display:block;margin-bottom:18px}
+.palaz-experience .px-connected-card h3{font-size:26px;margin:0 0 8px}
+.palaz-experience .px-connected-card p{line-height:1.9;max-width:520px;color:inherit;opacity:.78}
+.palaz-experience .px-connected-card .px-btn{position:absolute;right:30px;bottom:26px}
+.palaz-experience .px-chat{padding:0 0 64px}
+.palaz-experience .px-chat-box{border:1px solid #ebe7e3;border-radius:24px;padding:26px;background:#fff;box-shadow:0 12px 40px rgba(20,20,20,.05);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.palaz-experience .px-chat-bubble{display:flex;gap:12px;align-items:flex-start}
+.palaz-experience .px-chat-avatar{width:46px;height:46px;border-radius:50%;background:#b71929;color:#fff;display:grid;place-items:center;font-weight:900;flex:0 0 auto}
+.palaz-experience .px-chat-bubble strong{display:block;margin-bottom:5px}
+.palaz-experience .px-chat-bubble span{color:#777;font-size:13px;line-height:1.8}
+@media(max-width:900px){
+ .palaz-experience .px-wrap{width:min(100% - 28px,700px)}
+ .palaz-experience .px-grid{grid-template-columns:repeat(2,1fr)}
+ .palaz-experience .px-tool-shell{grid-template-columns:1fr}
+ .palaz-experience .px-tool-image{min-height:270px}
+ .palaz-experience .px-connected-grid{grid-template-columns:1fr}
+ .palaz-experience .px-chat-box{align-items:stretch;flex-direction:column}
+}
+@media(max-width:560px){
+ .palaz-experience .px-journey{padding-top:38px}
+ .palaz-experience .px-head{display:block}
+ .palaz-experience .px-head a{display:inline-block;margin-top:12px}
+ .palaz-experience .px-grid{grid-template-columns:1fr 1fr;gap:9px}
+ .palaz-experience .px-card{min-height:145px;border-radius:16px}
+ .palaz-experience .px-card-content{right:12px;left:12px;bottom:11px}
+ .palaz-experience .px-card-content strong{font-size:15px}
+ .palaz-experience .px-tool-shell{border-radius:20px}
+ .palaz-experience .px-tool-copy{padding:28px 22px}
+ .palaz-experience .px-quick{grid-template-columns:1fr}
+ .palaz-experience .px-connected-card{min-height:235px;padding:24px;border-radius:20px}
+ .palaz-experience .px-connected-card .px-btn{right:24px;bottom:22px}
+}
+
 </style>
 <div class="palaz-reference-home" dir="rtl">
 
@@ -182,9 +254,9 @@
       <div class="ref-hero-overlay"></div>
       <div class="ref-wrap ref-hero-content">
         <div class="ref-hero-copy">
-          <small>PALAZ ONLINE</small>
-          <h1>انتخاب مطمئن<br><em>برای فضای بهتر زندگی</em></h1>
-          <p>محصولات باکیفیت، خدمات حرفه‌ای و اجرای تخصصی؛<br>همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
+          <small>PALAZ ONLINE EXPERIENCE</small>
+          <h1>فضای شما،<br><em>از اینجا شروع می‌شود</em></h1>
+          <p>محصول را انتخاب کن، فضای خودت را تصور کن، نتیجه را ببین و اگر خواستی از انتخاب تا اجرا همراهت هستیم.</p>
           <div class="ref-buttons">
             <a class="ref-btn red" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a>
             <a class="ref-btn light" href="{{ route('services',['type'=>'design']) }}">طراحی فضای من <b>←</b></a>
@@ -224,6 +296,74 @@
         })();
       </script>
     </section>
+
+
+    <div class="palaz-experience">
+      <section class="px-journey">
+        <div class="px-wrap">
+          <div class="px-head">
+            <div><span class="px-kicker">01 / YOUR SPACE</span><h2 class="px-title">فضای خودت را پیدا کن</h2><p class="px-sub">از خود فضا شروع کن، نه از قفسه محصولات.</p></div>
+            <a href="{{ route('services',['type'=>'design']) }}">شروع انتخاب ←</a>
+          </div>
+          <div class="px-grid">
+            <a class="px-card" href="{{ route('services',['type'=>'design']) }}"><img src="https://palazonline.com/storage/uploads/IMG_1100-4.PNG" loading="lazy" alt="خانه"><div class="px-card-content"><strong>خانه</strong><span>پذیرایی، اتاق خواب و فضاهای شخصی</span></div></a>
+            <a class="px-card" href="{{ route('services',['type'=>'design']) }}"><img src="https://palazonline.com/storage/uploads/010-1.jpg" loading="lazy" alt="اداری"><div class="px-card-content"><strong>اداری</strong><span>دفتر، فضای کاری و پروژه‌های تجاری</span></div></a>
+            <a class="px-card" href="{{ route('services',['type'=>'design']) }}"><img src="https://palazonline.com/storage/uploads/IMG_5777.PNG" loading="lazy" alt="هتل و پروژه"><div class="px-card-content"><strong>هتل و پروژه</strong><span>راهکارهای حرفه‌ای برای پروژه‌های بزرگ</span></div></a>
+            <a class="px-card" href="{{ route('services',['type'=>'design']) }}"><img src="https://palazonline.com/storage/uploads/IMG_5796.jpg" loading="lazy" alt="فضاهای خاص"><div class="px-card-content"><strong>فضاهای خاص</strong><span>ترکیب‌های متفاوت برای سلیقه‌های متفاوت</span></div></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-tools" id="visualizer">
+        <div class="px-wrap">
+          <div class="px-tool-shell">
+            <div class="px-tool-image" role="img" aria-label="پیش‌نمایش فضای داخلی"></div>
+            <div class="px-tool-copy">
+              <span class="px-kicker">02 / VISUALIZER</span>
+              <h2 class="px-title">قبل از انتخاب،<br>ببین.</h2>
+              <p class="px-sub">ایده تصویرسازی پالاز از همین‌جا شروع می‌شود: یک فضا، چند انتخاب و مقایسه‌ای که تصمیم را راحت‌تر می‌کند.</p>
+              <div class="px-pills"><span class="px-pill active">موکت</span><span class="px-pill">لمینیت</span><span class="px-pill">SPC</span><span class="px-pill">کفپوش</span></div>
+              <a class="px-btn red" href="{{ route('services',['type'=>'design']) }}">شروع طراحی فضای من ←</a>
+              <div class="px-quick">
+                <a href="{{ route('services',['type'=>'design']) }}"><b>📷 عکس فضای من</b><span>در نسخه بعدی تصویرسازی روی عکس واقعی فعال می‌شود.</span></a>
+                <a href="{{ route('shop') }}"><b>🧩 انتخاب محصول</b><span>از کاتالوگ پالاز شروع کن.</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-connected" id="tour">
+        <div class="px-wrap">
+          <div class="px-connected-grid">
+            <article class="px-connected-card">
+              <span class="px-icon">◉</span><span class="px-kicker" style="color:#fff;opacity:.75">03 / VIRTUAL SHOWROOM</span>
+              <h3>وارد شوروم پالاز شو</h3>
+              <p>تور مجازی را به یک نقطه کشف تبدیل می‌کنیم؛ سبک، تصویری و بدون بارگذاری سنگین تا زمانی که مشتری واقعاً وارد آن شود.</p>
+              <a class="px-btn red" href="#tour">شروع تور مجازی ←</a>
+            </article>
+            <article class="px-connected-card light">
+              <span class="px-icon">⌁</span><span class="px-kicker">04 / PALAZ + DTZ</span>
+              <h3>از انتخاب تا اجرا</h3>
+              <p>انتخاب در Palaz Online و عملیات اندازه‌گیری و نصب در DTZ؛ دو سیستم مستقل با اتصال مشخص.</p>
+              <a class="px-btn soft" href="{{ route('services',['type'=>'measurement']) }}">درخواست اندازه‌گیری ←</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-chat">
+        <div class="px-wrap">
+          <div class="px-chat-box">
+            <div class="px-chat-bubble">
+              <div class="px-chat-avatar">P</div>
+              <div><strong>مشاور هوشمند پالاز، ۲۴ ساعته</strong><span>درباره انتخاب محصول، کاربرد، محاسبه، اندازه‌گیری و مسیر اجرا سؤال بپرس. این بخش به‌صورت مرحله‌ای و با اطلاعات واقعی پالاز تکمیل می‌شود.</span></div>
+            </div>
+            <a class="px-btn red" href="{{ route('services') }}">گفت‌وگو با مشاور ←</a>
+          </div>
+        </div>
+      </section>
+    </div>
 
     @php
       $refImages = [

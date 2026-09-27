@@ -7,8 +7,29 @@
     <div class="ref-topbar">
       <div class="ref-wrap">
         <span>☎ 021-75332</span>
-        <span>⌖ شعب پالاز: آزادی | شریعتی | سهروردی | شهرک غرب</span>
+        <span class="ref-branch-address">⌖ شعبه آزادی: خیابان آزادی، خیابان آذربایجان، پلاک ۹۷۹</span>
         <b>پشتیبانی ۲۴ ساعته ◔</b>
+        <script>
+          (() => {
+            const address = document.querySelector('.ref-branch-address');
+            if (!address) return;
+            const addresses = [
+              '⌖ شعبه آزادی: خیابان آزادی، خیابان آذربایجان، پلاک ۹۷۹',
+              '⌖ شعبه شریعتی: خیابان شریعتی، بالاتر از پل صدر، مجتمع الماس',
+              '⌖ شعبه سهروردی: خیابان سهروردی، نرسیده به میدان پالیزی',
+              '⌖ شعبه شهرک غرب: شهرک غرب، پل مدیریت، مجتمع رویال'
+            ];
+            let index = 0;
+            window.setInterval(() => {
+              index = (index + 1) % addresses.length;
+              address.style.opacity = '0';
+              window.setTimeout(() => {
+                address.textContent = addresses[index];
+                address.style.opacity = '1';
+              }, 180);
+            }, 4000);
+          })();
+        </script>
       </div>
     </div>
     <div class="ref-head-main ref-wrap">

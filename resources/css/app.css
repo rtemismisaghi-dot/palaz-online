@@ -1713,6 +1713,7 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     min-width:0;
     position:relative;
     z-index:3;
+    transform:translateY(-8px);
   }
   .palaz-reference-home .ref-search{
     grid-area:search!important;

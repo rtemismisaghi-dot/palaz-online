@@ -1687,7 +1687,18 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     z-index:30;
     background:#fff;
     border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
     box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-header::before,
+  .palaz-reference-home .ref-header::after,
+  .palaz-reference-home .ref-head-main::before,
+  .palaz-reference-home .ref-head-main::after,
+  .palaz-reference-home .ref-nav::before,
+  .palaz-reference-home .ref-nav::after{
+    display:none!important;
+    content:none!important;
   }
   .palaz-reference-home .ref-head-main{
     position:relative;
@@ -1703,6 +1714,8 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     align-items:center;
     direction:ltr;
     overflow:visible!important;
+    border:0!important;
+    box-shadow:none!important;
   }
   .palaz-reference-home .ref-actions{
     grid-area:actions!important;
@@ -1714,6 +1727,7 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     position:relative;
     z-index:3;
     transform:translateY(-8px);
+    border:0!important;
   }
   .palaz-reference-home .ref-search{
     grid-area:search!important;
@@ -1731,6 +1745,8 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     overflow:hidden;
     box-sizing:border-box;
     z-index:2;
+    border:0!important;
+    box-shadow:none!important;
   }
   .palaz-reference-home .ref-search input{
     flex:1 1 auto;

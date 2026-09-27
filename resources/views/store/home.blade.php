@@ -220,11 +220,14 @@
 .palaz-advisor-send{background:#25282c;color:#fff;font-size:20px;font-weight:800}
 .palaz-advisor-mic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .palaz-advisor-note{text-align:center;color:#aaa;font-size:9px;padding:9px 14px 13px;line-height:1.7}
-.palaz-advisor-shortcut{position:absolute;right:238px;top:50%;transform:translateY(-50%);height:38px;padding:0 13px;border:1px solid #e5dfdb;border-radius:12px;background:#fff;color:#34383d;display:flex;align-items:center;gap:7px;font:inherit;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 5px 16px rgba(20,20,20,.05);transition:.2s ease;z-index:30}
-.palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-52%)}
-.palaz-advisor-shortcut-icon{width:21px;height:21px;border-radius:7px;background:#f9e9eb;color:#b71929;display:grid;place-items:center}
-.palaz-advisor-shortcut-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-@media(max-width:1100px){.palaz-advisor-shortcut{right:auto;left:116px;top:50%;}.palaz-advisor-shortcut>span:last-child{display:none}}
+.palaz-advisor-shortcut{position:fixed;right:22px;bottom:24px;height:46px;padding:0 15px;border:1px solid #e5dfdb;border-radius:16px;background:#fff;color:#34383d;display:flex;align-items:center;gap:8px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(20,20,20,.14);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;z-index:100000;animation:palazAdvisorPulse 2.2s ease-in-out infinite}
+.palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,20,20,.18)}
+.palaz-advisor-shortcut-icon{width:27px;height:27px;border-radius:9px;background:#f9e9eb;color:#b71929;display:grid;place-items:center;position:relative}
+.palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:12px;animation:palazAdvisorRing 2.2s ease-out infinite}
+.palaz-advisor-shortcut-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@keyframes palazAdvisorPulse{0%,100%{box-shadow:0 10px 30px rgba(20,20,20,.14)}50%{box-shadow:0 10px 30px rgba(183,25,41,.24)}}
+@keyframes palazAdvisorRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.35);opacity:0}}
+@media(max-width:1100px){.palaz-advisor-shortcut{right:18px;bottom:18px}.palaz-advisor-shortcut>span:last-child{display:inline}}
 @media(max-width:900px){
  .palaz-experience .px-wrap{width:min(100% - 28px,700px)}
  .palaz-experience .px-grid{grid-template-columns:repeat(2,1fr)}
@@ -247,6 +250,7 @@
  .palaz-experience .px-connected-card{min-height:235px;padding:24px;border-radius:20px}
  .palaz-experience .px-connected-card .px-btn{right:24px;bottom:22px}
  .palaz-experience .px-advisor-teaser{padding:24px 20px;align-items:stretch;flex-direction:column}
+ .palaz-advisor-shortcut{right:14px;bottom:14px;height:44px;padding:0 12px}
  .palaz-advisor-panel{width:100%}
  .palaz-advisor-header{min-height:70px}
  .palaz-advisor-brand img{width:78px}

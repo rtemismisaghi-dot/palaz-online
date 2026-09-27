@@ -220,14 +220,14 @@
 .palaz-advisor-send{background:#25282c;color:#fff;font-size:20px;font-weight:800}
 .palaz-advisor-mic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .palaz-advisor-note{text-align:center;color:#aaa;font-size:9px;padding:9px 14px 13px;line-height:1.7}
-.palaz-advisor-shortcut{position:fixed;right:22px;bottom:24px;height:46px;padding:0 15px;border:1px solid #e5dfdb;border-radius:16px;background:#fff;color:#34383d;display:flex;align-items:center;gap:8px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(20,20,20,.14);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;z-index:100000;animation:palazAdvisorPulse 2.2s ease-in-out infinite}
+.palaz-advisor-shortcut{position:fixed;right:20px;top:92px;height:50px;padding:0 14px 0 11px;border:1px solid #eadbdd;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#fff8f8 100%);color:#34383d;display:flex;align-items:center;gap:9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(20,20,20,.14);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;z-index:100001;animation:palazAdvisorPulse 2.2s ease-in-out infinite}
 .palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,20,20,.18)}
-.palaz-advisor-shortcut-icon{width:27px;height:27px;border-radius:9px;background:#f9e9eb;color:#b71929;display:grid;place-items:center;position:relative}
-.palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:12px;animation:palazAdvisorRing 2.2s ease-out infinite}
-.palaz-advisor-shortcut-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.palaz-advisor-shortcut-icon{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#b71929,#8e1420);color:#fff;display:grid;place-items:center;position:relative;box-shadow:0 6px 14px rgba(183,25,41,.22)}
+.palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:15px;animation:palazAdvisorRing 2.2s ease-out infinite}
+.palaz-advisor-shortcut-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 @keyframes palazAdvisorPulse{0%,100%{box-shadow:0 10px 30px rgba(20,20,20,.14)}50%{box-shadow:0 10px 30px rgba(183,25,41,.24)}}
 @keyframes palazAdvisorRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.35);opacity:0}}
-@media(max-width:1100px){.palaz-advisor-shortcut{right:18px;bottom:18px}.palaz-advisor-shortcut>span:last-child{display:inline}}
+@media(max-width:1100px){.palaz-advisor-shortcut{right:18px;top:84px}.palaz-advisor-shortcut>span:last-child{display:inline}}
 @media(max-width:900px){
  .palaz-experience .px-wrap{width:min(100% - 28px,700px)}
  .palaz-experience .px-grid{grid-template-columns:repeat(2,1fr)}
@@ -250,7 +250,7 @@
  .palaz-experience .px-connected-card{min-height:235px;padding:24px;border-radius:20px}
  .palaz-experience .px-connected-card .px-btn{right:24px;bottom:22px}
  .palaz-experience .px-advisor-teaser{padding:24px 20px;align-items:stretch;flex-direction:column}
- .palaz-advisor-shortcut{right:14px;bottom:14px;height:44px;padding:0 12px}
+ .palaz-advisor-shortcut{right:14px;top:76px;height:46px;padding:0 12px}
  .palaz-advisor-panel{width:100%}
  .palaz-advisor-header{min-height:70px}
  .palaz-advisor-brand img{width:78px}
@@ -353,7 +353,7 @@
       </div>
       <button class="palaz-advisor-shortcut" type="button" aria-label="باز کردن مشاور هوشمند پالاز" aria-controls="palaz-advisor-panel" aria-expanded="false">
         <span class="palaz-advisor-shortcut-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" focusable="false"><path d="M6.4 6.5h11.2A2.9 2.9 0 0 1 20.5 9.4v6.1a2.9 2.9 0 0 1-2.9 2.9h-6.1l-3.7 2.7.8-2.7H6.4a2.9 2.9 0 0 1-2.9-2.9V9.4a2.9 2.9 0 0 1 2.9-2.9Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M6 7.2A3.2 3.2 0 0 1 9.2 4h5.6A3.2 3.2 0 0 1 18 7.2v5.1a3.2 3.2 0 0 1-3.2 3.2h-2.3l-2.9 2.2.6-2.2H9.2A3.2 3.2 0 0 1 6 12.3Z"/><path d="M9.2 10.2h.01M12 10.2h.01M14.8 10.2h.01"/><path d="M17.8 5.2l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5.5-1.1Z"/></svg>
         </span>
         <span>مشاور هوشمند</span>
       </button>

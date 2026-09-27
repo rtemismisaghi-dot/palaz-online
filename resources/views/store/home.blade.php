@@ -25,15 +25,21 @@
       </div>
       <a href="{{ route('cart') }}" class="ref-mobile-cart">🛒<b>{{ count(session('cart', [])) }}</b></a>
     </div>
-    <nav class="ref-nav">
-      <div class="ref-wrap">
-        <a class="active" href="{{ route('home') }}">صفحه اصلی</a>
-        <a href="{{ route('shop') }}">فروشگاه</a>
-        <a href="{{ route('shop') }}">محصولات⌄</a>
-        <a href="{{ route('services',['type'=>'design']) }}">ایده‌های دکوراسیون</a>
-        <a href="{{ route('services') }}">خدمات</a>
-        <a href="{{ route('home') }}">درباره ما</a>
-        <a href="{{ route('home') }}">تماس با ما</a>
+    <nav class="ref-nav" aria-label="منوی اصلی">
+      <div class="ref-nav-glass">
+        <div class="ref-nav-primary">
+          <a class="active" href="{{ route('home') }}"><span>صفحه اصلی</span></a>
+          <a href="{{ route('shop') }}"><span>فروشگاه</span></a>
+          <a href="{{ route('shop') }}"><span>محصولات</span><b>⌄</b></a>
+          <a href="{{ route('services',['type'=>'design']) }}"><span>ایده و الهام</span></a>
+          <a href="{{ route('services') }}"><span>خدمات</span><b>⌄</b></a>
+          <a href="{{ route('services',['type'=>'design']) }}"><span>پروژه‌ها</span></a>
+        </div>
+        <div class="ref-nav-quick">
+          <a href="{{ route('services',['type'=>'measurement']) }}"><i>⌗</i><span>اندازه‌گیری</span></a>
+          <a href="{{ route('services',['type'=>'installation']) }}"><i>⌁</i><span>نصب</span></a>
+          <a class="ref-nav-consult" href="{{ route('services') }}"><i>♧</i><span>مشاوره تخصصی</span></a>
+        </div>
       </div>
     </nav>
   </header>

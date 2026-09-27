@@ -232,13 +232,31 @@ class StoreController extends Controller
     private function advisorFallback(string $message, array $history = []): array
     {
         $text = mb_strtolower(trim($message));
-        $context = mb_strtolower(collect($history)->pluck('content')->implode(' '));
+        // فقط پیام‌های کاربر وارد حافظه تحلیلی شوند؛ متن پاسخ‌های قبلی
+        // نباید دوباره به‌عنوان «نیاز مشتری» تفسیر شوند.
+        $userContext = collect($history)
+            ->filter(fn (array $item) => ($item['role'] ?? null) === 'user')
+            ->pluck('content')
+            ->implode(' ');
+        $context = mb_strtolower($userContext);
         $combined = trim($context . ' ' . $text);
 
         $area = $this->extractAdvisorArea($combined);
         $room = $this->detectAdvisorRoom($combined);
         $style = $this->detectAdvisorStyle($combined);
         $productTerm = $this->detectAdvisorProductTerm($combined);
+
+        // وقتی کاربر یک فضای جدید را صریحاً می‌گوید، محصول قبلی را به این
+        // پیام نچسبان؛ «پذیرایی» نباید به‌اشتباه «کفپوش ورزشی» تعبیر شود.
+        $currentRoom = $this->detectAdvisorRoom($text);
+        $currentProductTerm = $this->detectAdvisorProductTerm($text);
+        if ($currentRoom !== null && $currentProductTerm === null) {
+            $room = $currentRoom;
+            $area = $this->extractAdvisorArea($text);
+            $style = $this->detectAdvisorStyle($text);
+            $productTerm = null;
+        }
+
         $actions = $this->advisorActions($message);
 
         if ($this->isGreeting($text)) {

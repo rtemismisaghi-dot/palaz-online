@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <div class="nav-dropdown"><span>محصولات <small>⌄</small></span><div class="mega">
 <a href="{{ route('shop',['category'=>'carpet']) }}"><b>موکت</b><small>مجموعه موکت‌های پالاز</small></a>
 <a href="{{ route('shop',['category'=>'laminate']) }}"><b>لمینیت</b><small>طرح‌های چوبی و کلاسیک</small></a>
-<a href="{{ route('shop',['category'=>'spc']) }}"><b>SPC</b><small>کفپوش‌های مقاوم</small></a>
+<a href="{{ route('shop',['category'=>'spc']) }}"><b>فرش‌گونه</b><small>مجموعه فرش‌گونه پالاز</small></a>
 <a href="{{ route('shop',['category'=>'wallpaper']) }}"><b>کاغذدیواری</b><small>طرح‌ها و رنگ‌های متنوع</small></a>
 <a href="{{ route('shop',['category'=>'tile']) }}"><b>موکت تایل</b><small>راهکارهای مدولار</small></a>
 <a href="{{ route('shop',['category'=>'grass']) }}"><b>چمن مصنوعی</b><small>برای فضای سبز</small></a>

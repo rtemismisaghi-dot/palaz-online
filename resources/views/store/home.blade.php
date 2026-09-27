@@ -194,7 +194,7 @@
   .palaz-reference-home .ref-logo{
     display:flex!important;align-items:center!important;justify-content:flex-start!important;
     position:absolute!important;right:0!important;top:8px!important;transform:none!important;
-    width:276px!important;height:60px!important;min-width:276px!important;text-decoration:none!important;z-index:50!important;overflow:visible!important;
+    width:276px!important;height:60px!important;min-width:276px!important;text-decoration:none!important;z-index:9999!important;overflow:visible!important;background:#fff!important;padding:0 6px!important;box-sizing:content-box!important;isolation:isolate!important;
   }
   .palaz-reference-home .ref-logo img{display:block!important;width:276px!important;height:60px!important;max-width:none!important;max-height:none!important;object-fit:fill!important;object-position:center!important;margin:0!important;}
   .palaz-reference-home .ref-actions{left:0!important;right:auto!important;}

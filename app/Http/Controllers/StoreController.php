@@ -179,7 +179,7 @@ class StoreController extends Controller
             ->values()
             ->all();
 
-        $apiKey = (string) config('services.openai.key');
+        $apiKey = (string) config('services.openrouter.key');
         if ($apiKey !== '') {
             $payloadMessages = array_merge([
                 [
@@ -193,24 +193,23 @@ class StoreController extends Controller
             try {
                 $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
                     ->acceptJson()
-                    ->timeout(20)
-                    ->post('https://api.openai.com/v1/responses', [
-                        'model' => config('services.openai.model', 'gpt-5.6-luna'),
-                        'input' => $payloadMessages,
-                        'max_output_tokens' => 500,
+                    ->withHeaders([
+                        'HTTP-Referer' => config('app.url'),
+                        'X-Title' => 'Palaz Online',
+                    ])
+                    ->timeout(30)
+                    ->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => config('services.openrouter.model', 'openrouter/free'),
+                        'messages' => $payloadMessages,
+                        'max_tokens' => 500,
                     ]);
 
                 if ($response->successful()) {
-                    $json = $response->json();
-                    $text = collect($json['output'] ?? [])
-                        ->flatMap(fn ($item) => $item['content'] ?? [])
-                        ->pluck('text')
-                        ->filter()
-                        ->implode("\n");
+                    $text = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
 
                     if ($text !== '') {
                         return response()->json([
-                            'reply' => trim($text),
+                            'reply' => $text,
                             'actions' => $this->advisorActions($data['message']),
                             'mode' => 'ai',
                         ]);

@@ -755,10 +755,14 @@
 
       const speakWelcome = () => {
         if (!('speechSynthesis' in window)) {
-          if (voiceStatus) voiceStatus.textContent = 'برای شروع، پیام خود را بنویسید یا با میکروفون صحبت کنید.';
+          if (voiceStatus) voiceStatus.textContent = 'صدای مرورگر در دسترس نیست؛ لطفاً پیام خود را بنویسید یا با میکروفون صحبت کنید.';
           return;
         }
-        window.speechSynthesis.cancel();
+
+        const synth = window.speechSynthesis;
+        synth.cancel();
+        synth.resume();
+
         const speak = () => {
           const utterance = new SpeechSynthesisUtterance(welcomeText);
           const femaleVoice = getFemaleVoice();
@@ -771,6 +775,7 @@
           utterance.rate = .92;
           utterance.pitch = 1.08;
           utterance.volume = 1;
+
           utterance.onstart = () => {
             if (voiceStatus) voiceStatus.textContent = 'مشاور خانم پالاز در حال صحبت است...';
             voiceReplay?.classList.add('is-speaking');
@@ -780,20 +785,34 @@
             voiceReplay?.classList.remove('is-speaking');
           };
           utterance.onerror = () => {
-            if (voiceStatus) voiceStatus.textContent = 'صدای فارسی خانم در مرورگر پیدا نشد؛ لطفاً دوباره پخش کنید.';
+            if (voiceStatus) voiceStatus.textContent = 'مرورگر اجازه پخش صدا را نداد؛ روی «پخش دوباره» بزنید.';
             voiceReplay?.classList.remove('is-speaking');
           };
-          window.speechSynthesis.speak(utterance);
+
+          synth.speak(utterance);
         };
-        if (window.speechSynthesis.getVoices().length) {
+
+        const voices = synth.getVoices();
+        if (voices.length) {
           speak();
-        } else {
-          window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.onvoiceschanged = null;
-            speak();
-          };
-          window.setTimeout(speak, 250);
+          return;
         }
+
+        const handleVoicesChanged = () => {
+          synth.removeEventListener?.('voiceschanged', handleVoicesChanged);
+          synth.onvoiceschanged = null;
+          speak();
+        };
+
+        if (synth.addEventListener) {
+          synth.addEventListener('voiceschanged', handleVoicesChanged, { once: true });
+        } else {
+          synth.onvoiceschanged = handleVoicesChanged;
+        }
+
+        window.setTimeout(() => {
+          if (!synth.speaking && !synth.pending) speak();
+        }, 500);
       };
       let previousBodyOverflow = '';
 

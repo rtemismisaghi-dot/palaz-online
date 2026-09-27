@@ -742,30 +742,58 @@
       let lastFocusedElement = null;
       const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
 
+      const getFemaleVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices.length) return null;
+        const femaleHints = /female|woman|girl|zira|samantha|susan|victoria|hazel|aria|sara|sahar|parisa|shima|maryam|niloofar|نسرین|سارا|مریم|شیما|پریسا|نیلوفر|سحر/i;
+        return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang) && femaleHints.test(v.name))
+          || voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
+          || voices.find(v => /^fa/i.test(v.lang) && femaleHints.test(v.name))
+          || voices.find(v => femaleHints.test(v.name))
+          || null;
+      };
+
       const speakWelcome = () => {
         if (!('speechSynthesis' in window)) {
           if (voiceStatus) voiceStatus.textContent = 'برای شروع، پیام خود را بنویسید یا با میکروفون صحبت کنید.';
           return;
         }
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(welcomeText);
-        utterance.lang = 'fa-IR';
-        utterance.rate = .92;
-        utterance.pitch = 1;
-        utterance.volume = 1;
-        utterance.onstart = () => {
-          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
-          voiceReplay?.classList.add('is-speaking');
+        const speak = () => {
+          const utterance = new SpeechSynthesisUtterance(welcomeText);
+          const femaleVoice = getFemaleVoice();
+          if (femaleVoice) {
+            utterance.voice = femaleVoice;
+            utterance.lang = femaleVoice.lang || 'fa-IR';
+          } else {
+            utterance.lang = 'fa-IR';
+          }
+          utterance.rate = .92;
+          utterance.pitch = 1.08;
+          utterance.volume = 1;
+          utterance.onstart = () => {
+            if (voiceStatus) voiceStatus.textContent = 'مشاور خانم پالاز در حال صحبت است...';
+            voiceReplay?.classList.add('is-speaking');
+          };
+          utterance.onend = () => {
+            if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+            voiceReplay?.classList.remove('is-speaking');
+          };
+          utterance.onerror = () => {
+            if (voiceStatus) voiceStatus.textContent = 'صدای فارسی خانم در مرورگر پیدا نشد؛ لطفاً دوباره پخش کنید.';
+            voiceReplay?.classList.remove('is-speaking');
+          };
+          window.speechSynthesis.speak(utterance);
         };
-        utterance.onend = () => {
-          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
-          voiceReplay?.classList.remove('is-speaking');
-        };
-        utterance.onerror = () => {
-          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
-          voiceReplay?.classList.remove('is-speaking');
-        };
-        window.speechSynthesis.speak(utterance);
+        if (window.speechSynthesis.getVoices().length) {
+          speak();
+        } else {
+          window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.onvoiceschanged = null;
+            speak();
+          };
+          window.setTimeout(speak, 250);
+        }
       };
       let previousBodyOverflow = '';
 
@@ -776,10 +804,8 @@
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden','false');
         openers.forEach(btn => btn.setAttribute('aria-expanded','true'));
-        window.setTimeout(() => {
-          speakWelcome();
-          input?.focus();
-        }, 180);
+        speakWelcome();
+        input?.focus();
       };
       const closeAdvisor = () => {
         window.speechSynthesis?.cancel();

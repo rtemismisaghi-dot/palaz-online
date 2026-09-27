@@ -597,7 +597,7 @@
             <button type="button" data-message="برای اندازه‌گیری راهنمایی می‌خواهم.">اندازه‌گیری</button>
           </div>
 
-          <form class="palaz-advisor-input" autocomplete="off">
+          <form class="palaz-advisor-input" data-chat-url="{{ route('advisor.chat') }}" autocomplete="off">
             <button class="palaz-advisor-mic" type="button" aria-label="ورودی صوتی" title="گفتگوی صوتی">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V7a3.5 3.5 0 0 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
             </button>
@@ -857,10 +857,35 @@
         messages.scrollTop = messages.scrollHeight;
       };
 
-      const reply = () => {
-        window.setTimeout(() => {
-          addMessage('حتماً. چند سؤال کوتاه از فضای شما می‌پرسم تا بتوانیم گزینه‌های مناسب را دقیق‌تر بررسی کنیم.', 'assistant');
-        }, 550);
+      const reply = async (value) => {
+        const history = [...messages.querySelectorAll('.palaz-advisor-message')].slice(-10).map(row => ({
+          role: row.classList.contains('user') ? 'user' : 'assistant',
+          content: row.querySelector('.palaz-advisor-bubble')?.textContent?.trim() || ''
+        })).filter(item => item.content);
+
+        const url = form?.dataset.chatUrl;
+        if (!url) {
+          addMessage('مسیر ارتباط با مشاور پیدا نشد. لطفاً صفحه را تازه‌سازی کنید.', 'assistant');
+          return;
+        }
+
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+            body: JSON.stringify({ message: value, messages: history })
+          });
+
+          const data = await response.json();
+          if (!response.ok || !data.reply) throw new Error('advisor_failed');
+          addMessage(data.reply, 'assistant');
+        } catch (error) {
+          addMessage('فعلاً ارتباط با مشاور برقرار نشد. لطفاً دوباره امتحان کنید.', 'assistant');
+        }
       };
 
       form?.addEventListener('submit', e => {
@@ -869,7 +894,7 @@
         if (!value) return;
         addMessage(value, 'user');
         input.value = '';
-        reply();
+        reply(value);
       });
 
       suggestions.forEach(btn => btn.addEventListener('click', () => {

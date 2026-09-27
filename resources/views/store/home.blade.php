@@ -5,40 +5,65 @@
 @media (min-width:1101px){
   .palaz-reference-home .ref-nav{
     position:relative!important;
-    width:min(1100px,calc(100% - 120px))!important;
-    margin:8px auto 12px!important;
-    background:rgba(255,255,255,.72)!important;
-    border:1px solid rgba(255,255,255,.95)!important;
-    border-radius:18px!important;
-    box-shadow:0 8px 28px rgba(25,30,35,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
-    backdrop-filter:blur(16px)!important;
-    -webkit-backdrop-filter:blur(16px)!important;
+    width:min(980px,calc(100% - 180px))!important;
+    margin:10px auto 14px!important;
+    padding:0!important;
+    background:rgba(255,255,255,.46)!important;
+    border:1px solid rgba(255,255,255,.78)!important;
+    border-radius:22px!important;
+    box-shadow:0 10px 32px rgba(20,25,30,.10),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(255,255,255,.35)!important;
+    backdrop-filter:blur(22px) saturate(150%)!important;
+    -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
     overflow:hidden!important;
   }
+  .palaz-reference-home .ref-nav:before{
+    content:""!important;
+    position:absolute!important;
+    inset:0!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.08))!important;
+    pointer-events:none!important;
+  }
   .palaz-reference-home .ref-nav .ref-wrap{
-    width:100%!important;height:54px!important;min-height:54px!important;
-    padding:6px 10px!important;display:flex!important;
-    align-items:center!important;justify-content:center!important;
-    gap:4px!important;background:transparent!important;border:0!important;
+    position:relative!important;
+    z-index:1!important;
+    width:100%!important;
+    height:58px!important;
+    min-height:58px!important;
+    padding:7px 10px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    background:transparent!important;
+    border:0!important;
   }
   .palaz-reference-home .ref-nav a{
-    height:40px!important;min-height:40px!important;padding:0 18px!important;
-    display:flex!important;align-items:center!important;justify-content:center!important;
-    border:1px solid transparent!important;border-radius:13px!important;
-    background:transparent!important;color:#30343a!important;
-    font-size:11px!important;font-weight:600!important;
-    transition:all .2s ease!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:0 17px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid transparent!important;
+    border-radius:14px!important;
+    background:transparent!important;
+    color:#30343a!important;
+    font-size:11px!important;
+    font-weight:600!important;
+    transition:all .22s ease!important;
   }
   .palaz-reference-home .ref-nav a:hover{
-    color:#c51f2c!important;background:rgba(255,255,255,.78)!important;
-    border-color:rgba(197,31,44,.12)!important;
-    box-shadow:0 4px 14px rgba(25,30,35,.06)!important;
+    color:#b91e2d!important;
+    background:rgba(255,255,255,.48)!important;
+    border-color:rgba(255,255,255,.72)!important;
+    box-shadow:0 5px 16px rgba(20,25,30,.07)!important;
+    transform:translateY(-1px)!important;
   }
   .palaz-reference-home .ref-nav a.active{
     color:#fff!important;
-    background:linear-gradient(135deg,#e91b2b,#c51f2c)!important;
-    border-color:rgba(255,255,255,.55)!important;
-    box-shadow:0 5px 16px rgba(197,31,44,.24)!important;
+    background:linear-gradient(135deg,#df2433,#bd1827)!important;
+    border-color:rgba(255,255,255,.65)!important;
+    box-shadow:0 6px 18px rgba(189,24,39,.22)!important;
   }
 }
 </style>
@@ -127,13 +152,11 @@
           const bg = hero?.querySelector('.ref-hero-bg');
           const dots = hero ? [...hero.querySelectorAll('.ref-dots b')] : [];
           if (!hero || !bg || dots.length !== 3) return;
-
           const images = [
             'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
             'https://palazonline.com/storage/uploads/IMG_5777.PNG',
             'https://palazonline.com/storage/uploads/IMG_5796.jpg'
           ];
-
           let index = 0;
           const show = (next) => {
             bg.style.opacity = '0';
@@ -144,12 +167,7 @@
               bg.style.opacity = '1';
             }, 280);
           };
-
-          images.slice(1).forEach(src => {
-            const image = new Image();
-            image.src = src;
-          });
-
+          images.slice(1).forEach(src => { const image = new Image(); image.src = src; });
           window.setInterval(() => show((index + 1) % images.length), 4000);
         })();
       </script>

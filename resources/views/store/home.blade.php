@@ -406,12 +406,12 @@
             <div class="px-tool-copy">
               <span class="px-kicker">02 / VISUALIZER</span>
               <h2 class="px-title">قبل از انتخاب،<br>ببین.</h2>
-              <p class="px-sub">عکس فضای خودت را وارد کن و نوع کف‌پوش را انتخاب کن تا اولین پیش‌نمایش را همین‌جا ببینی.</p>
+              <p class="px-sub">عکس فضای خودت را وارد کن و نوع پوشش را انتخاب کن تا اولین پیش‌نمایش را همین‌جا ببینی.</p>
               <div class="px-pills px-visualizer-pills">
                 <button type="button" class="px-pill active" data-surface="carpet">موکت</button>
                 <button type="button" class="px-pill" data-surface="laminate">لمینیت</button>
-                <button type="button" class="px-pill" data-surface="spc">SPC</button>
-                <button type="button" class="px-pill" data-surface="floor">کفپوش</button>
+                <button type="button" class="px-pill" data-surface="spc">فرش‌گونه</button>
+                <button type="button" class="px-pill" data-surface="wallpaper">کاغذدیواری</button>
               </div>
               <div class="px-visualizer-status"><span></span><b>آماده برای انتخاب</b><small>پیش‌نمایش اولیه؛ موتور تصویرسازی پیشرفته بعداً متصل می‌شود.</small></div>
               <a class="px-btn red" href="{{ route('services',['type'=>'design']) }}">ادامه طراحی فضای من ←</a>
@@ -435,7 +435,7 @@
               carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
               laminate: 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
               spc: 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
-              floor: 'https://palazonline.com/storage/uploads/IMG_5796.jpg'
+              wallpaper: 'https://palazonline.com/storage/uploads/IMG_5796.jpg'
             };
             let uploadedUrl = '';
             const applySurface = (key) => {
@@ -459,7 +459,7 @@
               preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.12)),url('${uploadedUrl}')`;
               empty.style.display = 'none';
               status.querySelector('b').textContent = 'عکس شما آماده پیش‌نمایش است';
-              status.querySelector('small').textContent = 'حالا نوع کف‌پوش را انتخاب کن.';
+              status.querySelector('small').textContent = 'حالا نوع پوشش را انتخاب کن.';
             });
           })();
         </script>

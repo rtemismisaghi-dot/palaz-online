@@ -1680,7 +1680,159 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
 }
 
 
-/* PALAZ ONLINE HEADER — CLEAN DESKTOP LAYOUT */
+@media (min-width:1101px){
+  .palaz-reference-home .ref-header{
+    position:relative;
+    z-index:30;
+    background:#fff;
+    border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-header::before,
+  .palaz-reference-home .ref-header::after,
+  .palaz-reference-home .ref-head-main::before,
+  .palaz-reference-home .ref-head-main::after,
+  .palaz-reference-home .ref-nav::before,
+  .palaz-reference-home .ref-nav::after{
+    display:none!important;
+    content:none!important;
+  }
+  .palaz-reference-home .ref-head-main{
+    position:relative;
+    width:min(1440px,calc(100% - 100px));
+    height:76px;
+    min-height:76px;
+    margin:0 auto;
+    padding:0;
+    display:grid!important;
+    grid-template-columns:330px 600px 220px!important;
+    justify-content:space-between!important;
+    grid-template-areas:"actions search logo"!important;
+    gap:28px;
+    align-items:center;
+    direction:ltr;
+    overflow:visible!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-actions{
+    grid-area:actions!important;
+    display:flex!important;
+    align-items:center;
+    justify-content:flex-start;
+    gap:25px;
+    min-width:0;
+    position:relative;
+    z-index:3;
+    transform:translateY(-8px);
+    border:0!important;
+  }
+  .palaz-reference-home .ref-search{
+    grid-area:search!important;
+    position:relative!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    max-width:600px;
+    justify-self:center!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center;
+    overflow:hidden;
+    box-sizing:border-box;
+    z-index:2;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-search input{
+    flex:1 1 auto;
+    width:auto!important;
+    height:40px!important;
+    min-height:40px!important;
+    margin:0!important;
+    padding:0 14px!important;
+    line-height:40px;
+    box-sizing:border-box;
+  }
+  .palaz-reference-home .ref-search button{
+    flex:0 0 45px;
+    width:45px!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box;
+  }
+  .palaz-reference-home .ref-logo{
+    grid-area:logo!important;
+    justify-self:end!important;
+    align-self:center;
+    width:190px!important;
+    min-width:190px!important;
+    height:52px!important;
+    margin:0!important;
+    position:relative;
+    z-index:5;
+    display:flex!important;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    overflow:visible!important;
+    direction:ltr;
+  }
+  .palaz-reference-home .ref-logo-mark{
+    flex:0 0 44px;
+    width:44px!important;
+    height:44px!important;
+    display:grid!important;
+    place-items:center;
+    background:#ed1c2e!important;
+    color:#fff!important;
+    font-family:Arial,sans-serif;
+    font-size:31px!important;
+    font-weight:800;
+    line-height:1;
+  }
+  .palaz-reference-home .ref-logo-word{
+    display:flex!important;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    line-height:1;
+    color:#20252a;
+  }
+  .palaz-reference-home .ref-logo-word strong{
+    font-family:Arial,sans-serif;
+    font-size:27px!important;
+    font-weight:800;
+    letter-spacing:-1.2px;
+  }
+  .palaz-reference-home .ref-logo-word small{
+    font-family:Arial,sans-serif;
+    font-size:10px!important;
+    letter-spacing:3.5px;
+    margin-top:4px;
+    color:#596067;
+  }
+  .palaz-reference-home .ref-nav{
+    border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+    outline:0!important;
+  }
+  .palaz-reference-home .ref-nav .ref-wrap{
+    border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+  }
+}/* PALAZ ONLINE HEADER — CLEAN DESKTOP LAYOUT */
 @media (min-width:1101px){
   .palaz-reference-home .ref-header{
     position:relative;

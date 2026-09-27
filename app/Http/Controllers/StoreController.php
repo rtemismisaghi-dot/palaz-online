@@ -233,92 +233,158 @@ class StoreController extends Controller
     private function advisorFallback(string $message, array $history = []): array
     {
         $text = mb_strtolower(trim($message));
+        $context = mb_strtolower(collect($history)->pluck('content')->implode(' '));
+        $combined = trim($context . ' ' . $text);
+
+        $area = $this->extractAdvisorArea($combined);
+        $room = $this->detectAdvisorRoom($combined);
+        $style = $this->detectAdvisorStyle($combined);
+        $productTerm = $this->detectAdvisorProductTerm($combined);
         $actions = $this->advisorActions($message);
-        $products = StoreCatalog::products();
 
-        $context = mb_strtolower(collect($history)
-            ->pluck('content')
-            ->implode(' '));
-
-        $area = $this->extractAdvisorArea($text . ' ' . $context);
-        $room = $this->detectAdvisorRoom($text . ' ' . $context);
-        $style = $this->detectAdvisorStyle($text . ' ' . $context);
-        $hasProduct = $this->detectAdvisorProduct($text . ' ' . $context);
-
-        if ($area === null && !$this->isGeneralQuestion($text) && !$hasProduct) {
+        if ($this->isGreeting($text)) {
             return [
-                'reply' => 'حتماً. اول بگویید این پوشش را برای کدام فضا می‌خواهید؟ مثلاً پذیرایی، اتاق خواب، دفتر یا فضای ورزشی.',
+                'reply' => 'سلام 👋 من مشاور پالاز هستم. برای شروع، بگویید برای چه فضایی دنبال پوشش هستید؟',
+                'actions' => [],
+            ];
+        }
+
+        if ($room === null && $productTerm === null && !$this->isGeneralQuestion($text)) {
+            return [
+                'reply' => 'حتماً. اول بگویید برای کدام فضا می‌خواهید؟ مثلاً پذیرایی، اتاق خواب، دفتر یا فضای ورزشی.',
+                'actions' => [],
+            ];
+        }
+
+        if ($area === null && ($room !== null || $productTerm !== null)) {
+            return [
+                'reply' => 'خیلی خوب. حدود متراژ فضا چند متر است؟ متراژ تقریبی هم کافی است.',
                 'actions' => $actions,
             ];
         }
 
-        if ($area === null && ($room !== null || $hasProduct)) {
+        if (($room !== null || $productTerm !== null) && $area !== null && $style === null && $productTerm === null) {
             return [
-                'reply' => 'خیلی خوب. حدود متراژ فضا چند متر است؟ اگر دقیق نمی‌دانید، یک عدد تقریبی هم کافی است.',
+                'reply' => 'عالی. حالا بگویید اولویت شما بیشتر کدام است: ظاهر و حس فضا، دوام و نظافت، یا قیمت مناسب؟',
                 'actions' => $actions,
             ];
         }
 
-        if ($style === null && $room !== null && !$hasProduct) {
-            return [
-                'reply' => 'متوجه شدم. برای این فضا بیشتر چه چیزی برایتان مهم است: ظاهر و حس فضا، دوام و نظافت، یا قیمت مناسب؟',
-                'actions' => $actions,
-            ];
-        }
+        if ($productTerm !== null && $area !== null) {
+            $productActions = $this->advisorProductActions($productTerm, 3);
+            $names = collect($productActions)->pluck('label')->map(fn ($label) => preg_replace('/^مشاهده /u', '', $label))->filter()->values();
 
-        if ($hasProduct || ($room !== null && $area !== null)) {
-            $sizeText = $area !== null ? ' برای حدود ' . $area . ' مترمربع' : '';
-            $roomText = $room !== null ? ' در ' . $room : '';
-            return [
-                'reply' => 'عالیه.' . $roomText . $sizeText . ' حالا می‌توانیم گزینه‌های مناسب را بررسی کنیم. اگر سبک یا اولویت‌تان را بگویید، پیشنهاد را دقیق‌تر می‌کنم؛ اگر هم محصول مشخصی مدنظر دارید، همان را بررسی کنیم.',
-                'actions' => $actions,
-            ];
-        }
-
-        $keywords = [
-            'کاغذ دیواری' => ['wallpaper', 'کاغذ'],
-            'لمینت' => ['laminate', 'لمینت'],
-            'فرش' => ['spc', 'فرش'],
-            'فرش‌گونه' => ['spc', 'فرش'],
-            'موکت' => ['carpet', 'موکت'],
-            'ورزشی' => ['carpet-tile', 'ورزشی'],
-        ];
-
-        foreach ($keywords as $term => $matches) {
-            if (str_contains($text, $term)) {
-                foreach ($products as $product) {
-                    $haystack = mb_strtolower(($product['name'] ?? '') . ' ' . ($product['category'] ?? '') . ' ' . ($product['description'] ?? ''));
-                    if (collect($matches)->contains(fn ($match) => str_contains($haystack, $match))) {
-                        $actions[] = [
-                            'label' => 'مشاهده ' . $product['name'],
-                            'url' => route('product', ['id' => $product['id']]),
-                        ];
-                        if (count($actions) >= 3) break;
-                    }
-                }
-                break;
+            $reply = 'برای ' . $productTerm . ' با متراژ حدود ' . $this->formatAdvisorNumber($area) . ' مترمربع، چند گزینه مرتبط از کاتالوگ پالاز را پیدا کردم.';
+            if ($names->isNotEmpty()) {
+                $reply .= ' گزینه‌ها: ' . $names->implode('، ') . '. اگر سبک یا بودجه‌تان را بگویید، بین این‌ها دقیق‌تر راهنمایی می‌کنم.';
+            } else {
+                $reply .= ' برای پیشنهاد دقیق‌تر، مدل یا سبک موردنظرتان را بگویید تا اطلاعات کاتالوگ را بررسی کنم.';
             }
+
+            return [
+                'reply' => $reply,
+                'actions' => array_values(array_unique(array_merge($actions, $productActions), SORT_REGULAR)),
+            ];
+        }
+
+        if ($room !== null && $area !== null && $style !== null && $productTerm === null) {
+            return [
+                'reply' => 'متوجه شدم: ' . $room . '، حدود ' . $this->formatAdvisorNumber($area) . ' مترمربع و اولویت «' . $style . '». حالا نوع پوشش را مشخص کنیم: موکت، لمینت، فرش‌گونه یا کاغذ دیواری؟',
+                'actions' => [['label' => 'دیدن محصولات', 'url' => route('shop')]],
+            ];
         }
 
         if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
-            $reply = 'حتماً. برای محاسبه دقیق، نام محصول و متراژ فضا را بگویید. اگر متراژ ندارید، می‌توانیم از مسیر اندازه‌گیری شروع کنیم.';
-            $actions[] = ['label' => 'محاسبه و برآورد', 'url' => route('shop')];
-        } elseif (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
-            $reply = 'برای اندازه‌گیری، درخواست شما می‌تواند از مسیر خدمات پالاز ثبت شود. اگر متراژ تقریبی دارید، بگویید تا انتخاب محصول را هم دقیق‌تر کنیم.';
-            $actions[] = ['label' => 'درخواست اندازه‌گیری', 'url' => route('services')];
-        } elseif (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
-            $reply = 'برای نصب و اجرا می‌توانیم درخواست شما را وارد مسیر خدمات پالاز کنیم. نوع محصول و شهر را هم بگویید.';
-            $actions[] = ['label' => 'درخواست نصب', 'url' => route('services')];
-        } elseif (str_contains($text, 'پذیرایی') || str_contains($text, 'اتاق') || str_contains($text, 'خواب')) {
-            $reply = 'برای پیشنهاد مناسب، متراژ تقریبی، کاربرد فضا و سبک مورد علاقه‌تان را بگویید؛ مثلاً مدرن، گرم، مینیمال یا کلاسیک.';
-            $actions[] = ['label' => 'دیدن محصولات', 'url' => route('shop')];
-        } elseif (empty($actions)) {
-            $reply = 'در خدمتم. برای اینکه مثل یک مشاور واقعی راهنمایی‌تان کنم، بگویید فضای شما کجاست، حدوداً چند متر است و دنبال چه نوع پوششی هستید.';
-        } else {
-            $reply = 'چند گزینه مرتبط از کاتالوگ پالاز پیدا کردم. اگر متراژ و کاربرد فضا را بگویید، پیشنهاد را دقیق‌تر می‌کنم.';
+            return [
+                'reply' => $productTerm
+                    ? 'برای محاسبه دقیق ' . $productTerm . '، متراژ را بگویید. مثلاً ۶۰ مترمربع.'
+                    : 'برای محاسبه دقیق، نام محصول و متراژ را بگویید؛ مثلاً «لمینت برای ۶۰ متر».',
+                'actions' => [['label' => 'محاسبه و برآورد', 'url' => route('shop')]],
+            ];
         }
 
-        return ['reply' => $reply, 'actions' => array_values(array_unique($actions, SORT_REGULAR))];
+        if (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
+            return [
+                'reply' => 'حتماً. اگر متراژ دقیق ندارید، می‌توانید درخواست اندازه‌گیری ثبت کنید.',
+                'actions' => [['label' => 'درخواست اندازه‌گیری', 'url' => route('services')]],
+            ];
+        }
+
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            return [
+                'reply' => 'برای نصب و اجرا، درخواستتان را از مسیر خدمات ثبت کنید. نوع محصول و شهر را هم بگویید تا راهنمایی دقیق‌تری بدهم.',
+                'actions' => [['label' => 'درخواست نصب', 'url' => route('services')]],
+            ];
+        }
+
+        return [
+            'reply' => 'برای اینکه دقیق راهنمایی‌تان کنم، نوع فضا، متراژ و نوع پوشش موردنظرتان را بگویید.',
+            'actions' => $actions,
+        ];
+    }
+
+    private function isGreeting(string $text): bool
+    {
+        return collect(['سلام', 'درود', 'خوبی', 'سلام وقت بخیر', 'وقت بخیر'])
+            ->contains(fn ($word) => str_contains($text, $word));
+    }
+
+    private function detectAdvisorProductTerm(string $text): ?string
+    {
+        foreach ([
+            'کاغذدیواری' => 'کاغذ دیواری',
+            'کاغذ دیواری' => 'کاغذ دیواری',
+            'لمینت' => 'لمینت',
+            'فرش‌گونه' => 'فرش‌گونه',
+            'فرش' => 'فرش‌گونه',
+            'موکت' => 'موکت',
+            'کفپوش ورزشی' => 'کفپوش ورزشی',
+            'ورزشی' => 'کفپوش ورزشی',
+            'پادری' => 'پادری',
+        ] as $needle => $label) {
+            if (str_contains($text, $needle)) {
+                return $label;
+            }
+        }
+
+        return null;
+    }
+
+    private function advisorProductActions(string $productTerm, int $limit = 3): array
+    {
+        $products = StoreCatalog::products();
+        $termMap = [
+            'کاغذ دیواری' => ['wallpaper', 'کاغذ'],
+            'لمینت' => ['laminate', 'لمینت'],
+            'فرش‌گونه' => ['spc', 'فرش'],
+            'موکت' => ['carpet', 'موکت'],
+            'کفپوش ورزشی' => ['carpet-tile', 'ورزشی'],
+            'پادری' => ['decorative', 'پادری'],
+        ];
+        $matches = $termMap[$productTerm] ?? [$productTerm];
+
+        return collect($products)
+            ->filter(function ($product) use ($matches) {
+                $haystack = mb_strtolower(
+                    ($product['name'] ?? '') . ' ' .
+                    ($product['category'] ?? '') . ' ' .
+                    ($product['description'] ?? '')
+                );
+
+                return collect($matches)->contains(fn ($match) => str_contains($haystack, mb_strtolower($match)));
+            })
+            ->take($limit)
+            ->map(fn ($product) => [
+                'label' => 'مشاهده ' . $product['name'],
+                'url' => route('product', ['id' => $product['id']]),
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function formatAdvisorNumber(float $number): string
+    {
+        return rtrim(rtrim(number_format($number, 2, '.', ''), '0'), '.');
     }
 
     private function advisorActions(string $message): array

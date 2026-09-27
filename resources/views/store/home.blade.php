@@ -221,6 +221,9 @@
 .palaz-advisor-message.user{justify-content:flex-start;direction:ltr}
 .palaz-advisor-message.user .palaz-advisor-bubble{background:#b71929;color:#fff;border-radius:17px 17px 17px 5px;direction:rtl}
 .palaz-advisor-message.user .palaz-advisor-avatar{background:#eee;color:#555;order:2}
+.palaz-advisor-actions{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0 0 41px}
+.palaz-advisor-action{display:inline-flex;align-items:center;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:7px 10px;color:#b71929;text-decoration:none;font-size:10px;font-weight:800;box-shadow:0 4px 14px rgba(20,20,20,.05)}
+.palaz-advisor-action:hover{background:#fff5f5;border-color:#b71929}
 .palaz-advisor-suggestions{display:flex;gap:7px;overflow-x:auto;padding:10px 18px 7px;border-top:1px solid #f0ece8;scrollbar-width:none}
 .palaz-advisor-suggestions::-webkit-scrollbar{display:none}
 .palaz-advisor-suggestions button{border:1px solid #e3ddd8;background:#fff;border-radius:999px;padding:8px 11px;color:#555;font:inherit;font-size:10px;white-space:nowrap;cursor:pointer}
@@ -842,7 +845,7 @@
       backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAdvisor(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeAdvisor(); });
 
-      const addMessage = (text, role) => {
+      const addMessage = (text, role, actions = []) => {
         const row = document.createElement('div');
         row.className = 'palaz-advisor-message ' + role;
         const avatar = document.createElement('div');
@@ -853,6 +856,21 @@
         bubble.textContent = text;
         row.appendChild(avatar);
         row.appendChild(bubble);
+
+        if (role === 'assistant' && Array.isArray(actions) && actions.length) {
+          const actionWrap = document.createElement('div');
+          actionWrap.className = 'palaz-advisor-actions';
+          actions.slice(0, 3).forEach(action => {
+            if (!action?.url || !action?.label) return;
+            const link = document.createElement('a');
+            link.className = 'palaz-advisor-action';
+            link.href = action.url;
+            link.textContent = action.label;
+            actionWrap.appendChild(link);
+          });
+          if (actionWrap.children.length) row.appendChild(actionWrap);
+        }
+
         messages.appendChild(row);
         messages.scrollTop = messages.scrollHeight;
       };
@@ -882,7 +900,7 @@
 
           const data = await response.json();
           if (!response.ok || !data.reply) throw new Error('advisor_failed');
-          addMessage(data.reply, 'assistant');
+          addMessage(data.reply, 'assistant', data.actions || []);
         } catch (error) {
           addMessage('فعلاً ارتباط با مشاور برقرار نشد. لطفاً دوباره امتحان کنید.', 'assistant');
         }

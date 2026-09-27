@@ -9,18 +9,29 @@ final class StoreCatalog
 {
     public static function categories(): array
     {
-        return Category::query()
+        $categories = Category::query()
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
             ->mapWithKeys(fn (Category $category) => [
                 $category->slug => [
-                    'title' => $category->name,
-                    'eyebrow' => $category->eyebrow,
-                    'tone' => $category->tone,
+                    'title' => $category->slug === 'spc' ? 'فرش‌گونه' : $category->name,
+                    'eyebrow' => $category->slug === 'spc' ? 'مجموعه فرش‌گونه پالاز' : $category->eyebrow,
+                    'tone' => $category->slug === 'spc' ? 'فرش‌گونه' : $category->tone,
                 ],
             ])
             ->all();
+
+        // Keep the storefront visible even before the local category migration is run.
+        if (! isset($categories['wallpaper'])) {
+            $categories['wallpaper'] = [
+                'title' => 'کاغذ دیواری',
+                'eyebrow' => 'طرح‌ها و رنگ‌های متنوع',
+                'tone' => 'کاغذ دیواری',
+            ];
+        }
+
+        return $categories;
     }
 
     public static function products(): array

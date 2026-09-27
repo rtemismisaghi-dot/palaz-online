@@ -3,10 +3,58 @@
 @section('content')
 <style>
 @media (min-width:1101px){
-  .palaz-reference-home .ref-nav{
-    position:relative!important;
+  .palaz-reference-home .ref-search-row{
     width:min(1120px,calc(100% - 120px))!important;
-    margin:4px auto 8px!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0 auto 4px!important;
+    padding:0!important;
+    display:block!important;
+  }
+  .palaz-reference-home .ref-search-row .ref-search{
+    position:relative!important;
+    inset:auto!important;
+    width:100%!important;
+    max-width:none!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    transform:none!important;
+    display:flex!important;
+    box-sizing:border-box!important;
+  }
+  .palaz-reference-home .ref-search-row .ref-search input{
+    flex:1 1 auto!important;
+  }
+  .palaz-reference-home .ref-search-row .ref-search button{
+    flex:0 0 45px!important;
+    width:45px!important;
+  }
+  .palaz-reference-home .ref-head-main{
+    width:min(1120px,calc(100% - 120px))!important;
+    height:58px!important;
+    min-height:58px!important;
+    margin:0 auto!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    position:relative!important;
+  }
+  .palaz-reference-home .ref-actions{
+    position:absolute!important;
+    left:0!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+  }
+  .palaz-reference-home .ref-logo,
+  .palaz-reference-home .ref-mobile-cart,
+  .palaz-reference-home .ref-mobile-btn{
+    display:none!important;
+  }
+  .palaz-reference-home .ref-nav{
+    width:min(1120px,calc(100% - 120px))!important;
+    margin:0 auto 8px!important;
     padding:0!important;
     background:transparent!important;
     border:0!important;
@@ -22,8 +70,6 @@
     content:none!important;
   }
   .palaz-reference-home .ref-nav .ref-wrap{
-    position:relative!important;
-    z-index:1!important;
     width:100%!important;
     height:50px!important;
     min-height:50px!important;
@@ -58,9 +104,7 @@
     transition:color .2s ease!important;
   }
   .palaz-reference-home .ref-nav a:hover,
-  .palaz-reference-home .ref-nav a.active{
-    color:#bd1827!important;
-  }
+  .palaz-reference-home .ref-nav a.active{color:#bd1827!important}
   .palaz-reference-home .ref-nav a.active:after{
     content:""!important;
     position:absolute!important;
@@ -106,16 +150,18 @@
     </div>
     <div class="ref-head-main ref-wrap">
       <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
-      <form class="ref-search" action="{{ route('shop') }}">
-        <input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته‌بندی یا برند...">
-        <button type="submit">⌕</button>
-      </form>
       <div class="ref-actions">
         <a href="{{ route('services') }}"><i>♙</i><span>حساب کاربری</span></a>
         <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>
         <a href="{{ route('cart') }}" class="ref-cart"><i>🛒</i><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
       </div>
       <a href="{{ route('cart') }}" class="ref-mobile-cart">🛒<b>{{ count(session('cart', [])) }}</b></a>
+    </div>
+    <div class="ref-search-row">
+      <form class="ref-search" action="{{ route('shop') }}">
+        <input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته‌بندی یا برند...">
+        <button type="submit">⌕</button>
+      </form>
     </div>
     <nav class="ref-nav">
       <div class="ref-wrap">

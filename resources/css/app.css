@@ -1708,7 +1708,7 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     margin:0 auto;
     padding:0;
     display:grid!important;
-    grid-template-columns:260px minmax(420px,680px) 260px!important;
+    grid-template-columns:minmax(0,1fr) minmax(420px,560px) 200px!important;
     grid-template-areas:"actions search logo"!important;
     gap:28px;
     align-items:center;
@@ -1735,7 +1735,8 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     inset:auto!important;
     transform:none!important;
     width:100%!important;
-    max-width:680px;
+    max-width:560px;
+    justify-self:center!important;
     height:42px!important;
     min-height:42px!important;
     margin:0!important;
@@ -1791,6 +1792,15 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
   }
   .palaz-reference-home .ref-nav{
     border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+    outline:0!important;
+  }
+  .palaz-reference-home .ref-nav .ref-wrap{
+    border:0!important;
+    border-top:0!important;
+    border-bottom:0!important;
     box-shadow:none!important;
   }
 }

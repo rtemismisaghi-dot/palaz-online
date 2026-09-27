@@ -1,6 +1,47 @@
 @extends('layouts.store')
 @section('title','PALAZ ONLINE | صفحه اصلی')
 @section('content')
+<style>
+@media (min-width:1101px){
+  .palaz-reference-home .ref-nav{
+    position:relative!important;
+    width:min(1100px,calc(100% - 120px))!important;
+    margin:8px auto 12px!important;
+    background:rgba(255,255,255,.72)!important;
+    border:1px solid rgba(255,255,255,.95)!important;
+    border-radius:18px!important;
+    box-shadow:0 8px 28px rgba(25,30,35,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
+    backdrop-filter:blur(16px)!important;
+    -webkit-backdrop-filter:blur(16px)!important;
+    overflow:hidden!important;
+  }
+  .palaz-reference-home .ref-nav .ref-wrap{
+    width:100%!important;height:54px!important;min-height:54px!important;
+    padding:6px 10px!important;display:flex!important;
+    align-items:center!important;justify-content:center!important;
+    gap:4px!important;background:transparent!important;border:0!important;
+  }
+  .palaz-reference-home .ref-nav a{
+    height:40px!important;min-height:40px!important;padding:0 18px!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    border:1px solid transparent!important;border-radius:13px!important;
+    background:transparent!important;color:#30343a!important;
+    font-size:11px!important;font-weight:600!important;
+    transition:all .2s ease!important;
+  }
+  .palaz-reference-home .ref-nav a:hover{
+    color:#c51f2c!important;background:rgba(255,255,255,.78)!important;
+    border-color:rgba(197,31,44,.12)!important;
+    box-shadow:0 4px 14px rgba(25,30,35,.06)!important;
+  }
+  .palaz-reference-home .ref-nav a.active{
+    color:#fff!important;
+    background:linear-gradient(135deg,#e91b2b,#c51f2c)!important;
+    border-color:rgba(255,255,255,.55)!important;
+    box-shadow:0 5px 16px rgba(197,31,44,.24)!important;
+  }
+}
+</style>
 <div class="palaz-reference-home" dir="rtl">
 
   <header class="ref-header">

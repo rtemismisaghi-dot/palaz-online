@@ -200,8 +200,9 @@
     direction:ltr!important;gap:12px!important;
   }
   .palaz-reference-home .ref-logo-clean .ref-logo-p-image{
-    width:52px!important;height:52px!important;flex:0 0 52px!important;
-    display:block!important;object-fit:contain!important;border:0!important;
+    width:42px!important;height:42px!important;flex:0 0 42px!important;
+    display:block!important;object-fit:contain!important;object-position:center!important;
+    max-width:42px!important;max-height:42px!important;border:0!important;overflow:visible!important;
   }
   .palaz-reference-home .ref-logo-clean .ref-logo-text{
     color:#111!important;font:800 30px/1 Arial,sans-serif!important;

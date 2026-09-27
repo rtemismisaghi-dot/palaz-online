@@ -59,7 +59,39 @@
           <a href="{{ route('services',['type'=>'design']) }}"><i>▤</i><span><b>طراحی و محاسبه</b><small>DTZ Tablet</small></span><b>›</b></a>
         </div>
       </div>
-      <div class="ref-dots"><b></b><b class="on"></b><b></b></div>
+      <div class="ref-dots"><b class="on"></b><b></b><b></b></div>
+      <script>
+        (() => {
+          const hero = document.querySelector('.palaz-reference-home .ref-hero');
+          const bg = hero?.querySelector('.ref-hero-bg');
+          const dots = hero ? [...hero.querySelectorAll('.ref-dots b')] : [];
+          if (!hero || !bg || dots.length !== 3) return;
+
+          const images = [
+            'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
+            'https://palazonline.com/storage/uploads/IMG_5777.PNG',
+            'https://palazonline.com/storage/uploads/IMG_5796.jpg'
+          ];
+
+          let index = 0;
+          const show = (next) => {
+            bg.style.opacity = '0';
+            window.setTimeout(() => {
+              index = next;
+              bg.style.backgroundImage = `url('${images[index]}')`;
+              dots.forEach((dot, i) => dot.classList.toggle('on', i === index));
+              bg.style.opacity = '1';
+            }, 280);
+          };
+
+          images.slice(1).forEach(src => {
+            const image = new Image();
+            image.src = src;
+          });
+
+          window.setInterval(() => show((index + 1) % images.length), 4000);
+        })();
+      </script>
     </section>
 
     @php

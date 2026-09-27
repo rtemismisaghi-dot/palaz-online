@@ -1321,51 +1321,6 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
 
 
 
-/* HEADER SEARCH POSITION FIX - V3 */
-@media (min-width:1101px){
-  .palaz-reference-home .ref-head-main{
-    position:relative;
-    height:76px;
-    min-height:76px;
-    display:grid;
-    align-items:center;
-  }
-  .palaz-reference-home .ref-head-main .ref-search{
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:min(680px,calc(100% - 576px));
-    height:42px;
-    min-height:42px;
-    max-height:42px;
-    margin:0 !important;
-    padding:0 !important;
-    transform:translate(-50%,-50%);
-    box-sizing:border-box;
-    display:flex;
-    align-items:center;
-  }
-  .palaz-reference-home .ref-head-main .ref-search input{
-    height:40px;
-    min-height:40px;
-    margin:0 !important;
-    padding:0 14px !important;
-    line-height:40px;
-    box-sizing:border-box;
-  }
-  .palaz-reference-home .ref-head-main .ref-search button{
-    width:45px;
-    height:42px;
-    min-height:42px;
-    max-height:42px;
-    margin:0 !important;
-    padding:0 !important;
-    box-sizing:border-box;
-  }
-}
-
-
-
 /* PALAZ ONLINE — UNIFIED HEADER
    Single source of truth for header/nav layout.
 */
@@ -1724,62 +1679,57 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
   .site-header .mega{display:none}
 }
 
-/* HEADER OVERLAP + DIVIDER FIX */
+
+/* PALAZ ONLINE HEADER — CLEAN DESKTOP LAYOUT */
 @media (min-width:1101px){
   .palaz-reference-home .ref-header{
     position:relative;
     z-index:30;
+    background:#fff;
     border:0!important;
     box-shadow:none!important;
   }
   .palaz-reference-home .ref-head-main{
     position:relative;
+    width:min(1440px,calc(100% - 100px));
     height:76px;
     min-height:76px;
+    margin:0 auto;
+    padding:0;
     display:grid!important;
     grid-template-columns:260px minmax(420px,680px) 260px!important;
     grid-template-areas:"actions search logo"!important;
-    align-items:center;
     gap:28px;
+    align-items:center;
     direction:ltr;
     overflow:visible!important;
   }
-  .palaz-reference-home .ref-logo{
-    grid-area:logo!important;
-    justify-self:end;
-    align-self:center;
-    width:158px;
-    min-width:158px;
-    height:auto;
-    position:relative;
-    z-index:5;
-    display:flex;
+  .palaz-reference-home .ref-actions{
+    grid-area:actions!important;
+    display:flex!important;
     align-items:center;
-    overflow:visible!important;
-  }
-  .palaz-reference-home .ref-logo img{
-    display:block;
-    width:158px!important;
-    height:auto!important;
-    max-width:none!important;
-    object-fit:contain;
-    object-position:center;
+    justify-content:flex-start;
+    gap:25px;
+    min-width:0;
+    position:relative;
+    z-index:3;
   }
   .palaz-reference-home .ref-search{
     grid-area:search!important;
     position:relative!important;
-    left:auto!important;
-    top:auto!important;
+    inset:auto!important;
     transform:none!important;
     width:100%!important;
     max-width:680px;
     height:42px!important;
     min-height:42px!important;
-    max-height:42px!important;
     margin:0!important;
     padding:0!important;
-    z-index:2;
+    display:flex!important;
+    align-items:center;
     overflow:hidden;
+    box-sizing:border-box;
+    z-index:2;
   }
   .palaz-reference-home .ref-search input{
     flex:1 1 auto;
@@ -1788,24 +1738,39 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     min-height:40px!important;
     margin:0!important;
     padding:0 14px!important;
-    line-height:40px!important;
+    line-height:40px;
+    box-sizing:border-box;
   }
   .palaz-reference-home .ref-search button{
     flex:0 0 45px;
     width:45px!important;
     height:42px!important;
     min-height:42px!important;
-    max-height:42px!important;
     margin:0!important;
     padding:0!important;
+    box-sizing:border-box;
   }
-  .palaz-reference-home .ref-actions{
-    grid-area:actions!important;
-    width:100%;
-    min-width:0;
-    justify-content:flex-start;
+  .palaz-reference-home .ref-logo{
+    grid-area:logo!important;
+    justify-self:end!important;
+    align-self:center;
+    width:158px!important;
+    min-width:158px!important;
+    height:auto!important;
+    margin:0!important;
     position:relative;
     z-index:5;
+    display:flex;
+    align-items:center;
+    overflow:visible!important;
+  }
+  .palaz-reference-home .ref-logo img{
+    display:block!important;
+    width:158px!important;
+    height:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    object-fit:contain;
   }
   .palaz-reference-home .ref-nav{
     border:0!important;

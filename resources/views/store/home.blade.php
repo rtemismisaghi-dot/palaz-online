@@ -713,8 +713,13 @@
       const messages = backdrop.querySelector('.palaz-advisor-messages');
       const mic = backdrop.querySelector('.palaz-advisor-mic');
       const suggestions = [...backdrop.querySelectorAll('.palaz-advisor-suggestions button')];
+      let lastFocusedElement = null;
+      let previousBodyOverflow = '';
 
       const openAdvisor = () => {
+        lastFocusedElement = document.activeElement;
+        previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden','false');
         openers.forEach(btn => btn.setAttribute('aria-expanded','true'));
@@ -724,6 +729,13 @@
         backdrop.classList.remove('is-open');
         backdrop.setAttribute('aria-hidden','true');
         openers.forEach(btn => btn.setAttribute('aria-expanded','false'));
+        document.body.style.overflow = previousBodyOverflow;
+        window.setTimeout(() => {
+          if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+          }
+          lastFocusedElement = null;
+        }, 220);
       };
       openers.forEach(btn => btn.addEventListener('click', openAdvisor));
       close?.addEventListener('click', closeAdvisor);

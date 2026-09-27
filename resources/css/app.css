@@ -1956,3 +1956,56 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
     box-shadow:none!important;
   }
 }
+
+/* DESKTOP HEADER — EXACT REFERENCE SPACING */
+@media (min-width:1101px){
+  .palaz-reference-home .ref-head-main{
+    width:min(1528px,calc(100% - 56px))!important;
+    grid-template-columns:330px 600px 220px!important;
+    grid-template-areas:"actions search logo"!important;
+    gap:0!important;
+    justify-content:space-between!important;
+    height:88px!important;
+    min-height:88px!important;
+  }
+  .palaz-reference-home .ref-search{
+    width:600px!important;
+    max-width:600px!important;
+    justify-self:center!important;
+    transform:none!important;
+  }
+  .palaz-reference-home .ref-logo{
+    width:190px!important;
+    min-width:190px!important;
+    height:52px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:10px!important;
+    direction:ltr!important;
+  }
+  .palaz-reference-home .ref-logo img{display:none!important}
+  .palaz-reference-home .ref-logo-mark{
+    width:44px!important;height:44px!important;flex:0 0 44px!important;
+    display:grid!important;place-items:center!important;
+    background:#ed1c2e!important;color:#fff!important;
+    font-family:Arial,sans-serif!important;font-size:31px!important;font-weight:800!important;
+  }
+  .palaz-reference-home .ref-logo-word{
+    display:flex!important;flex-direction:column!important;
+    align-items:flex-start!important;justify-content:center!important;
+    line-height:1!important;color:#20252a!important;
+  }
+  .palaz-reference-home .ref-logo-word strong{
+    font-family:Arial,sans-serif!important;font-size:27px!important;
+    font-weight:800!important;letter-spacing:-1.2px!important;
+  }
+  .palaz-reference-home .ref-logo-word small{
+    font-family:Arial,sans-serif!important;font-size:10px!important;
+    letter-spacing:3.5px!important;margin-top:4px!important;color:#596067!important;
+  }
+  .palaz-reference-home .ref-actions{transform:translateY(-8px)!important}
+  .palaz-reference-home .ref-nav{
+    border-top:0!important;border-bottom:0!important;
+  }
+}

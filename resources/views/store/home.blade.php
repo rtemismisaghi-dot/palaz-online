@@ -188,6 +188,17 @@
  .palaz-experience .px-connected-card .px-btn{right:24px;bottom:22px}
 }
 
+
+@media (min-width:1101px){
+  .palaz-reference-home .ref-head-main{padding-right:0!important;padding-left:0!important;}
+  .palaz-reference-home .ref-logo{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    position:absolute!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;
+    width:180px!important;height:52px!important;text-decoration:none!important;z-index:5!important;
+  }
+  .palaz-reference-home .ref-logo img{display:block!important;width:180px!important;height:auto!important;max-height:52px!important;object-fit:contain!important;object-position:right center!important;}
+  .palaz-reference-home .ref-actions{left:0!important;right:auto!important;}
+}
 </style>
 <div class="palaz-reference-home" dir="rtl">
 
@@ -222,6 +233,7 @@
     </div>
     <div class="ref-head-main ref-wrap">
       <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
+      <a href="{{ route('home') }}" class="ref-logo" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-logo.png') }}?v=20260927" alt="PALAZ ONLINE"></a>
       <div class="ref-actions">
         <a href="{{ route('services') }}"><i>♙</i><span>حساب کاربری</span></a>
         <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>

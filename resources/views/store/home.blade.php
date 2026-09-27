@@ -199,11 +199,9 @@
     background:transparent!important;padding:0!important;box-sizing:border-box!important;
     direction:ltr!important;gap:12px!important;
   }
-  .palaz-reference-home .ref-logo-clean .ref-logo-p{
+  .palaz-reference-home .ref-logo-clean .ref-logo-p-image{
     width:52px!important;height:52px!important;flex:0 0 52px!important;
-    display:flex!important;align-items:center!important;justify-content:center!important;
-    border-radius:50%!important;background:#ed1c2e!important;color:#fff!important;
-    font:800 34px/1 Arial,sans-serif!important;
+    display:block!important;object-fit:contain!important;border:0!important;
   }
   .palaz-reference-home .ref-logo-clean .ref-logo-text{
     color:#111!important;font:800 30px/1 Arial,sans-serif!important;
@@ -245,7 +243,7 @@
     </div>
     <div class="ref-head-main ref-wrap">
       <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
-      <a href="{{ route('home') }}" class="ref-logo ref-logo-clean" aria-label="PALAZ ONLINE"><span class="ref-logo-p">P</span><span class="ref-logo-text">PALAZ</span></a>
+      <a href="{{ route('home') }}" class="ref-logo ref-logo-clean" aria-label="PALAZ ONLINE"><img class="ref-logo-p-image" src="{{ asset('images/palaz-p-mark.png') }}" alt="PALAZ"><span class="ref-logo-text">PALAZ</span></a>
       <div class="ref-actions">
         <a href="{{ route('services') }}"><i>♙</i><span>حساب کاربری</span></a>
         <a href="{{ route('home') }}#favorite"><i>♡</i><span>علاقه‌مندی‌ها</span></a>

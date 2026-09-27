@@ -5,66 +5,74 @@
 @media (min-width:1101px){
   .palaz-reference-home .ref-nav{
     position:relative!important;
-    width:min(980px,calc(100% - 180px))!important;
-    margin:10px auto 14px!important;
+    width:min(1120px,calc(100% - 120px))!important;
+    margin:8px auto 12px!important;
     padding:0!important;
-    background:rgba(255,255,255,.46)!important;
-    border:1px solid rgba(255,255,255,.78)!important;
-    border-radius:22px!important;
-    box-shadow:0 10px 32px rgba(20,25,30,.10),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(255,255,255,.35)!important;
-    backdrop-filter:blur(22px) saturate(150%)!important;
-    -webkit-backdrop-filter:blur(22px) saturate(150%)!important;
+    background:rgba(255,255,255,.30)!important;
+    border:1px solid rgba(255,255,255,.58)!important;
+    border-radius:18px!important;
+    box-shadow:0 7px 24px rgba(20,25,30,.07),inset 0 1px 0 rgba(255,255,255,.72)!important;
+    backdrop-filter:blur(18px) saturate(125%)!important;
+    -webkit-backdrop-filter:blur(18px) saturate(125%)!important;
     overflow:hidden!important;
   }
   .palaz-reference-home .ref-nav:before{
     content:""!important;
     position:absolute!important;
     inset:0!important;
-    background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.08))!important;
+    background:rgba(255,255,255,.10)!important;
     pointer-events:none!important;
   }
   .palaz-reference-home .ref-nav .ref-wrap{
     position:relative!important;
     z-index:1!important;
     width:100%!important;
-    height:58px!important;
-    min-height:58px!important;
-    padding:7px 10px!important;
+    height:52px!important;
+    min-height:52px!important;
+    padding:5px 14px!important;
     display:flex!important;
     align-items:center!important;
     justify-content:center!important;
-    gap:3px!important;
+    gap:8px!important;
     background:transparent!important;
     border:0!important;
   }
-  .palaz-reference-home .ref-nav a{
-    height:42px!important;
-    min-height:42px!important;
-    padding:0 17px!important;
+  .palaz-reference-home .ref-nav a,
+  .palaz-reference-home .ref-nav a:hover,
+  .palaz-reference-home .ref-nav a.active{
+    height:40px!important;
+    min-height:40px!important;
+    padding:0 15px!important;
     display:flex!important;
     align-items:center!important;
     justify-content:center!important;
     border:0!important;
     outline:0!important;
-    border-radius:14px!important;
+    border-radius:0!important;
     background:transparent!important;
-    color:#30343a!important;
+    box-shadow:none!important;
+    transform:none!important;
+    color:#34383d!important;
     font-size:11px!important;
     font-weight:600!important;
-    transition:all .22s ease!important;
+    position:relative!important;
+    transition:color .2s ease!important;
   }
   .palaz-reference-home .ref-nav a:hover{
-    color:#b91e2d!important;
-    background:rgba(255,255,255,.48)!important;
-    border-color:transparent!important;
-    box-shadow:0 5px 16px rgba(20,25,30,.07)!important;
-    transform:translateY(-1px)!important;
+    color:#bd1827!important;
   }
   .palaz-reference-home .ref-nav a.active{
-    color:#fff!important;
-    background:linear-gradient(135deg,#df2433,#bd1827)!important;
-    border-color:rgba(255,255,255,.65)!important;
-    box-shadow:0 6px 18px rgba(189,24,39,.22)!important;
+    color:#bd1827!important;
+  }
+  .palaz-reference-home .ref-nav a.active:after{
+    content:""!important;
+    position:absolute!important;
+    left:15px!important;
+    right:15px!important;
+    bottom:3px!important;
+    height:2px!important;
+    border-radius:2px!important;
+    background:#bd1827!important;
   }
 }
 </style>

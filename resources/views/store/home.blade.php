@@ -193,8 +193,8 @@
   .palaz-reference-home .ref-head-main{padding-right:0!important;padding-left:0!important;}
   .palaz-reference-home .ref-logo{
     display:flex!important;align-items:center!important;justify-content:flex-start!important;
-    position:absolute!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;
-    width:180px!important;height:52px!important;text-decoration:none!important;z-index:5!important;
+    position:absolute!important;right:0!important;top:8px!important;transform:none!important;
+    width:180px!important;height:52px!important;text-decoration:none!important;z-index:50!important;
   }
   .palaz-reference-home .ref-logo img{display:block!important;width:190px!important;height:auto!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important;margin:0!important;}
   .palaz-reference-home .ref-actions{left:0!important;right:auto!important;}

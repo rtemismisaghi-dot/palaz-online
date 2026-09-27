@@ -6,36 +6,35 @@
   .palaz-reference-home .ref-nav{
     position:relative!important;
     width:min(1120px,calc(100% - 120px))!important;
-    margin:8px auto 12px!important;
+    margin:4px auto 8px!important;
     padding:0!important;
-    background:rgba(255,255,255,.30)!important;
-    border:1px solid rgba(255,255,255,.58)!important;
-    border-radius:18px!important;
-    box-shadow:0 7px 24px rgba(20,25,30,.07),inset 0 1px 0 rgba(255,255,255,.72)!important;
-    backdrop-filter:blur(18px) saturate(125%)!important;
-    -webkit-backdrop-filter:blur(18px) saturate(125%)!important;
-    overflow:hidden!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+    overflow:visible!important;
   }
-  .palaz-reference-home .ref-nav:before{
-    content:""!important;
-    position:absolute!important;
-    inset:0!important;
-    background:rgba(255,255,255,.10)!important;
-    pointer-events:none!important;
+  .palaz-reference-home .ref-nav:before,
+  .palaz-reference-home .ref-nav:after{
+    display:none!important;
+    content:none!important;
   }
   .palaz-reference-home .ref-nav .ref-wrap{
     position:relative!important;
     z-index:1!important;
     width:100%!important;
-    height:52px!important;
-    min-height:52px!important;
-    padding:5px 14px!important;
+    height:50px!important;
+    min-height:50px!important;
+    padding:4px 10px!important;
     display:flex!important;
     align-items:center!important;
     justify-content:center!important;
-    gap:8px!important;
+    gap:10px!important;
     background:transparent!important;
     border:0!important;
+    box-shadow:none!important;
   }
   .palaz-reference-home .ref-nav a,
   .palaz-reference-home .ref-nav a:hover,
@@ -58,9 +57,7 @@
     position:relative!important;
     transition:color .2s ease!important;
   }
-  .palaz-reference-home .ref-nav a:hover{
-    color:#bd1827!important;
-  }
+  .palaz-reference-home .ref-nav a:hover,
   .palaz-reference-home .ref-nav a.active{
     color:#bd1827!important;
   }

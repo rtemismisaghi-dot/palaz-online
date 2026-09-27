@@ -466,7 +466,7 @@
               <span class="px-icon">◉</span><span class="px-kicker" style="color:#fff;opacity:.75">03 / VIRTUAL SHOWROOM</span>
               <h3>وارد شوروم پالاز شو</h3>
               <p>تور مجازی را به یک نقطه کشف تبدیل می‌کنیم؛ سبک، تصویری و بدون بارگذاری سنگین تا زمانی که مشتری واقعاً وارد آن شود.</p>
-              <a class="px-btn red" href="#tour">شروع تور مجازی ←</a>
+              <a class="px-btn red" href="https://palazonline.com/page/azadi-360" target="_blank" rel="noopener noreferrer">شروع تور مجازی ←</a>
             </article>
             <article class="px-connected-card light">
               <span class="px-icon">⌁</span><span class="px-kicker">04 / PALAZ + DTZ</span>

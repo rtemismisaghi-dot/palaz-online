@@ -217,10 +217,65 @@ class StoreController extends Controller
             }
         }
 
+        $fallback = $this->advisorFallback($data['message']);
+
         return response()->json([
-            'reply' => $this->advisorFallbackReply($data['message'], $catalog),
+            'reply' => $fallback['reply'],
+            'actions' => $fallback['actions'],
             'mode' => 'catalog',
         ]);
+    }
+
+    private function advisorFallback(string $message): array
+    {
+        $text = mb_strtolower(trim($message));
+        $actions = [];
+        $products = StoreCatalog::products();
+
+        $keywords = [
+            'کاغذ دیواری' => ['wallpaper', 'کاغذ'],
+            'لمینت' => ['laminate', 'لمینت'],
+            'فرش' => ['spc', 'فرش'],
+            'فرش‌گونه' => ['spc', 'فرش'],
+            'موکت' => ['carpet', 'موکت'],
+            'ورزشی' => ['carpet-tile', 'ورزشی'],
+        ];
+
+        foreach ($keywords as $term => $matches) {
+            if (str_contains($text, $term)) {
+                foreach ($products as $product) {
+                    $haystack = mb_strtolower(($product['name'] ?? '') . ' ' . ($product['category'] ?? '') . ' ' . ($product['description'] ?? ''));
+                    if (collect($matches)->contains(fn ($match) => str_contains($haystack, $match))) {
+                        $actions[] = [
+                            'label' => 'مشاهده ' . $product['name'],
+                            'url' => route('product', ['id' => $product['id']]),
+                        ];
+                        if (count($actions) >= 3) break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            $reply = 'حتماً. برای محاسبه دقیق، نام محصول و متراژ فضا را بگویید. اگر متراژ ندارید، می‌توانیم از مسیر اندازه‌گیری شروع کنیم.';
+            $actions[] = ['label' => 'محاسبه و برآورد', 'url' => route('shop')];
+        } elseif (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
+            $reply = 'برای اندازه‌گیری، درخواست شما می‌تواند از مسیر خدمات پالاز ثبت شود. اگر متراژ تقریبی دارید، بگویید تا انتخاب محصول را هم دقیق‌تر کنیم.';
+            $actions[] = ['label' => 'درخواست اندازه‌گیری', 'url' => route('services')];
+        } elseif (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            $reply = 'برای نصب و اجرا می‌توانیم درخواست شما را وارد مسیر خدمات پالاز کنیم. نوع محصول و شهر را هم بگویید.';
+            $actions[] = ['label' => 'درخواست نصب', 'url' => route('services')];
+        } elseif (str_contains($text, 'پذیرایی') || str_contains($text, 'اتاق') || str_contains($text, 'خواب')) {
+            $reply = 'برای پیشنهاد مناسب، متراژ تقریبی، کاربرد فضا و سبک مورد علاقه‌تان را بگویید؛ مثلاً مدرن، گرم، مینیمال یا کلاسیک.';
+            $actions[] = ['label' => 'دیدن محصولات', 'url' => route('shop')];
+        } elseif (empty($actions)) {
+            $reply = 'در خدمتم. برای اینکه مثل یک مشاور واقعی راهنمایی‌تان کنم، بگویید فضای شما کجاست، حدوداً چند متر است و دنبال چه نوع پوششی هستید.';
+        } else {
+            $reply = 'چند گزینه مرتبط از کاتالوگ پالاز پیدا کردم. اگر متراژ و کاربرد فضا را بگویید، پیشنهاد را دقیق‌تر می‌کنم.';
+        }
+
+        return ['reply' => $reply, 'actions' => array_values(array_unique($actions, SORT_REGULAR))];
     }
 
     private function advisorFallbackReply(string $message, string $catalog): string

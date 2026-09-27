@@ -7,7 +7,7 @@
     <div class="ref-topbar">
       <div class="ref-wrap">
         <span>☎ 021-75332</span>
-        <span>⌖ تهران، جردن، خیابان پالاز</span>
+        <span>⌖ شعب پالاز: آزادی | شریعتی | سهروردی | شهرک غرب</span>
         <b>پشتیبانی ۲۴ ساعته ◔</b>
       </div>
     </div>

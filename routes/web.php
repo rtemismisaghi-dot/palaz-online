@@ -18,6 +18,7 @@ Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
+Route::post('/advisor/chat', [StoreController::class, 'advisorChat'])->name('advisor.chat');
 
 
 Route::prefix('admin')->name('admin.')->group(function () {

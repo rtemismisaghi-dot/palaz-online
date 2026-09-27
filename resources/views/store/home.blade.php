@@ -200,7 +200,21 @@
 .palaz-advisor-brand span{display:flex;align-items:center;gap:5px;color:#8a8d91;font-size:10px;margin-top:5px}
 .palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
 .palaz-advisor-close{width:38px;height:38px;border:1px solid #ebe7e3;border-radius:50%;background:#fff;color:#555;font-size:25px;line-height:1;cursor:pointer;flex:0 0 auto}
-.palaz-advisor-messages{flex:1;overflow:auto;padding:24px 18px 14px;background:linear-gradient(#fbfaf9,#fff)}
+.palaz-advisor-voice-intro{margin:18px 18px 8px;padding:22px 18px 20px;border:1px solid #eee4e1;border-radius:24px;background:radial-gradient(circle at 50% 0%,#fff5f5 0%,#fff 58%);text-align:center;box-shadow:0 12px 35px rgba(80,30,35,.06)}
+.palaz-advisor-voice-orb{position:relative;width:76px;height:76px;margin:0 auto 12px;border-radius:24px;background:linear-gradient(145deg,#b71929,#86121f);display:grid;place-items:center;box-shadow:0 12px 28px rgba(183,25,41,.25)}
+.palaz-advisor-voice-orb:before,.palaz-advisor-voice-orb:after{content:"";position:absolute;border:1px solid rgba(183,25,41,.28);border-radius:30px;inset:-7px;animation:palazVoiceWave 2.2s ease-out infinite}
+.palaz-advisor-voice-orb:after{animation-delay:1.1s}
+.palaz-advisor-voice-orb img{width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1)}
+.palaz-advisor-voice-intro strong{display:block;font-size:15px;color:#25282c;margin-bottom:4px}
+.palaz-advisor-voice-intro span{display:block;font-size:10px;color:#969292}
+.palaz-advisor-voice-intro button{margin-top:12px;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:8px 13px;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+.palaz-advisor-voice-intro button.is-speaking{background:#fff4f5}
+.palaz-advisor-voice-bars{display:flex;align-items:center;justify-content:center;gap:3px;height:15px;margin-top:10px}
+.palaz-advisor-voice-bars i{display:block;width:3px;height:5px;border-radius:4px;background:#b71929;animation:palazVoiceBars .8s ease-in-out infinite}
+.palaz-advisor-voice-bars i:nth-child(2){animation-delay:.12s}.palaz-advisor-voice-bars i:nth-child(3){animation-delay:.24s}.palaz-advisor-voice-bars i:nth-child(4){animation-delay:.36s}.palaz-advisor-voice-bars i:nth-child(5){animation-delay:.48s}
+@keyframes palazVoiceWave{0%{transform:scale(.75);opacity:.7}100%{transform:scale(1.18);opacity:0}}
+@keyframes palazVoiceBars{0%,100%{height:4px;opacity:.45}50%{height:14px;opacity:1}}
+.palaz-advisor-messages{flex:1;overflow:auto;padding:14px 18px 14px;background:linear-gradient(#fbfaf9,#fff)}
 .palaz-advisor-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:16px}
 .palaz-advisor-avatar{width:32px;height:32px;border-radius:50%;background:#25282c;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}
 .palaz-advisor-bubble{max-width:82%;padding:12px 15px;border-radius:17px 17px 5px 17px;background:#f2efec;color:#333;font-size:13px;line-height:1.9}
@@ -559,6 +573,16 @@
             <button class="palaz-advisor-close" type="button" aria-label="بستن مشاور">×</button>
           </header>
 
+          <div class="palaz-advisor-voice-intro" aria-live="polite">
+            <div class="palaz-advisor-voice-orb">
+              <img src="{{ asset('images/palaz-p-mark.png') }}" alt="">
+            </div>
+            <strong>مشاور هوشمند پالاز</strong>
+            <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>
+            <div class="palaz-advisor-voice-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <button type="button" class="palaz-advisor-voice-replay">🔊 پخش دوباره</button>
+          </div>
+
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
               <div class="palaz-advisor-avatar">P</div>
@@ -713,7 +737,36 @@
       const messages = backdrop.querySelector('.palaz-advisor-messages');
       const mic = backdrop.querySelector('.palaz-advisor-mic');
       const suggestions = [...backdrop.querySelectorAll('.palaz-advisor-suggestions button')];
+      const voiceStatus = backdrop.querySelector('.palaz-advisor-voice-status');
+      const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       let lastFocusedElement = null;
+      const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
+
+      const speakWelcome = () => {
+        if (!('speechSynthesis' in window)) {
+          if (voiceStatus) voiceStatus.textContent = 'برای شروع، پیام خود را بنویسید یا با میکروفون صحبت کنید.';
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(welcomeText);
+        utterance.lang = 'fa-IR';
+        utterance.rate = .92;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        utterance.onstart = () => {
+          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
+          voiceReplay?.classList.add('is-speaking');
+        };
+        utterance.onend = () => {
+          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+        utterance.onerror = () => {
+          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+        window.speechSynthesis.speak(utterance);
+      };
       let previousBodyOverflow = '';
 
       const openAdvisor = () => {
@@ -723,9 +776,13 @@
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden','false');
         openers.forEach(btn => btn.setAttribute('aria-expanded','true'));
-        window.setTimeout(() => input?.focus(), 180);
+        window.setTimeout(() => {
+          speakWelcome();
+          input?.focus();
+        }, 180);
       };
       const closeAdvisor = () => {
+        window.speechSynthesis?.cancel();
         backdrop.classList.remove('is-open');
         backdrop.setAttribute('aria-hidden','true');
         openers.forEach(btn => btn.setAttribute('aria-expanded','false'));
@@ -738,6 +795,7 @@
         }, 220);
       };
       openers.forEach(btn => btn.addEventListener('click', openAdvisor));
+      voiceReplay?.addEventListener('click', speakWelcome);
       close?.addEventListener('click', closeAdvisor);
       backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAdvisor(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeAdvisor(); });

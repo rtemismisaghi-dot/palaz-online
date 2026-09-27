@@ -742,14 +742,11 @@
       let lastFocusedElement = null;
       const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
 
-      const getFemaleVoice = () => {
+      const getPersianVoice = () => {
         const voices = window.speechSynthesis.getVoices();
         if (!voices.length) return null;
-        const femaleHints = /female|woman|girl|zira|samantha|susan|victoria|hazel|aria|sara|sahar|parisa|shima|maryam|niloofar|نسرین|سارا|مریم|شیما|پریسا|نیلوفر|سحر/i;
-        return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang) && femaleHints.test(v.name))
-          || voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
-          || voices.find(v => /^fa/i.test(v.lang) && femaleHints.test(v.name))
-          || voices.find(v => femaleHints.test(v.name))
+        return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
+          || voices.find(v => /^fa/i.test(v.lang))
           || null;
       };
 
@@ -765,10 +762,10 @@
 
         const speak = () => {
           const utterance = new SpeechSynthesisUtterance(welcomeText);
-          const femaleVoice = getFemaleVoice();
-          if (femaleVoice) {
-            utterance.voice = femaleVoice;
-            utterance.lang = femaleVoice.lang || 'fa-IR';
+          const persianVoice = getPersianVoice();
+          if (persianVoice) {
+            utterance.voice = persianVoice;
+            utterance.lang = persianVoice.lang || 'fa-IR';
           } else {
             utterance.lang = 'fa-IR';
           }
@@ -777,7 +774,7 @@
           utterance.volume = 1;
 
           utterance.onstart = () => {
-            if (voiceStatus) voiceStatus.textContent = 'مشاور خانم پالاز در حال صحبت است...';
+            if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
             voiceReplay?.classList.add('is-speaking');
           };
           utterance.onend = () => {

@@ -170,7 +170,12 @@
 .palaz-experience .px-connected-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .palaz-experience .px-connected-card{min-height:250px;border-radius:24px;padding:30px;position:relative;overflow:hidden;background:#202327;color:#fff}
 .palaz-experience .px-connected-card.light{background:#f7f5f2;color:#25282c}
-.palaz-experience .px-tour-card{background:linear-gradient(90deg,rgba(15,16,18,.9),rgba(15,16,18,.35)),url("https://palazonline.com/storage/uploads/IMG_1100-4.PNG") center/cover!important;}
+.palaz-experience .px-tour-card{background:#111!important;padding:0!important;min-height:250px;position:relative;isolation:isolate;}
+.palaz-experience .px-tour-card iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;transform:scale(1.02);transform-origin:center;z-index:0;}
+.palaz-experience .px-tour-card:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.08) 68%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 45%);z-index:1;pointer-events:none;}
+.palaz-experience .px-tour-card .px-tour-content{position:relative;z-index:2;pointer-events:none;padding:30px;max-width:70%;}
+.palaz-experience .px-tour-card .px-tour-content .px-icon,.palaz-experience .px-tour-card .px-tour-content .px-kicker,.palaz-experience .px-tour-card .px-tour-content h3,.palaz-experience .px-tour-card .px-tour-content p{pointer-events:none;}
+.palaz-experience .px-tour-card .px-btn{z-index:3;}
 .palaz-experience .px-connected-card .px-icon{font-size:30px;display:block;margin-bottom:18px}
 .palaz-experience .px-connected-card h3{font-size:26px;margin:0 0 8px}
 .palaz-experience .px-connected-card p{line-height:1.9;max-width:520px;color:inherit;opacity:.78}
@@ -464,9 +469,12 @@
         <div class="px-wrap">
           <div class="px-connected-grid">
             <article class="px-connected-card px-tour-card">
-              <span class="px-icon">◉</span><span class="px-kicker" style="color:#fff;opacity:.9">03 / VIRTUAL SHOWROOM</span>
-              <h3>وارد شوروم پالاز شو</h3>
-              <p>تور مجازی را به یک نقطه کشف تبدیل می‌کنیم؛ سبک، تصویری و بدون بارگذاری سنگین تا زمانی که مشتری واقعاً وارد آن شود.</p>
+              <iframe src="https://palazonline.com/360-azadi/index.html" title="تور مجازی شعبه آزادی پالاز" loading="lazy" allow="fullscreen"></iframe>
+              <div class="px-tour-content">
+                <span class="px-icon">◉</span><span class="px-kicker" style="color:#fff;opacity:.9">03 / VIRTUAL SHOWROOM</span>
+                <h3>وارد شوروم پالاز شو</h3>
+                <p>موس را روی تصویر حرکت بده و فضای ورودی شعبه آزادی را چپ، راست، بالا و پایین ببین.</p>
+              </div>
               <a class="px-btn red" href="https://palazonline.com/page/azadi-360" target="_blank" rel="noopener noreferrer">شروع تور مجازی ←</a>
             </article>
             <article class="px-connected-card light">

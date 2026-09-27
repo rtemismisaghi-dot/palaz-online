@@ -470,11 +470,7 @@
           <div class="px-connected-grid">
             <article class="px-connected-card px-tour-card">
               <iframe src="https://palazonline.com/360-azadi/index.html" title="تور مجازی شعبه آزادی پالاز" loading="lazy" allow="fullscreen"></iframe>
-              <div class="px-tour-content">
-                <span class="px-icon">◉</span><span class="px-kicker" style="color:#fff;opacity:.9">03 / VIRTUAL SHOWROOM</span>
-                <h3>وارد شوروم پالاز شو</h3>
-                <p>موس را روی تصویر حرکت بده و فضای ورودی شعبه آزادی را چپ، راست، بالا و پایین ببین.</p>
-              </div>
+              <div class="px-tour-content"></div>
               <a class="px-btn red" href="https://palazonline.com/page/azadi-360" target="_blank" rel="noopener noreferrer">شروع تور مجازی ←</a>
             </article>
             <article class="px-connected-card light">

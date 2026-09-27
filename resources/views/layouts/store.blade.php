@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded',function(){
 @yield('content')
 <footer class="footer"><div class="container footer-grid">
 <div><div class="footer-brand">PALAZ <span>ONLINE</span></div><p>پالاز؛ همراه مطمئن شما در انتخاب، خرید و اجرای پوشش‌های فضای زندگی.</p><div class="footer-social">◎　◉　in　◌</div></div>
-<div><h4>فروشگاه</h4><a href="{{ route('shop',['category'=>'carpet']) }}">موکت</a><a href="{{ route('shop',['category'=>'laminate']) }}">لمینیت</a><a href="{{ route('shop',['category'=>'spc']) }}">SPC</a><a href="{{ route('shop',['category'=>'wallpaper']) }}">کاغذدیواری</a></div>
+<div><h4>فروشگاه</h4><a href="{{ route('shop',['category'=>'carpet']) }}">موکت</a><a href="{{ route('shop',['category'=>'laminate']) }}">لمینیت</a><a href="{{ route('shop',['category'=>'spc']) }}">فرش‌گونه</a><a href="{{ route('shop',['category'=>'wallpaper']) }}">کاغذدیواری</a></div>
 <div><h4>خدمات حرفه‌ای</h4><a href="{{ route('services',['type'=>'measurement']) }}">اندازه‌گیری</a><a href="{{ route('services',['type'=>'installation']) }}">نصب حرفه‌ای</a><a href="{{ route('services',['type'=>'design']) }}">طراحی و محاسبه</a><a href="{{ route('services') }}">مشاوره تخصصی</a></div>
 <div><h4>راهنمای مشتری</h4><a href="{{ route('cart') }}">سبد خرید</a><a href="{{ route('services') }}">پیگیری خدمات</a><a href="{{ route('home') }}">درباره پالاز</a><a href="{{ route('home') }}">تماس با ما</a></div>
 <div class="footer-news"><h4>عضویت در خبرنامه</h4><p>از جدیدترین محصولات و پیشنهادها باخبر شوید.</p><form><input placeholder="ایمیل خود را وارد کنید"><button>→</button></form></div>

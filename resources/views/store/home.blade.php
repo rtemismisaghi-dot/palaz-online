@@ -13,7 +13,10 @@
     </div>
     <div class="ref-head-main ref-wrap">
       <button class="ref-mobile-btn" type="button" aria-label="منو">☰</button>
-      <a href="{{ route('home') }}" class="ref-logo"><img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE"></a>
+      <a href="{{ route('home') }}" class="ref-logo" aria-label="PALAZ ONLINE">
+        <span class="ref-logo-mark">P</span>
+        <span class="ref-logo-word"><strong>Palaz</strong><small>ONLINE</small></span>
+      </a>
       <form class="ref-search" action="{{ route('shop') }}">
         <input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته‌بندی یا برند...">
         <button type="submit">⌕</button>

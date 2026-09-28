@@ -1121,6 +1121,25 @@
 })();
 </script>
 
+<script>
+(() => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const openNewAdvisor = () => {
+      const trigger = document.getElementById('palazAiTrigger');
+      if (trigger) {
+        trigger.click();
+        return;
+      }
+      document.getElementById('palaz-advisor-panel')?.classList.add('is-open');
+    };
+
+    document.querySelectorAll('.palaz-advisor-shortcut, .px-open-advisor').forEach(button => {
+      button.addEventListener('click', openNewAdvisor);
+    });
+  });
+})();
+</script>
+
 </div>
 @endsection
 

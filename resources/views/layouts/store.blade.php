@@ -46,7 +46,32 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-</head>
+<style id="palaz-ai-advisor">
+.palaz-ai-trigger{position:fixed;right:24px;bottom:24px;width:86px;height:86px;border:0;border-radius:50%;padding:0;overflow:hidden;z-index:1200;cursor:pointer;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.18);transition:transform .25s,box-shadow .25s}
+.palaz-ai-trigger:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.22)}
+.palaz-ai-trigger img{width:100%;height:100%;object-fit:cover;display:block}
+.palaz-ai-trigger .ai-pulse{position:absolute;inset:-5px;border:2px solid rgba(163,30,45,.28);border-radius:50%;animation:palazAiPulse 2.4s infinite}
+@keyframes palazAiPulse{0%,100%{transform:scale(.94);opacity:.2}50%{transform:scale(1.08);opacity:.75}}
+.palaz-ai-panel{position:fixed;right:24px;bottom:122px;width:min(390px,calc(100vw - 32px));height:560px;background:#fff;border-radius:24px;z-index:1199;box-shadow:0 24px 70px rgba(0,0,0,.22);overflow:hidden;opacity:0;transform:translateY(18px) scale(.97);pointer-events:none;transition:opacity .25s,transform .25s;display:flex;flex-direction:column}
+.palaz-ai-panel.open{opacity:1;transform:none;pointer-events:auto}
+.palaz-ai-head{display:flex;align-items:center;gap:12px;padding:15px 18px;background:linear-gradient(135deg,#8f1e2d,#b52d40);color:#fff}
+.palaz-ai-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;flex:0 0 auto;border:2px solid rgba(255,255,255,.75);background:#fff}
+.palaz-ai-avatar img{width:100%;height:100%;object-fit:cover}
+.palaz-ai-head strong{display:block;font-size:15px}.palaz-ai-head small{display:block;margin-top:4px;opacity:.82}
+.palaz-ai-close{margin-right:auto;border:0;background:transparent;color:#fff;font-size:25px;cursor:pointer}
+.palaz-ai-body{flex:1;padding:20px;overflow:auto;background:#faf9f7}
+.palaz-ai-welcome{background:#fff;border:1px solid #eee8e2;border-radius:18px;padding:16px;line-height:1.9}
+.palaz-ai-welcome b{display:block;margin-bottom:5px}
+.palaz-ai-state{display:flex;align-items:center;gap:7px;margin-top:12px;color:#777;font-size:12px}
+.palaz-ai-dot{width:7px;height:7px;border-radius:50%;background:#a51f32;animation:palazAiBlink 1.4s infinite}
+@keyframes palazAiBlink{50%{opacity:.25;transform:scale(.75)}}
+.palaz-ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.palaz-ai-suggestions button{border:1px solid #e4d8d2;background:#fff;border-radius:999px;padding:9px 12px;font-family:inherit;cursor:pointer}
+.palaz-ai-foot{padding:12px;border-top:1px solid #eee;background:#fff;display:flex;gap:8px}
+.palaz-ai-foot input{flex:1;border:1px solid #ddd;border-radius:14px;padding:11px 13px;font-family:inherit;outline:none}
+.palaz-ai-foot button{border:0;border-radius:14px;background:#a51f32;color:#fff;padding:0 16px;font-family:inherit;cursor:pointer}
+@media(max-width:700px){.palaz-ai-trigger{right:16px;bottom:16px;width:72px;height:72px}.palaz-ai-panel{right:8px;bottom:8px;width:calc(100vw - 16px);height:min(620px,calc(100vh - 16px));border-radius:22px}.palaz-ai-panel.open~.palaz-ai-trigger{transform:scale(.9)}}
+</style></head>
 <body>
 <div class="palaz-topbar"><div class="container"><span>☎ 021-12345678</span><span>⌖ تهران، جردن، خیابان پالاز</span><b>پشتیبانی ۲۴ ساعته ◔</b></div></div>
 <header class="site-header">
@@ -84,4 +109,18 @@ document.addEventListener('DOMContentLoaded',function(){
 <div><h4>راهنمای مشتری</h4><a href="{{ route('cart') }}">سبد خرید</a><a href="{{ route('services') }}">پیگیری خدمات</a><a href="{{ route('home') }}">درباره پالاز</a><a href="{{ route('home') }}">تماس با ما</a></div>
 <div class="footer-news"><h4>عضویت در خبرنامه</h4><p>از جدیدترین محصولات و پیشنهادها باخبر شوید.</p><form><input placeholder="ایمیل خود را وارد کنید"><button>→</button></form></div>
 </div><div class="container footer-bottom"><span>© {{ date('Y') }} PALAZ ONLINE. All rights reserved.</span><span>طراحی و توسعه برای یک تجربه متصل</span></div></footer>
-</body></html>
+<button class="palaz-ai-trigger" id="palazAiTrigger" type="button" aria-label="دستیار فروش پالاز"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="دستیار فروش پالاز"><span class="ai-pulse"></span></button>
+<section class="palaz-ai-panel" id="palazAiPanel" aria-label="دستیار فروش پالاز" aria-hidden="true">
+<div class="palaz-ai-head"><div class="palaz-ai-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt=""></div><div><strong>دستیار فروش پالاز</strong><small>همراه شما برای انتخاب بهتر</small></div><button class="palaz-ai-close" id="palazAiClose" type="button" aria-label="بستن">×</button></div>
+<div class="palaz-ai-body"><div class="palaz-ai-welcome"><b>سلام، من دستیار پالاز هستم 👋</b><span>برای انتخاب موکت، لمینیت، کاغذدیواری و سایر محصولات می‌تونم راهنماییتون کنم.</span><div class="palaz-ai-state"><i class="palaz-ai-dot"></i><span>آماده پاسخگویی</span></div></div><div class="palaz-ai-suggestions"><button type="button">برای پذیرایی چی پیشنهاد می‌دی؟</button><button type="button">محصول مناسب فضای من</button><button type="button">مقایسه محصولات</button></div></div>
+<div class="palaz-ai-foot"><input id="palazAiInput" placeholder="سؤال خود را بنویسید..." aria-label="پیام"><button id="palazAiSend" type="button">ارسال</button></div>
+</section><script>
+document.addEventListener('DOMContentLoaded',function(){
+ const t=document.getElementById('palazAiTrigger'),p=document.getElementById('palazAiPanel'),c=document.getElementById('palazAiClose');
+ if(!t||!p)return;
+ function toggle(open){p.classList.toggle('open',open);p.setAttribute('aria-hidden',open?'false':'true');if(open)setTimeout(()=>document.getElementById('palazAiInput')?.focus(),220)}
+ t.addEventListener('click',()=>toggle(!p.classList.contains('open')));c?.addEventListener('click',()=>toggle(false));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')toggle(false)});
+ document.querySelectorAll('.palaz-ai-suggestions button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('palazAiInput').value=b.textContent}));
+});
+</script></body></html>

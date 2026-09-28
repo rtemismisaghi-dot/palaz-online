@@ -27,6 +27,22 @@ document.addEventListener('DOMContentLoaded',function(){
    v=v===3?1:v+1;
    header.classList.add('header-variant-'+v);
  },5000);
+ const mobileBtn=header.querySelector('.mobile-menu');
+ const nav=header.querySelector('.main-nav');
+ if(mobileBtn && nav){
+   mobileBtn.addEventListener('click',function(){
+     const open=header.classList.toggle('mobile-open');
+     mobileBtn.setAttribute('aria-expanded',open?'true':'false');
+     mobileBtn.textContent=open?'×':'☰';
+   });
+   nav.querySelectorAll('a').forEach(function(link){
+     link.addEventListener('click',function(){
+       header.classList.remove('mobile-open');
+       mobileBtn.setAttribute('aria-expanded','false');
+       mobileBtn.textContent='☰';
+     });
+   });
+ }
 });
 </script>
 

@@ -328,6 +328,160 @@
   }
   .palaz-reference-home .ref-actions{left:0!important;right:auto!important;}
 }
+
+/* FINAL MOBILE FIX — rebuilt homepage header */
+@media (max-width:767px){
+  .palaz-reference-home{
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+  }
+  .palaz-reference-home .ref-header{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:64px!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    border:0!important;
+    box-shadow:none!important;
+  }
+  .palaz-reference-home .ref-head-main{
+    width:100%!important;
+    height:64px!important;
+    min-height:64px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    grid-template-areas:"menu logo cart"!important;
+    gap:0!important;
+    align-items:center!important;
+    direction:ltr!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+  }
+  .palaz-reference-home .ref-mobile-btn{
+    grid-area:menu!important;
+    display:grid!important;
+    place-items:center!important;
+    width:40px!important;
+    height:40px!important;
+    margin:0!important;
+    padding:0!important;
+    border:1px solid #ddd!important;
+    border-radius:10px!important;
+    background:#fff!important;
+    color:#222!important;
+    font-size:22px!important;
+    line-height:1!important;
+    cursor:pointer!important;
+    z-index:60!important;
+  }
+  .palaz-reference-home .ref-logo{
+    grid-area:logo!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    justify-self:center!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:auto!important;
+    min-width:0!important;
+    height:46px!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  .palaz-reference-home .ref-logo img{
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:112px!important;
+    height:auto!important;
+    max-width:112px!important;
+    max-height:46px!important;
+    object-fit:contain!important;
+  }
+  .palaz-reference-home .ref-mobile-cart{
+    grid-area:cart!important;
+    display:grid!important;
+    place-items:center!important;
+    position:relative!important;
+    width:40px!important;
+    height:40px!important;
+    margin:0!important;
+    color:#222!important;
+    font-size:20px!important;
+    text-align:center!important;
+    text-decoration:none!important;
+  }
+  .palaz-reference-home .ref-actions,
+  .palaz-reference-home .ref-search-row{
+    display:none!important;
+  }
+  .palaz-reference-home .ref-nav{
+    display:none!important;
+    position:absolute!important;
+    top:64px!important;
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:8px!important;
+    background:#fff!important;
+    border:1px solid #e8e8e8!important;
+    border-radius:14px!important;
+    box-shadow:0 16px 40px rgba(0,0,0,.14)!important;
+    z-index:55!important;
+  }
+  .palaz-reference-home .ref-header.mobile-open .ref-nav{
+    display:block!important;
+  }
+  .palaz-reference-home .ref-nav .ref-wrap{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:3px!important;
+    box-sizing:border-box!important;
+  }
+  .palaz-reference-home .ref-nav a{
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    padding:0 14px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    border:0!important;
+    border-radius:9px!important;
+    background:#fff!important;
+    color:#242424!important;
+    font-size:11px!important;
+    font-weight:600!important;
+    box-sizing:border-box!important;
+  }
+  .palaz-reference-home .ref-nav a.active{
+    color:#fff!important;
+    background:#e21d2d!important;
+  }
+  .palaz-reference-home .ref-hero{
+    margin:0!important;
+    padding:0!important;
+  }
+}
+
 </style>
 <div class="palaz-reference-home" dir="rtl">
 
@@ -943,5 +1097,30 @@
       });
     })();
   </script>
+
+<script>
+(() => {
+  const header = document.querySelector('.palaz-reference-home .ref-header');
+  const button = header?.querySelector('.ref-mobile-btn');
+  const nav = header?.querySelector('.ref-nav');
+  if (!header || !button || !nav) return;
+
+  button.addEventListener('click', () => {
+    const open = header.classList.toggle('mobile-open');
+    button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    button.textContent = open ? '×' : '☰';
+  });
+
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      header.classList.remove('mobile-open');
+      button.setAttribute('aria-expanded', 'false');
+      button.textContent = '☰';
+    });
+  });
+})();
+</script>
+
 </div>
 @endsection
+

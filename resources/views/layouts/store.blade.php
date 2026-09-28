@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded',function(){
 .palaz-ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .palaz-ai-suggestions button{border:1px solid #e4d8d2;background:#fff;border-radius:999px;padding:9px 12px;font-family:inherit;cursor:pointer}
 .palaz-ai-foot{padding:12px;border-top:1px solid #eee;background:#fff;display:flex;gap:8px}
-.palaz-ai-mic{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;flex:0 0 38px}.palaz-ai-mic.recording{background:#a51d2d;color:#fff;animation:palazAiRecord 1s infinite}.palaz-ai-foot input{flex:1;border:1px solid #ddd;border-radius:14px;padding:11px 13px;font-family:inherit;outline:none}
+.palaz-ai-mic{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;flex:0 0 38px}.palaz-ai-mic.recording{background:#a51d2d;color:#fff;animation:palazAiRecord 1s infinite}.palaz-ai-speak{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;flex:0 0 38px}.palaz-ai-speak.active{background:#a51d2d;color:#fff}.palaz-ai-foot input{flex:1;border:1px solid #ddd;border-radius:14px;padding:11px 13px;font-family:inherit;outline:none}
 .palaz-ai-foot button{border:0;border-radius:14px;background:#a51f32;color:#fff;padding:0 16px;font-family:inherit;cursor:pointer}
 @media(max-width:700px){.palaz-ai-trigger{right:16px;bottom:16px;width:72px;height:72px}.palaz-ai-panel{right:8px;bottom:8px;width:calc(100vw - 16px);height:min(620px,calc(100vh - 16px));border-radius:22px}.palaz-ai-panel.open~.palaz-ai-trigger{transform:scale(.9)}}
 </style></head>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <section class="palaz-ai-panel" id="palazAiPanel" aria-label="دستیار فروش پالاز" aria-hidden="true">
 <div class="palaz-ai-head"><div class="palaz-ai-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt=""></div><div><strong>دستیار فروش پالاز</strong><small>همراه شما برای انتخاب بهتر</small></div><button class="palaz-ai-close" id="palazAiClose" type="button" aria-label="بستن">×</button></div>
 <div class="palaz-ai-body"><div class="palaz-ai-welcome"><b>سلام، من دستیار پالاز هستم 👋</b><span>برای انتخاب موکت، لمینیت، کاغذدیواری و سایر محصولات می‌تونم راهنماییتون کنم.</span><div class="palaz-ai-state"><i class="palaz-ai-dot"></i><span>آماده پاسخگویی</span></div></div><div class="palaz-ai-suggestions"><button type="button">برای پذیرایی چی پیشنهاد می‌دی؟</button><button type="button">محصول مناسب فضای من</button><button type="button">مقایسه محصولات</button></div></div>
-<div class="palaz-ai-foot"><button class="palaz-ai-mic" id="palazAiMic" type="button" aria-label="شروع گفت‌وگوی صوتی">🎙</button><input id="palazAiInput" placeholder="سؤال خود را بنویسید..." aria-label="پیام"><button id="palazAiSend" type="button">ارسال</button></div>
+<div class="palaz-ai-foot"><button class="palaz-ai-mic" id="palazAiMic" type="button" aria-label="شروع گفت‌وگوی صوتی">🎙</button><input id="palazAiInput" placeholder="سؤال خود را بنویسید..." aria-label="پیام"><button id="palazAiSend" type="button">ارسال</button><button class="palaz-ai-speak" id="palazAiSpeak" type="button" aria-label="خواندن پاسخ با صدا">🔊</button></div>
 </section><script>
 document.addEventListener('DOMContentLoaded',function(){
  const t=document.getElementById('palazAiTrigger'),p=document.getElementById('palazAiPanel'),c=document.getElementById('palazAiClose');
@@ -140,7 +140,15 @@ document.addEventListener('DOMContentLoaded',function(){
  t.addEventListener('click',()=>{const opening=!p.classList.contains('open');toggle(opening);if(opening)setAiState('listening')});c?.addEventListener('click',()=>toggle(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')toggle(false)});
  document.querySelectorAll('.palaz-ai-suggestions button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('palazAiInput').value=b.textContent}));
- const send=document.getElementById('palazAiSend'),input=document.getElementById('palazAiInput'),mic=document.getElementById('palazAiMic');
+ const send=document.getElementById('palazAiSend'),input=document.getElementById('palazAiInput'),mic=document.getElementById('palazAiMic'),speak=document.getElementById('palazAiSpeak');
+ let lastSpoken='سلام، من دستیار فروش پالاز هستم. برای انتخاب محصول مناسب در خدمت شما هستم.';
+ function speakText(text){
+  if(!('speechSynthesis' in window)){setAiState('ready');return}
+  window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='fa-IR';u.rate=.92;u.pitch=1;
+  u.onstart=()=>{speak?.classList.add('active');setAiState('answering')};
+  u.onend=()=>{speak?.classList.remove('active');setAiState('ready')};
+  window.speechSynthesis.speak(u);
+ }
  let recognition=null,recording=false;
  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(SpeechRecognition){
@@ -152,7 +160,8 @@ document.addEventListener('DOMContentLoaded',function(){
  }
  mic?.addEventListener('click',()=>{if(!recognition){setAiState('ready');input.placeholder='مرورگر شما از ورود صوتی پشتیبانی نمی‌کند';return}try{recording?recognition.stop():recognition.start()}catch(e){}});
 
- send?.addEventListener('click',()=>{if(input?.value.trim()){input.value='';setAiState('thinking');setTimeout(()=>setAiState('answering'),700);setTimeout(()=>setAiState('ready'),1800)}});
+ send?.addEventListener('click',()=>{if(input?.value.trim()){lastSpoken='سؤال شما دریافت شد. دستیار پالاز در حال بررسی محصول و شرایط فضای شماست.';input.value='';setAiState('thinking');setTimeout(()=>{setAiState('answering');speakText(lastSpoken)},700)}}); 
+ speak?.addEventListener('click',()=>speakText(lastSpoken));
  input?.addEventListener('keydown',e=>{if(e.key==='Enter')send?.click()});
 });
 </script></body></html>

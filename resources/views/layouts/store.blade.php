@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <style id="palaz-ai-advisor">
-.palaz-ai-trigger{position:fixed;right:24px;bottom:24px;width:86px;height:86px;border:0;border-radius:50%;padding:0;overflow:hidden;z-index:1200;cursor:pointer;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.18);transition:transform .25s,box-shadow .25s}
+.palaz-ai-trigger{display:flex;align-items:center;justify-content:center;position:fixed;right:24px;bottom:24px;width:86px;height:86px;border:0;border-radius:50%;padding:0;overflow:hidden;z-index:1200;cursor:pointer;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.18);transition:transform .25s,box-shadow .25s}
 .palaz-ai-trigger:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.22)}
 .palaz-ai-trigger img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAiFloat 4.8s ease-in-out infinite;transform-origin:50% 62%}
 .palaz-ai-trigger:active img{animation:none;transform:scale(.98)}

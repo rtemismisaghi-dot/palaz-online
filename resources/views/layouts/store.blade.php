@@ -58,6 +58,9 @@ document.addEventListener('DOMContentLoaded',function(){
 @keyframes palazAiBreath{0%,100%{transform:translate3d(0,0,0) scale(1)}45%{transform:translate3d(0,-1px,0) scale(1.008)}70%{transform:translate3d(0,1px,0) scale(.998)}}
 .palaz-ai-panel{position:fixed;right:24px;bottom:122px;width:min(390px,calc(100vw - 32px));height:560px;background:#fff;border-radius:24px;z-index:1199;box-shadow:0 24px 70px rgba(0,0,0,.22);overflow:hidden;opacity:0;transform:translateY(18px) scale(.97);pointer-events:none;transition:opacity .25s,transform .25s;display:flex;flex-direction:column}
 .palaz-ai-panel.open{opacity:1;transform:none;pointer-events:auto}
+.palaz-ai-panel.ai-listening .palaz-ai-avatar{box-shadow:0 0 0 4px rgba(255,255,255,.12),0 0 0 7px rgba(255,255,255,.08)}
+.palaz-ai-panel.ai-thinking .palaz-ai-dot{animation:palazAiThink .65s infinite alternate}
+.palaz-ai-panel.ai-answering .palaz-ai-avatar img{animation:palazAiAnswer 1.6s ease-in-out infinite}
 .palaz-ai-head{display:flex;align-items:center;gap:12px;padding:15px 18px;background:linear-gradient(135deg,#8f1e2d,#b52d40);color:#fff}
 .palaz-ai-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;flex:0 0 auto;border:2px solid rgba(255,255,255,.75);background:#fff}
 .palaz-ai-avatar img{width:100%;height:100%;object-fit:cover}
@@ -69,6 +72,8 @@ document.addEventListener('DOMContentLoaded',function(){
 .palaz-ai-state{display:flex;align-items:center;gap:7px;margin-top:12px;color:#777;font-size:12px}
 .palaz-ai-dot{width:7px;height:7px;border-radius:50%;background:#a51f32;animation:palazAiBlink 1.4s infinite}
 @keyframes palazAiBlink{50%{opacity:.25;transform:scale(.75)}}
+@keyframes palazAiThink{from{opacity:.3;transform:scale(.7)}to{opacity:1;transform:scale(1.25)}}
+@keyframes palazAiAnswer{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-1px,0) scale(1.012)}}
 .palaz-ai-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .palaz-ai-suggestions button{border:1px solid #e4d8d2;background:#fff;border-radius:999px;padding:9px 12px;font-family:inherit;cursor:pointer}
 .palaz-ai-foot{padding:12px;border-top:1px solid #eee;background:#fff;display:flex;gap:8px}
@@ -122,12 +127,20 @@ document.addEventListener('DOMContentLoaded',function(){
 document.addEventListener('DOMContentLoaded',function(){
  const t=document.getElementById('palazAiTrigger'),p=document.getElementById('palazAiPanel'),c=document.getElementById('palazAiClose');
  if(!t||!p)return;
+ function setAiState(state){
+ p.classList.remove('ai-listening','ai-thinking','ai-answering');
+ const label=p.querySelector('.palaz-ai-state span');
+ if(state==='listening'){p.classList.add('ai-listening');label.textContent='در حال گوش دادن…'}
+ else if(state==='thinking'){p.classList.add('ai-thinking');label.textContent='در حال فکر کردن…'}
+ else if(state==='answering'){p.classList.add('ai-answering');label.textContent='در حال پاسخگویی…'}
+ else{label.textContent='آماده پاسخگویی'}
+}
  function toggle(open){p.classList.toggle('open',open);p.setAttribute('aria-hidden',open?'false':'true');if(open)setTimeout(()=>document.getElementById('palazAiInput')?.focus(),220)}
- t.addEventListener('click',()=>toggle(!p.classList.contains('open')));c?.addEventListener('click',()=>toggle(false));
+ t.addEventListener('click',()=>{const opening=!p.classList.contains('open');toggle(opening);if(opening)setAiState('listening')});c?.addEventListener('click',()=>toggle(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')toggle(false)});
  document.querySelectorAll('.palaz-ai-suggestions button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('palazAiInput').value=b.textContent}));
  const send=document.getElementById('palazAiSend'),input=document.getElementById('palazAiInput');
- send?.addEventListener('click',()=>{if(input?.value.trim()){input.value='';p.querySelector('.palaz-ai-state span').textContent='در حال آماده‌سازی پاسخ…';setTimeout(()=>p.querySelector('.palaz-ai-state span').textContent='آماده پاسخگویی',900)}});
+ send?.addEventListener('click',()=>{if(input?.value.trim()){input.value='';setAiState('thinking');setTimeout(()=>setAiState('answering'),700);setTimeout(()=>setAiState('ready'),1800)}});
  input?.addEventListener('keydown',e=>{if(e.key==='Enter')send?.click()});
 });
 </script></body></html>

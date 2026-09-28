@@ -49,9 +49,13 @@ document.addEventListener('DOMContentLoaded',function(){
 <style id="palaz-ai-advisor">
 .palaz-ai-trigger{position:fixed;right:24px;bottom:24px;width:86px;height:86px;border:0;border-radius:50%;padding:0;overflow:hidden;z-index:1200;cursor:pointer;background:#fff;box-shadow:0 12px 34px rgba(0,0,0,.18);transition:transform .25s,box-shadow .25s}
 .palaz-ai-trigger:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.22)}
-.palaz-ai-trigger img{width:100%;height:100%;object-fit:cover;display:block}
+.palaz-ai-trigger img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAiFloat 4.8s ease-in-out infinite;transform-origin:50% 62%}
+.palaz-ai-trigger:active img{animation:none;transform:scale(.98)}
+.palaz-ai-avatar img{animation:palazAiBreath 3.8s ease-in-out infinite;transform-origin:50% 64%}
 .palaz-ai-trigger .ai-pulse{position:absolute;inset:-5px;border:2px solid rgba(163,30,45,.28);border-radius:50%;animation:palazAiPulse 2.4s infinite}
 @keyframes palazAiPulse{0%,100%{transform:scale(.94);opacity:.2}50%{transform:scale(1.08);opacity:.75}}
+@keyframes palazAiFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-2px,0) scale(1.012)}}
+@keyframes palazAiBreath{0%,100%{transform:translate3d(0,0,0) scale(1)}45%{transform:translate3d(0,-1px,0) scale(1.008)}70%{transform:translate3d(0,1px,0) scale(.998)}}
 .palaz-ai-panel{position:fixed;right:24px;bottom:122px;width:min(390px,calc(100vw - 32px));height:560px;background:#fff;border-radius:24px;z-index:1199;box-shadow:0 24px 70px rgba(0,0,0,.22);overflow:hidden;opacity:0;transform:translateY(18px) scale(.97);pointer-events:none;transition:opacity .25s,transform .25s;display:flex;flex-direction:column}
 .palaz-ai-panel.open{opacity:1;transform:none;pointer-events:auto}
 .palaz-ai-head{display:flex;align-items:center;gap:12px;padding:15px 18px;background:linear-gradient(135deg,#8f1e2d,#b52d40);color:#fff}
@@ -122,5 +126,8 @@ document.addEventListener('DOMContentLoaded',function(){
  t.addEventListener('click',()=>toggle(!p.classList.contains('open')));c?.addEventListener('click',()=>toggle(false));
  document.addEventListener('keydown',e=>{if(e.key==='Escape')toggle(false)});
  document.querySelectorAll('.palaz-ai-suggestions button').forEach(b=>b.addEventListener('click',()=>{document.getElementById('palazAiInput').value=b.textContent}));
+ const send=document.getElementById('palazAiSend'),input=document.getElementById('palazAiInput');
+ send?.addEventListener('click',()=>{if(input?.value.trim()){input.value='';p.querySelector('.palaz-ai-state span').textContent='در حال آماده‌سازی پاسخ…';setTimeout(()=>p.querySelector('.palaz-ai-state span').textContent='آماده پاسخگویی',900)}});
+ input?.addEventListener('keydown',e=>{if(e.key==='Enter')send?.click()});
 });
 </script></body></html>

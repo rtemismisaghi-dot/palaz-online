@@ -2393,3 +2393,138 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
 @media (min-width:768px){
   .site-header .mobile-menu{display:none!important}
 }
+
+
+/* MOBILE HEADER FINAL FIX — keep desktop unchanged */
+@media (max-width:700px){
+  .site-header{
+    display:block!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  .site-header > .header-main{
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) 42px!important;
+    grid-template-rows:46px 46px!important;
+    grid-template-areas:
+      "menu brand actions"
+      "search search search"!important;
+    width:calc(100% - 28px)!important;
+    height:auto!important;
+    min-height:102px!important;
+    margin:0 auto!important;
+    padding:10px 0!important;
+    gap:10px!important;
+    align-items:center!important;
+    direction:ltr!important;
+    box-sizing:border-box!important;
+  }
+  .site-header .mobile-menu{
+    grid-area:menu!important;
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+    place-items:center!important;
+    width:42px!important;
+    height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    color:#222!important;
+    background:#fff!important;
+    border:1px solid #ddd!important;
+    border-radius:10px!important;
+    font-size:22px!important;
+    line-height:1!important;
+    z-index:60!important;
+  }
+  .site-header .brand-real{
+    grid-area:brand!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:auto!important;
+    min-width:0!important;
+    height:46px!important;
+    margin:0!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+  .site-header .brand-logo{
+    display:block!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:auto!important;
+    height:42px!important;
+    max-width:165px!important;
+    max-height:42px!important;
+    object-fit:contain!important;
+  }
+  .site-header .brand-wordmark{display:none!important}
+  .site-header .header-actions{
+    grid-area:actions!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    margin:0!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+  .site-header .header-action:not(.cart){display:none!important}
+  .site-header .header-action.cart{
+    display:flex!important;
+    width:42px!important;
+    height:42px!important;
+    padding:0!important;
+    margin:0!important;
+    justify-content:center!important;
+    align-items:center!important;
+  }
+  .site-header .header-action.cart .action-icon{font-size:18px!important}
+  .site-header .search-real{
+    grid-area:search!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:100%!important;
+    height:46px!important;
+    min-height:46px!important;
+    margin:0!important;
+    max-width:none!important;
+  }
+  .site-header .search-real input{
+    display:block!important;
+    width:100%!important;
+    height:44px!important;
+    min-height:44px!important;
+    box-sizing:border-box!important;
+  }
+  .site-header .main-nav{
+    display:none!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  .site-header.mobile-open .main-nav{
+    display:block!important;
+  }
+  .site-header.mobile-open .nav-inner{
+    display:flex!important;
+    height:auto!important;
+    min-height:0!important;
+    padding:6px 10px!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    overflow:visible!important;
+  }
+  .site-header.mobile-open .nav-inner>a{
+    display:flex!important;
+    height:44px!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    border-bottom:1px solid #eee!important;
+  }
+  .site-header.mobile-open .nav-dropdown{display:none!important}
+}

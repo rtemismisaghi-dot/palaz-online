@@ -20,9 +20,8 @@ Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
 Route::post('/advisor/chat', [StoreController::class, 'advisorChat'])->name('advisor.chat');
 
-
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('categories', CategoryController::class)->except(['show','destroy']);
-    Route::resource('products', ProductController::class)->except(['show','destroy']);
+    Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('products', ProductController::class)->except(['show']);
 });

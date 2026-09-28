@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
+use App\Models\Product;
 use App\Seeders\StoreCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -29,7 +31,7 @@ class AdminCatalogTest extends TestCase
     public function test_admin_rejects_negative_price(): void
     {
         $this->seed(StoreCatalogSeeder::class);
-        $category=\App\Models\Category::first();
+        $category=Category::first();
         $this->from('/admin/products/create')->post('/admin/products',[
             'category_id'=>$category->id,'name'=>'محصول نامعتبر','slug'=>'invalid-price','price'=>-1,
             'unit'=>'متر','calculation_type'=>'area','calculation_unit'=>'m2','waste_percent'=>0,'is_active'=>1,
@@ -39,12 +41,37 @@ class AdminCatalogTest extends TestCase
     public function test_admin_can_save_product_and_pricing_rule(): void
     {
         $this->seed(StoreCatalogSeeder::class);
-        $category=\App\Models\Category::first();
+        $category=Category::first();
         $this->post('/admin/products',[
             'category_id'=>$category->id,'name'=>'موکت تست','slug'=>'test-carpet','price'=>100000,
-            'unit'=>'مترمربع','calculation_type'=>'area','calculation_unit'=>'m2','waste_percent'=>7,'is_active'=>1,
+            'unit'=>'مترمربع','calculation_type'=>'area','calculation_unit'=>'m2','waste_percent'=>7,
+            'attributes_json'=>'{"رنگ":"کرم"}','is_active'=>1,'is_featured'=>1,
         ])->assertRedirect('/admin/products');
-        $this->assertDatabaseHas('products',['slug'=>'test-carpet','price'=>100000]);
+
+        $this->assertDatabaseHas('products',['slug'=>'test-carpet','price'=>100000,'is_featured'=>true]);
         $this->assertDatabaseHas('product_pricing_rules',['calculation_type'=>'area','waste_percent'=>7]);
+        $this->assertDatabaseHas('products',['slug'=>'test-carpet','attributes'=>'{"رنگ":"کرم"}']);
+    }
+
+    public function test_admin_can_delete_product(): void
+    {
+        $this->seed(StoreCatalogSeeder::class);
+        $product=Product::first();
+
+        $this->delete('/admin/products/'.$product->id)->assertRedirect('/admin/products');
+
+        $this->assertDatabaseMissing('products',['id'=>$product->id]);
+        $this->assertDatabaseMissing('product_pricing_rules',['product_id'=>$product->id]);
+    }
+
+    public function test_category_with_products_cannot_be_deleted(): void
+    {
+        $this->seed(StoreCatalogSeeder::class);
+        $category=Category::where('slug','carpet')->first();
+
+        $this->delete('/admin/categories/'.$category->id)
+            ->assertSessionHasErrors('category');
+
+        $this->assertDatabaseHas('categories',['id'=>$category->id]);
     }
 }

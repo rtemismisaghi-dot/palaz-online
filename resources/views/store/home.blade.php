@@ -267,7 +267,13 @@
 @keyframes palazAdvisorListening{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 @keyframes palazAdvisorThinking{0%,100%{transform:translateY(0) scale(.99)}50%{transform:translateY(-2px) scale(1.025)}}
 @keyframes palazAdvisorAnswering{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-2px) scale(1.02)}70%{transform:translateY(1px) scale(.998)}}
-.palaz-advisor-avatar img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAdvisorAvatarBreath 4s ease-in-out infinite}
+.palaz-advisor-avatar img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAdvisorAvatarBreath 4s ease-in-out infinite}.palaz-advisor-backdrop.is-listening .palaz-advisor-avatar img{animation:palazAdvisorAvatarListen 1.05s ease-in-out infinite}
+.palaz-advisor-backdrop.is-thinking .palaz-advisor-avatar img{animation:palazAdvisorAvatarThink .8s ease-in-out infinite}
+.palaz-advisor-backdrop.is-answering .palaz-advisor-avatar img{animation:palazAdvisorAvatarSpeak 1.15s ease-in-out infinite}
+@keyframes palazAdvisorAvatarListen{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.045) translateY(-2px)}}
+@keyframes palazAdvisorAvatarThink{0%,100%{transform:rotate(0) scale(1)}35%{transform:rotate(-1deg) scale(1.025)}70%{transform:rotate(1deg) scale(1.035)}}
+@keyframes palazAdvisorAvatarSpeak{0%,100%{transform:scale(1) translateY(0)}30%{transform:scale(1.035) translateY(-2px)}60%{transform:scale(.995) translateY(1px)}}
+
 @keyframes palazAdvisorAvatarBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.012) translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.palaz-advisor-voice-orb img,.palaz-advisor-avatar img,.palaz-advisor-backdrop.is-listening .palaz-advisor-voice-orb{animation:none!important}}
 .palaz-advisor-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:16px}
@@ -1098,7 +1104,7 @@
 
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
-              <div class="palaz-advisor-avatar">P</div>
+              <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
               <div class="palaz-advisor-bubble">سلام 👋 من مشاور پالاز هستم.<br>برای انتخاب بهترین پوشش، از فضای شما شروع کنیم؟</div>
             </div>
           </div>

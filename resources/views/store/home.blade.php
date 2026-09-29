@@ -248,7 +248,7 @@
 .palaz-advisor-voice-orb{position:relative;width:76px;height:76px;margin:0 auto 12px;border-radius:24px;background:linear-gradient(145deg,#b71929,#86121f);display:grid;place-items:center;box-shadow:0 12px 28px rgba(183,25,41,.25)}
 .palaz-advisor-voice-orb:before,.palaz-advisor-voice-orb:after{content:"";position:absolute;border:1px solid rgba(183,25,41,.28);border-radius:30px;inset:-7px;animation:palazVoiceWave 2.2s ease-out infinite}
 .palaz-advisor-voice-orb:after{animation-delay:1.1s}
-.palaz-advisor-voice-orb img{width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1)}
+.palaz-advisor-voice-orb img{width:58px;height:58px;object-fit:cover;border-radius:18px;filter:none}
 .palaz-advisor-voice-intro strong{display:block;font-size:15px;color:#25282c;margin-bottom:4px}
 .palaz-advisor-voice-intro span{display:block;font-size:10px;color:#969292}
 .palaz-advisor-context{display:inline-flex;align-items:center;justify-content:center;margin-top:9px;padding:6px 10px;border-radius:999px;background:#f8f4f2;color:#777;font-size:9px;line-height:1.5}.palaz-advisor-context.is-active{background:#fff4f5;color:#b71929}.palaz-advisor-voice-intro button{margin-top:12px;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:8px 13px;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
@@ -1093,7 +1093,7 @@
 
           <div class="palaz-advisor-voice-intro" aria-live="polite">
             <div class="palaz-advisor-voice-orb">
-              <img src="{{ asset('images/palaz-p-mark.png') }}" alt="">
+              <img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="مشاور هوشمند پالاز">
             </div>
             <strong>مشاور هوشمند پالاز</strong>
             <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>

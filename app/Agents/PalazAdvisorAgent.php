@@ -72,6 +72,64 @@ PROMPT;
         return ['reply' => $this->fallback($message), 'mode' => 'catalog', 'actions' => $this->actions($message)];
     }
 
+    public function analyzeSpace(string $imageDataUrl): array
+    {
+        $apiKey = (string) config('services.openrouter.key');
+        if ($apiKey === '') {
+            return ['ok' => false, 'message' => 'تحلیل تصویری فعلاً فعال نیست؛ کلید سرویس هوش مصنوعی تنظیم نشده است.', 'floor_polygon' => null];
+        }
+
+        $system = <<<'PROMPT'
+تو موتور Vision مشاور هوشمند پالاز هستی. یک عکس واقعی از فضای داخلی را بررسی کن و فقط سطح قابل‌مشاهده کف را برای اجرای Visualizer مشخص کن.
+پاسخ را فقط به صورت JSON معتبر و بدون Markdown بده:
+{"floor_polygon":[[x,y],...],"confidence":0,"floor_notes":"..."}
+قواعد:
+- x و y درصدی بین 0 تا 100 هستند.
+- نقاط را به ترتیب دور مرز قابل‌مشاهده کف بده؛ حداقل 4 و حداکثر 12 نقطه.
+- اگر کف کاملاً دیده نمی‌شود، نزدیک‌ترین محدوده قابل‌اعتماد را مشخص کن.
+- مبلمان، فرش، دیوار و سقف را داخل چندضلعی نیاور.
+- confidence عددی بین 0 و 1 باشد.
+- توضیح کوتاه فارسی باشد.
+PROMPT;
+
+        try {
+            $response = Http::withToken($apiKey)
+                ->acceptJson()
+                ->withHeaders(['HTTP-Referer' => config('app.url'), 'X-Title' => 'Palaz AI Advisor Vision'])
+                ->timeout(45)
+                ->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model' => config('services.openrouter.vision_model', config('services.openrouter.model', 'openrouter/free')),
+                    'messages' => [[
+                        'role' => 'system',
+                        'content' => $system,
+                    ], [
+                        'role' => 'user',
+                        'content' => [
+                            ['type' => 'text', 'text' => 'این عکس فضای کاربر است. سطح کف را برای Visualizer پیدا کن.'],
+                            ['type' => 'image_url', 'image_url' => ['url' => $imageDataUrl]],
+                        ],
+                    ]],
+                    'max_tokens' => 500,
+                    'temperature' => 0.1,
+                ]);
+
+            $text = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
+            $text = preg_replace('/^```(?:json)?\s*|\s*```$/u', '', $text);
+            $data = json_decode($text, true);
+            $polygon = $data['floor_polygon'] ?? null;
+
+            if ($response->successful() && is_array($polygon) && count($polygon) >= 4) {
+                $clean = collect($polygon)->map(function ($point) {
+                    return [max(0, min(100, (float) ($point[0] ?? 0))), max(0, min(100, (float) ($point[1] ?? 0)))];
+                })->values()->all();
+                return ['ok' => true, 'message' => (string) ($data['floor_notes'] ?? 'سطح کف برای نمایش محصول تشخیص داده شد.'), 'floor_polygon' => $clean, 'confidence' => max(0, min(1, (float) ($data['confidence'] ?? 0)))];
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return ['ok' => false, 'message' => 'تشخیص خودکار کف انجام نشد. می‌توانیم تصویر را نگه داریم و نمایش اولیه را ادامه دهیم.', 'floor_polygon' => null];
+    }
     private function fallback(string $message): string
     {
         $t = mb_strtolower($message);

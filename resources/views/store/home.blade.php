@@ -222,6 +222,20 @@
 .palaz-advisor-brand span{display:flex;align-items:center;gap:5px;color:#8a8d91;font-size:10px;margin-top:5px}
 .palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
 .palaz-advisor-close{width:38px;height:38px;border:1px solid #ebe7e3;border-radius:50%;background:#fff;color:#555;font-size:25px;line-height:1;cursor:pointer;flex:0 0 auto}
+.palaz-advisor-character-stage{position:relative;width:116px;height:116px;margin:0 auto 8px;display:grid;place-items:center;overflow:visible}
+.palaz-advisor-character-stage img{width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 12px 18px rgba(40,20,20,.12));transform-origin:50% 82%;animation:palazAdvisorBreath 3.8s ease-in-out infinite}
+.palaz-advisor-character-stage:after{content:"";position:absolute;left:19px;right:19px;bottom:2px;height:10px;border-radius:50%;background:rgba(80,35,40,.12);filter:blur(5px);animation:palazAdvisorShadow 3.8s ease-in-out infinite}
+.palaz-advisor-character-stage.is-speaking img{animation:palazAdvisorSpeak .72s ease-in-out infinite}
+.palaz-advisor-character-stage.is-thinking img{animation:palazAdvisorThink 1.8s ease-in-out infinite}
+.palaz-advisor-character-stage.is-listening img{animation:palazAdvisorListen 2.4s ease-in-out infinite}
+.palaz-advisor-character-stage.is-vision img{animation:palazAdvisorVision 1.4s ease-in-out infinite}
+@keyframes palazAdvisorBreath{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(.35deg)}}
+@keyframes palazAdvisorShadow{0%,100%{transform:scaleX(1);opacity:.65}50%{transform:scaleX(.9);opacity:.4}}
+@keyframes palazAdvisorSpeak{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-.45deg)}}
+@keyframes palazAdvisorThink{0%,100%{transform:translateY(0) rotate(-.8deg)}50%{transform:translateY(-3px) rotate(.8deg)}}
+@keyframes palazAdvisorListen{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(2px) rotate(1deg)}}
+@keyframes palazAdvisorVision{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.025) translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){.palaz-advisor-character-stage img,.palaz-advisor-character-stage:after{animation:none!important}}
 .palaz-advisor-voice-intro{margin:18px 18px 8px;padding:22px 18px 20px;border:1px solid #eee4e1;border-radius:24px;background:radial-gradient(circle at 50% 0%,#fff5f5 0%,#fff 58%);text-align:center;box-shadow:0 12px 35px rgba(80,30,35,.06)}
 .palaz-advisor-voice-orb{position:relative;width:76px;height:76px;margin:0 auto 12px;border-radius:24px;background:linear-gradient(145deg,#b71929,#86121f);display:grid;place-items:center;box-shadow:0 12px 28px rgba(183,25,41,.25)}
 .palaz-advisor-voice-orb:before,.palaz-advisor-voice-orb:after{content:"";position:absolute;border:1px solid rgba(183,25,41,.28);border-radius:30px;inset:-7px;animation:palazVoiceWave 2.2s ease-out infinite}
@@ -946,8 +960,8 @@
           </header>
 
           <div class="palaz-advisor-voice-intro" aria-live="polite">
-            <div class="palaz-advisor-voice-orb">
-              <img src="{{ asset('images/palaz-p-mark.png') }}" alt="">
+            <div class="palaz-advisor-character-stage" id="palaz-advisor-character" data-state="idle">
+              <img src="{{ asset('images/palaz-original-logo.png') }}" alt="مشاور هوشمند پالاز">
             </div>
             <strong>مشاور هوشمند پالاز</strong>
             <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>
@@ -1113,6 +1127,13 @@
       const voiceStatus = backdrop.querySelector('.palaz-advisor-voice-status');
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       const contextBadge = backdrop.querySelector('.palaz-advisor-context');
+      const character = backdrop.querySelector('#palaz-advisor-character');
+      const setCharacterState = state => {
+        if (!character) return;
+        character.classList.remove('is-speaking','is-thinking','is-listening','is-vision');
+        if (state && state !== 'idle') character.classList.add('is-' + state);
+        character.dataset.state = state || 'idle';
+      };
       let lastFocusedElement = null;
       const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
@@ -1126,6 +1147,7 @@
       };
 
       const speakWelcome = () => {
+        setCharacterState('speaking');
         if (!('speechSynthesis' in window)) {
           if (voiceStatus) voiceStatus.textContent = 'صدای مرورگر در دسترس نیست؛ لطفاً پیام خود را بنویسید یا با میکروفون صحبت کنید.';
           return;
@@ -1261,6 +1283,7 @@
       };
 
       const reply = async (value) => {
+        setCharacterState('thinking');
         const history = [...messages.querySelectorAll('.palaz-advisor-message')].slice(-10).map(row => ({
           role: row.classList.contains('user') ? 'user' : 'assistant',
           content: row.querySelector('.palaz-advisor-bubble')?.textContent?.trim() || ''
@@ -1286,8 +1309,11 @@
           const data = await response.json();
           if (!response.ok || !data.reply) throw new Error('advisor_failed');
           addMessage(data.reply, 'assistant', data.actions || []);
+          setCharacterState('speaking');
+          window.setTimeout(() => setCharacterState('idle'), 1600);
         } catch (error) {
           addMessage('فعلاً ارتباط با مشاور برقرار نشد. لطفاً دوباره امتحان کنید.', 'assistant');
+          setCharacterState('idle');
         }
       };
 
@@ -1318,13 +1344,15 @@
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         mic.classList.add('is-listening');
+        setCharacterState('listening');
         recognition.start();
         recognition.onresult = e => {
+          setCharacterState('thinking');
           input.value = e.results[0][0].transcript;
           input.focus();
         };
-        recognition.onerror = () => mic.classList.remove('is-listening');
-        recognition.onend = () => mic.classList.remove('is-listening');
+        recognition.onerror = () => { mic.classList.remove('is-listening'); setCharacterState('idle'); }
+        recognition.onend = () => { mic.classList.remove('is-listening'); setCharacterState('idle'); }
       });
     })();
   </script>

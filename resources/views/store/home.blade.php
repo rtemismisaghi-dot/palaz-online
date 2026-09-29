@@ -1286,8 +1286,7 @@
       };
 
       const speakWelcome = () => {
-        setAdvisorVisualState('answering');
-        if (!('speechSynthesis' in window)) {
+        if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
           if (voiceStatus) voiceStatus.textContent = 'صدای مرورگر در دسترس نیست؛ لطفاً پیام خود را بنویسید یا با میکروفون صحبت کنید.';
           return;
         }
@@ -1296,59 +1295,59 @@
         synth.cancel();
         synth.resume();
 
-        const speak = () => {
-          const utterance = new SpeechSynthesisUtterance(welcomeText);
-          const persianVoice = getPersianVoice();
-          if (persianVoice) {
-            utterance.voice = persianVoice;
-            utterance.lang = persianVoice.lang || 'fa-IR';
-          } else {
-            utterance.lang = 'fa-IR';
-          }
-          utterance.rate = .92;
-          utterance.pitch = 1.08;
-          utterance.volume = 1;
-
-          utterance.onstart = () => {
-            setAdvisorVisualState('answering');
-            if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
-            voiceReplay?.classList.add('is-speaking');
-          };
-          utterance.onend = () => {
-            setAdvisorVisualState('');
-            if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
-            voiceReplay?.classList.remove('is-speaking');
-          };
-          utterance.onerror = () => {
-            if (voiceStatus) voiceStatus.textContent = 'مرورگر اجازه پخش صدا را نداد؛ روی «پخش دوباره» بزنید.';
-            voiceReplay?.classList.remove('is-speaking');
-          };
-
-          synth.speak(utterance);
-        };
-
-        const voices = synth.getVoices();
-        if (voices.length) {
-          speak();
-          return;
-        }
-
-        const handleVoicesChanged = () => {
-          synth.removeEventListener?.('voiceschanged', handleVoicesChanged);
-          synth.onvoiceschanged = null;
-          speak();
-        };
-
-        if (synth.addEventListener) {
-          synth.addEventListener('voiceschanged', handleVoicesChanged, { once: true });
+        const utterance = new SpeechSynthesisUtterance(welcomeText);
+        const persianVoice = getPersianVoice();
+        if (persianVoice) {
+          utterance.voice = persianVoice;
+          utterance.lang = persianVoice.lang || 'fa-IR';
         } else {
-          synth.onvoiceschanged = handleVoicesChanged;
+          utterance.lang = 'fa-IR';
         }
+        utterance.rate = .92;
+        utterance.pitch = 1.08;
+        utterance.volume = 1;
 
-        window.setTimeout(() => {
-          if (!synth.speaking && !synth.pending) speak();
-        }, 500);
+        utterance.onstart = () => {
+          setAdvisorVisualState('answering');
+          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
+          voiceReplay?.classList.add('is-speaking');
+        };
+        utterance.onend = () => {
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+        utterance.onerror = () => {
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'برای پخش صدا یک بار روی «پخش دوباره» بزنید.';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+
+        // مهم: پخش باید بلافاصله در همان تعامل کاربر انجام شود؛
+        // منتظر voiceschanged یا setTimeout نمی‌مانیم چون مرورگر موبایل ممکن است آن را autoplay حساب کند.
+        synth.speak(utterance);
+
+        // اگر فهرست صداها بعداً آماده شد، فقط برای انتخاب صدای فارسی دوباره تلاش می‌کنیم.
+        if (!persianVoice) {
+          const refreshVoice = () => {
+            const voice = getPersianVoice();
+            if (!voice || synth.speaking) return;
+            synth.cancel();
+            const retry = new SpeechSynthesisUtterance(welcomeText);
+            retry.voice = voice;
+            retry.lang = voice.lang || 'fa-IR';
+            retry.rate = .92;
+            retry.pitch = 1.08;
+            retry.volume = 1;
+            retry.onstart = utterance.onstart;
+            retry.onend = utterance.onend;
+            retry.onerror = utterance.onerror;
+            synth.speak(retry);
+          };
+          synth.addEventListener?.('voiceschanged', refreshVoice, { once: true });
+        }
       };
+
       let previousBodyOverflow = '';
 
       const openAdvisor = () => {

@@ -237,6 +237,17 @@
 @keyframes palazVoiceWave{0%{transform:scale(.75);opacity:.7}100%{transform:scale(1.18);opacity:0}}
 @keyframes palazVoiceBars{0%,100%{height:4px;opacity:.45}50%{height:14px;opacity:1}}
 .palaz-advisor-messages{flex:1;overflow:auto;padding:14px 18px 14px;background:linear-gradient(#fbfaf9,#fff)}
+.palaz-advisor-voice-orb img{animation:palazAdvisorFloat 3.8s ease-in-out infinite;transform-origin:50% 58%}
+.palaz-advisor-backdrop.is-listening .palaz-advisor-voice-orb{box-shadow:0 12px 28px rgba(183,25,41,.25),0 0 0 7px rgba(183,25,41,.08);animation:palazAdvisorListening 1.15s ease-in-out infinite}
+.palaz-advisor-backdrop.is-thinking .palaz-advisor-voice-orb img{animation:palazAdvisorThinking .72s ease-in-out infinite}
+.palaz-advisor-backdrop.is-answering .palaz-advisor-voice-orb img{animation:palazAdvisorAnswering 1.25s ease-in-out infinite}
+@keyframes palazAdvisorFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.015)}}
+@keyframes palazAdvisorListening{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes palazAdvisorThinking{0%,100%{transform:translateY(0) scale(.99)}50%{transform:translateY(-2px) scale(1.025)}}
+@keyframes palazAdvisorAnswering{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-2px) scale(1.02)}70%{transform:translateY(1px) scale(.998)}}
+.palaz-advisor-avatar img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAdvisorAvatarBreath 4s ease-in-out infinite}
+@keyframes palazAdvisorAvatarBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.012) translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){.palaz-advisor-voice-orb img,.palaz-advisor-avatar img,.palaz-advisor-backdrop.is-listening .palaz-advisor-voice-orb{animation:none!important}}
 .palaz-advisor-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:16px}
 .palaz-advisor-avatar{width:32px;height:32px;border-radius:50%;background:#25282c;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}
 .palaz-advisor-bubble{max-width:82%;padding:12px 15px;border-radius:17px 17px 5px 17px;background:#f2efec;color:#333;font-size:13px;line-height:1.9}
@@ -716,12 +727,17 @@
 
             window.palazVisualizerState = () => ({
               surface,
-              spaceAnalyzed: Array.isArray(floorPolygon) && floorPolygon.length >= 4,
+              space_analyzed: Array.isArray(floorPolygon) && floorPolygon.length >= 4,
               product: selectedProduct ? {
                 id: selectedProduct.id,
                 name: selectedProduct.name,
                 tone: selectedProduct.tone || ''
-              } : null
+              } : null,
+              compare: compareProducts.slice(0, 2).map(item => ({
+                id: item.id,
+                name: item.name,
+                tone: item.tone || ''
+              }))
             });
 
             const imageUrl = value => {
@@ -747,6 +763,12 @@
                   'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
                 preview.dataset.texture = texture;
                 preview.style.setProperty('--palaz-texture', 'url("' + texture + '")');
+                if (Array.isArray(floorPolygon) && floorPolygon.length >= 4) {
+                  const points = floorPolygon.map(point => (Number(point[0]) || 0) + '% ' + (Number(point[1]) || 0) + '%').join(', ');
+                  preview.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
+                } else {
+                  preview.style.removeProperty('--palaz-floor-clip');
+                }
                 preview.classList.add('has-product');
               } else {
                 preview.style.backgroundImage =
@@ -1125,7 +1147,17 @@
           || null;
       };
 
+      const setAdvisorVisualState = state => {
+        backdrop?.classList.remove('is-listening','is-thinking','is-answering');
+        if (state) backdrop?.classList.add('is-' + state);
+        if (voiceStatus) {
+          const labels = { listening:'در حال گوش دادن...', thinking:'در حال فکر کردن...', answering:'در حال پاسخگویی...' };
+          if (labels[state]) voiceStatus.textContent = labels[state];
+        }
+      };
+
       const speakWelcome = () => {
+        setAdvisorVisualState('answering');
         if (!('speechSynthesis' in window)) {
           if (voiceStatus) voiceStatus.textContent = 'صدای مرورگر در دسترس نیست؛ لطفاً پیام خود را بنویسید یا با میکروفون صحبت کنید.';
           return;
@@ -1149,10 +1181,12 @@
           utterance.volume = 1;
 
           utterance.onstart = () => {
+            setAdvisorVisualState('answering');
             if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
             voiceReplay?.classList.add('is-speaking');
           };
           utterance.onend = () => {
+            setAdvisorVisualState('');
             if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
             voiceReplay?.classList.remove('is-speaking');
           };
@@ -1189,6 +1223,7 @@
       let previousBodyOverflow = '';
 
       const openAdvisor = () => {
+        setAdvisorVisualState('listening');
         lastFocusedElement = document.activeElement;
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
@@ -1212,6 +1247,7 @@
         input?.focus();
       };
       const closeAdvisor = () => {
+        setAdvisorVisualState('');
         window.speechSynthesis?.cancel();
         backdrop.classList.remove('is-open');
         backdrop.setAttribute('aria-hidden','true');
@@ -1235,7 +1271,15 @@
         row.className = 'palaz-advisor-message ' + role;
         const avatar = document.createElement('div');
         avatar.className = 'palaz-advisor-avatar';
-        avatar.textContent = role === 'assistant' ? 'P' : 'شما';
+        if (role === 'assistant') {
+          const image = document.createElement('img');
+          image.src = "{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}";
+          image.alt = 'مشاور هوشمند پالاز';
+          image.loading = 'lazy';
+          avatar.appendChild(image);
+        } else {
+          avatar.textContent = 'شما';
+        }
         const bubble = document.createElement('div');
         bubble.className = 'palaz-advisor-bubble';
         bubble.textContent = text;
@@ -1272,6 +1316,7 @@
           return;
         }
 
+        setAdvisorVisualState('thinking');
         try {
           const response = await fetch(url, {
             method: 'POST',
@@ -1286,8 +1331,11 @@
           const data = await response.json();
           if (!response.ok || !data.reply) throw new Error('advisor_failed');
           addMessage(data.reply, 'assistant', data.actions || []);
+          setAdvisorVisualState('answering');
+          window.setTimeout(() => setAdvisorVisualState(''), 900);
         } catch (error) {
           addMessage('فعلاً ارتباط با مشاور برقرار نشد. لطفاً دوباره امتحان کنید.', 'assistant');
+          setAdvisorVisualState('');
         }
       };
 
@@ -1318,13 +1366,18 @@
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         mic.classList.add('is-listening');
+        setAdvisorVisualState('listening');
         recognition.start();
         recognition.onresult = e => {
           input.value = e.results[0][0].transcript;
           input.focus();
         };
-        recognition.onerror = () => mic.classList.remove('is-listening');
-        recognition.onend = () => mic.classList.remove('is-listening');
+        recognition.onerror = () => { mic.classList.remove('is-listening'); setAdvisorVisualState(''); };
+        recognition.onend = () => {
+          mic.classList.remove('is-listening');
+          if (input?.value?.trim()) setAdvisorVisualState('thinking');
+          else setAdvisorVisualState('');
+        };
       });
     })();
   </script>

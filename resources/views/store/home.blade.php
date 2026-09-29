@@ -184,7 +184,12 @@
 .palaz-experience .px-compare-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:#777;font-size:10px}
 @media(max-width:700px){.palaz-experience .px-compare-grid{grid-template-columns:1fr}.palaz-experience .px-compare-view{min-height:300px}.palaz-experience .px-compare-footer{flex-direction:column;align-items:stretch}.palaz-experience .px-compare-footer .px-btn{width:100%}}
 
-.palaz-experience .px-visualizer-preview.has-product:after{opacity:var(--palaz-floor-opacity,.78)!important;mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));transform:scale(1.002);transform-origin:center}
+.palaz-experience .px-visualizer-preview.has-product:after{transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1)}
+.palaz-experience .px-visualizer-preview.has-product{transition:background-image .35s ease,box-shadow .45s ease}
+.palaz-experience .px-visualizer-preview.visualizer-switching:after{animation:palazFloorReveal .6s cubic-bezier(.2,.75,.25,1)}
+.palaz-experience .px-visualizer-preview.visualizer-switching{box-shadow:0 18px 55px rgba(0,0,0,.12)}
+@keyframes palazFloorReveal{0%{opacity:.15;transform:scale(1.035);filter:saturate(.72) blur(.7px)}55%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.001);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02) blur(0)}100%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.002)}}
+@media(prefers-reduced-motion:reduce){.palaz-experience .px-visualizer-preview.has-product:after,.palaz-experience .px-visualizer-preview.visualizer-switching:after{animation:none;transition:none}}.palaz-experience .px-visualizer-preview.has-product:after{opacity:var(--palaz-floor-opacity,.78)!important;mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));transform:scale(1.002);transform-origin:center}
 .palaz-experience .px-visualizer-preview.has-product:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 38%,rgba(0,0,0,.08));opacity:.72}
 .palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
 @media(max-width:900px){.palaz-experience .px-product-chip{min-width:165px}.palaz-experience .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
@@ -866,7 +871,14 @@
                   const product = products[Number(button.dataset.productIndex)];
                   if (!product) return;
 
+                  const previousProductId = selectedProduct?.id ?? null;
                   selectedProduct = product;
+                  preview.classList.remove('visualizer-switching');
+                  if (previousProductId !== product.id && uploadedUrl && floorPolygon) {
+                    void preview.offsetWidth;
+                    preview.classList.add('visualizer-switching');
+                    window.setTimeout(() => preview.classList.remove('visualizer-switching'), 700);
+                  }
                   if (!compareProducts.some(item => item.id === product.id)) {
                     compareProducts = [product, ...compareProducts].slice(0, 2);
                   }

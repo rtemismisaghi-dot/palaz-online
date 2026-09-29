@@ -169,7 +169,7 @@
 .palaz-experience .px-visualizer-compare{position:absolute;z-index:5;right:16px;bottom:16px;display:flex;gap:6px;padding:6px;border-radius:13px;background:rgba(255,255,255,.9);box-shadow:0 8px 25px rgba(0,0,0,.16)}
 .palaz-experience .px-visualizer-compare button{border:1px solid #e2ddd9;border-radius:9px;background:#fff;padding:7px 9px;font:inherit;font-size:9px;font-weight:800;color:#555;cursor:pointer}
 .palaz-experience .px-visualizer-compare button.active{border-color:#b71929;color:#b71929}
-.palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
+.palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
 @media(max-width:900px){.palaz-experience .px-product-chip{min-width:165px}.palaz-experience .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-experience .px-product-chip{min-width:155px}.palaz-experience .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-experience .px-visualizer-actions .px-btn{width:100%}}
 .palaz-experience .px-visualizer-shell{position:relative}
@@ -712,6 +712,7 @@
             let selectedProduct = null;
             let products = [];
             let compareProducts = [];
+            let floorPolygon = null;
 
             const imageUrl = value => {
               if (!value) return fallbackImages[surface];
@@ -742,6 +743,7 @@
                   'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
                 preview.classList.remove('has-product');
                 preview.style.removeProperty('--palaz-texture');
+                preview.style.removeProperty('--palaz-floor-clip');
               }
 
               if (selectedProduct) {
@@ -853,6 +855,28 @@
               if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
               uploadedUrl = URL.createObjectURL(file);
               empty.style.display = 'none';
+              floorPolygon = null;
+              setStatus('در حال دیدن فضای شما…', 'هوش مصنوعی در حال تشخیص محدوده کف است.');
+              const formData = new FormData();
+              formData.append('image', file);
+              fetch('{{ route('advisor.analyze-space') }}', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: formData
+              }).then(response => response.ok ? response.json() : Promise.reject(new Error('vision_failed')))
+                .then(data => {
+                  if (Array.isArray(data.floor_polygon) && data.floor_polygon.length >= 4) {
+                    floorPolygon = data.floor_polygon;
+                    setStatus('کف فضا تشخیص داده شد', data.message || 'حالا یک مدل واقعی انتخاب کن.');
+                  } else {
+                    setStatus('عکس فضا آماده است', data.message || 'یک مدل انتخاب کن؛ نمایش اولیه ادامه پیدا می‌کند.');
+                  }
+                  paintPreview();
+                })
+                .catch(() => {
+                  setStatus('عکس فضا آماده است', 'تشخیص خودکار کف در دسترس نبود؛ نمایش اولیه ادامه پیدا می‌کند.');
+                  paintPreview();
+                });
               selectedProduct = null;
               compareProducts = [];
               renderCompare();

@@ -223,7 +223,7 @@
 .palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
 .palaz-advisor-close{width:38px;height:38px;border:1px solid #ebe7e3;border-radius:50%;background:#fff;color:#555;font-size:25px;line-height:1;cursor:pointer;flex:0 0 auto}
 .palaz-advisor-character-stage{position:relative;width:116px;height:116px;margin:0 auto 8px;display:grid;place-items:center;overflow:visible}
-.palaz-advisor-character-stage img{width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 12px 18px rgba(40,20,20,.12));transform-origin:50% 82%;animation:palazAdvisorBreath 3.8s ease-in-out infinite}.palaz-advisor-character-placeholder{width:100%;height:100%;display:grid;place-items:center;border-radius:30px;color:#b71929;font-size:11px;font-weight:900;letter-spacing:.08em;background:#fff5f5;border:1px dashed #e5cfd1}
+.palaz-advisor-character-stage img{width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 12px 18px rgba(40,20,20,.12));transform-origin:50% 82%;animation:palazAdvisorBreath 3.8s ease-in-out infinite}
 .palaz-advisor-character-stage:after{content:"";position:absolute;left:19px;right:19px;bottom:2px;height:10px;border-radius:50%;background:rgba(80,35,40,.12);filter:blur(5px);animation:palazAdvisorShadow 3.8s ease-in-out infinite}
 .palaz-advisor-character-stage.is-speaking img{animation:palazAdvisorSpeak .72s ease-in-out infinite}
 .palaz-advisor-character-stage.is-thinking img{animation:palazAdvisorThink 1.8s ease-in-out infinite}
@@ -961,7 +961,7 @@
 
           <div class="palaz-advisor-voice-intro" aria-live="polite">
             <div class="palaz-advisor-character-stage" id="palaz-advisor-character" data-state="idle" aria-label="مشاور هوشمند پالاز">
-              <div class="palaz-advisor-character-placeholder" aria-hidden="true">PALAZ AI</div>
+              <img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="مشاور هوشمند پالاز">
             </div>
             <strong>مشاور هوشمند پالاز</strong>
             <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>

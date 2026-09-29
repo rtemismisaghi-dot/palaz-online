@@ -229,7 +229,7 @@
 .palaz-advisor-voice-orb img{width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1)}
 .palaz-advisor-voice-intro strong{display:block;font-size:15px;color:#25282c;margin-bottom:4px}
 .palaz-advisor-voice-intro span{display:block;font-size:10px;color:#969292}
-.palaz-advisor-voice-intro button{margin-top:12px;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:8px 13px;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
+.palaz-advisor-context{display:inline-flex;align-items:center;justify-content:center;margin-top:9px;padding:6px 10px;border-radius:999px;background:#f8f4f2;color:#777;font-size:9px;line-height:1.5}.palaz-advisor-context.is-active{background:#fff4f5;color:#b71929}.palaz-advisor-voice-intro button{margin-top:12px;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:8px 13px;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
 .palaz-advisor-voice-intro button.is-speaking{background:#fff4f5}
 .palaz-advisor-voice-bars{display:flex;align-items:center;justify-content:center;gap:3px;height:15px;margin-top:10px}
 .palaz-advisor-voice-bars i{display:block;width:3px;height:5px;border-radius:4px;background:#b71929;animation:palazVoiceBars .8s ease-in-out infinite}
@@ -952,6 +952,7 @@
             <strong>مشاور هوشمند پالاز</strong>
             <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>
             <div class="palaz-advisor-voice-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="palaz-advisor-context" id="palaz-advisor-context">مشاور آماده است</div>
             <button type="button" class="palaz-advisor-voice-replay">🔊 پخش دوباره</button>
           </div>
 
@@ -1111,6 +1112,7 @@
       const suggestions = [...backdrop.querySelectorAll('.palaz-advisor-suggestions button')];
       const voiceStatus = backdrop.querySelector('.palaz-advisor-voice-status');
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
+      const contextBadge = backdrop.querySelector('.palaz-advisor-context');
       let lastFocusedElement = null;
       const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
@@ -1193,6 +1195,19 @@
         backdrop.classList.add('is-open');
         backdrop.setAttribute('aria-hidden','false');
         openers.forEach(btn => btn.setAttribute('aria-expanded','true'));
+        const context = getAdvisorContext();
+        if (contextBadge) {
+          if (context.product?.name) {
+            contextBadge.textContent = 'در حال بررسی: ' + context.product.name;
+            contextBadge.classList.add('is-active');
+          } else if (context.spaceAnalyzed) {
+            contextBadge.textContent = 'عکس فضای شما هم در اختیار مشاور است';
+            contextBadge.classList.add('is-active');
+          } else {
+            contextBadge.textContent = 'مشاور آماده است';
+            contextBadge.classList.remove('is-active');
+          }
+        }
         speakWelcome();
         input?.focus();
       };

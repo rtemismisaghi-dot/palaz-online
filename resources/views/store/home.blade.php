@@ -239,7 +239,7 @@
 .palaz-advisor-backdrop.is-open .palaz-advisor-panel{transform:translateX(0)}
 .palaz-advisor-header{min-height:76px;padding:12px 18px;border-bottom:1px solid #eee9e5;display:flex;align-items:center;justify-content:space-between;gap:14px;flex:0 0 auto}
 .palaz-advisor-brand{display:flex;align-items:center;gap:11px;min-width:0}
-.palaz-advisor-brand img{width:86px;height:auto;max-height:42px;object-fit:contain;object-position:right center}
+.palaz-advisor-brand img{width:52px;height:52px;max-height:52px;object-fit:cover;object-position:center;border-radius:15px;display:block}
 .palaz-advisor-brand strong{display:block;color:#202327;font-size:14px}
 .palaz-advisor-brand span{display:flex;align-items:center;gap:5px;color:#8a8d91;font-size:10px;margin-top:5px}
 .palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
@@ -1085,7 +1085,7 @@
         <section class="palaz-advisor-panel" role="dialog" aria-modal="true" aria-labelledby="palaz-advisor-title">
           <header class="palaz-advisor-header">
             <div class="palaz-advisor-brand">
-              <img src="{{ asset('images/palaz-original-logo.png') }}" alt="PALAZ ONLINE">
+              <img class="palaz-advisor-header-character" src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="مشاور هوشمند پالاز">
               <div><strong id="palaz-advisor-title">مشاور هوشمند پالاز</strong><span><i></i> آماده گفتگو</span></div>
             </div>
             <button class="palaz-advisor-close" type="button" aria-label="بستن مشاور">×</button>

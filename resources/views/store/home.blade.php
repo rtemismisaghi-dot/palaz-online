@@ -315,6 +315,11 @@
  .palaz-experience .px-chat-box{align-items:stretch;flex-direction:column}
 }
 @media(max-width:560px){
+ .palaz-advisor-voice-intro{margin:16px 10px 8px;padding:14px 10px 22px}
+ .palaz-advisor-voice-orb{width:196px;height:196px;margin:0 auto 6px}
+ .palaz-advisor-voice-orb img{width:188px;height:188px}
+ .palaz-advisor-voice-intro strong{font-size:16px}
+ .palaz-advisor-brand img{width:86px;height:86px;max-height:86px}
  .palaz-experience .px-journey{padding-top:38px}
  .palaz-experience .px-head{display:block}
  .palaz-experience .px-head a{display:inline-block;margin-top:12px}

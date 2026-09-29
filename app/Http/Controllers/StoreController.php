@@ -27,6 +27,31 @@ class StoreController extends Controller
         return view('store.shop', compact('products', 'category', 'query'));
     }
 
+    public function visualizerProducts(Request $request)
+    {
+        $category = $request->string('category')->toString() ?: null;
+        $allowed = ['carpet', 'laminate', 'spc'];
+        abort_unless($category && in_array($category, $allowed, true), 422);
+
+        $fallbackImages = [
+            'carpet' => 'https://palazonline.com/storage/uploads/005-1-2.jpg',
+            'laminate' => 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
+            'spc' => 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
+        ];
+
+        $products = collect(StoreCatalog::byCategory($category))
+            ->take(24)
+            ->map(fn (array $product) => [
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'tone' => $product['tone'],
+                'image' => $product['image'] ?: $fallbackImages[$category],
+            ])
+            ->values();
+
+        return response()->json(['category' => $category, 'products' => $products]);
+    }
+
     public function product(string $id)
     {
         $product = StoreCatalog::find($id);

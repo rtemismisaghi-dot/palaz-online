@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 final class PalazAdvisorAgent
 {
-    public function reply(string $message, array $history = []): array
+    public function reply(string $message, array $history = [], array $context = []): array
     {
         $message = trim($message);
         $history = collect($history)
@@ -39,8 +39,9 @@ final class PalazAdvisorAgent
 اگر سؤال خارج از حوزه پالاز است، کوتاه و شفاف بگو در این حوزه کمکت می‌کنی.
 کاتالوگ فعلی:
 PROMPT;
+            $contextText = $this->contextText($context);
             $payload = array_merge(
-                [['role' => 'system', 'content' => $system."\n".$catalog]],
+                [['role' => 'system', 'content' => $system."\n".$catalog.$contextText]],
                 $history,
                 [['role' => 'user', 'content' => $message]]
             );
@@ -130,6 +131,24 @@ PROMPT;
 
         return ['ok' => false, 'message' => 'تشخیص خودکار کف انجام نشد. می‌توانیم تصویر را نگه داریم و نمایش اولیه را ادامه دهیم.', 'floor_polygon' => null];
     }
+    private function contextText(array $context): string
+    {
+        $parts = [];
+        if (!empty($context['surface'])) {
+            $parts[] = 'نوع کف انتخاب‌شده در Visualizer: '.mb_substr((string) $context['surface'], 0, 40);
+        }
+        if (!empty($context['product']['name'])) {
+            $parts[] = 'محصول انتخاب‌شده: '.mb_substr((string) $context['product']['name'], 0, 160);
+        }
+        if (!empty($context['product']['tone'])) {
+            $parts[] = 'تون محصول انتخاب‌شده: '.mb_substr((string) $context['product']['tone'], 0, 80);
+        }
+        if (!empty($context['space_analyzed'])) {
+            $parts[] = 'عکس فضای کاربر قبلاً با Vision بررسی شده و محدوده کف شناسایی شده است.';
+        }
+        return $parts ? "\n\nزمینه فعلی کاربر:\n".implode("\n", $parts) : '';
+    }
+
     private function fallback(string $message): string
     {
         $t = mb_strtolower($message);

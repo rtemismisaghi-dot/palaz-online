@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -18,7 +19,7 @@ Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
-Route::post('/advisor/chat', [StoreController::class, 'advisorChat'])->name('advisor.chat');
+Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

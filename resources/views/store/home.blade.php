@@ -150,6 +150,28 @@
 .palaz-experience .px-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}
 .palaz-experience .px-quick a{padding:15px;border:1px solid #e7e4df;border-radius:16px;background:#fff;text-decoration:none;color:#292c30}
 
+.palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
+.palaz-experience .px-surface-tab{border:1px solid #dedbd6;background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-size:11px;font-weight:800;color:#555;cursor:pointer}
+.palaz-experience .px-surface-tab.active{background:#fff4f5;border-color:#b71929;color:#b71929}
+.palaz-experience .px-visualizer-products{display:flex;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
+.palaz-experience .px-product-chip{display:flex;align-items:center;gap:8px;min-width:180px;max-width:220px;padding:7px;border:1px solid #e5e0dc;border-radius:15px;background:#fff;color:#292c30;text-align:right;cursor:pointer;flex:0 0 auto}
+.palaz-experience .px-product-chip.active{border-color:#b71929;box-shadow:0 5px 18px rgba(183,25,41,.12)}
+.palaz-experience .px-product-chip.compared{box-shadow:inset 0 0 0 1px rgba(183,25,41,.16)}
+.palaz-experience .px-product-chip img{width:42px;height:42px;border-radius:10px;object-fit:cover;flex:0 0 42px}
+.palaz-experience .px-product-chip span{min-width:0;display:block}
+.palaz-experience .px-product-chip b,.palaz-experience .px-product-chip small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.palaz-experience .px-product-chip b{font-size:11px}
+.palaz-experience .px-product-chip small{margin-top:3px;color:#999;font-size:9px}
+.palaz-experience .px-product-chip i{font-style:normal;color:#b71929;font-size:16px;margin-right:auto}
+.palaz-experience .px-product-loading{padding:13px 2px;color:#888;font-size:10px}
+.palaz-experience .px-visualizer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.palaz-experience .px-visualizer-actions .px-btn{border:0;cursor:pointer}
+.palaz-experience .px-visualizer-compare{position:absolute;z-index:5;right:16px;bottom:16px;display:flex;gap:6px;padding:6px;border-radius:13px;background:rgba(255,255,255,.9);box-shadow:0 8px 25px rgba(0,0,0,.16)}
+.palaz-experience .px-visualizer-compare button{border:1px solid #e2ddd9;border-radius:9px;background:#fff;padding:7px 9px;font:inherit;font-size:9px;font-weight:800;color:#555;cursor:pointer}
+.palaz-experience .px-visualizer-compare button.active{border-color:#b71929;color:#b71929}
+.palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
+@media(max-width:900px){.palaz-experience .px-product-chip{min-width:165px}.palaz-experience .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
+@media(max-width:560px){.palaz-experience .px-product-chip{min-width:155px}.palaz-experience .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-experience .px-visualizer-actions .px-btn{width:100%}}
 .palaz-experience .px-visualizer-shell{position:relative}
 .palaz-experience .px-visualizer-preview{display:flex;align-items:center;justify-content:center;background-image:url('https://palazonline.com/storage/uploads/005-1-2.jpg');background-position:center;background-size:cover;transition:background-image .25s ease}
 .palaz-experience .px-preview-empty{position:relative;z-index:3;width:min(330px,calc(100% - 40px));padding:28px 24px;text-align:center;border:1px solid rgba(255,255,255,.55);border-radius:22px;background:rgba(255,255,255,.88);box-shadow:0 18px 45px rgba(0,0,0,.12);backdrop-filter:blur(8px)}
@@ -623,68 +645,227 @@
                 <span>＋</span>
                 <strong>عکس فضای خودت را اضافه کن</strong>
                 <small>یک عکس از پذیرایی، اتاق یا دفترت انتخاب کن</small>
-                <label class="px-upload-btn">انتخاب عکس<input id="px-space-upload" type="file" accept="image/*" hidden></label>
+                <label class="px-upload-btn">انتخاب عکس<input id="px-space-upload" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
               </div>
-              <div class="px-preview-badge">PREVIEW</div>
+              <div class="px-preview-badge">PALAZ VISUALIZER</div>
+              <div class="px-visualizer-compare" hidden>
+                <button type="button" data-compare="0"></button>
+                <button type="button" data-compare="1"></button>
+              </div>
             </div>
+
             <div class="px-tool-copy">
               <span class="px-kicker">02 / VISUALIZER</span>
-              <h2 class="px-title">قبل از انتخاب،<br>ببین.</h2>
-              <p class="px-sub">عکس فضای خودت را وارد کن و نوع پوشش را انتخاب کن تا اولین پیش‌نمایش را همین‌جا ببینی.</p>
-              <div class="px-pills px-visualizer-pills">
-                <button type="button" class="px-pill active" data-surface="carpet">موکت</button>
-                <button type="button" class="px-pill" data-surface="laminate">لمینیت</button>
-                <button type="button" class="px-pill" data-surface="spc">فرش‌گونه</button>
-                <button type="button" class="px-pill" data-surface="wallpaper">کاغذدیواری</button>
+              <h2 class="px-title">فضای خودت را<br>واقعاً ببین.</h2>
+              <p class="px-sub">عکس فضای خودت را وارد کن، کف را مشخص کن و مدل‌های واقعی موکت، لمینیت و SPC را روی همان فضا امتحان کن.</p>
+
+              <div class="px-visualizer-surface-tabs" role="tablist" aria-label="نوع کفپوش">
+                <button type="button" class="px-surface-tab active" data-surface="carpet">موکت</button>
+                <button type="button" class="px-surface-tab" data-surface="laminate">لمینیت</button>
+                <button type="button" class="px-surface-tab" data-surface="spc">SPC</button>
               </div>
-              <div class="px-visualizer-status"><span></span><b>آماده برای انتخاب</b><small>پیش‌نمایش اولیه؛ موتور تصویرسازی پیشرفته بعداً متصل می‌شود.</small></div>
-              <a class="px-btn red" href="{{ route('services',['type'=>'design']) }}">ادامه طراحی فضای من ←</a>
+
+              <div class="px-visualizer-status">
+                <span></span><b>عکس فضا را اضافه کن</b>
+                <small>بعد از انتخاب عکس، مدل‌های واقعی کاتالوگ پالاز برای همان نوع کف نمایش داده می‌شوند.</small>
+              </div>
+
+              <div class="px-visualizer-products" aria-live="polite">
+                <div class="px-product-loading">در حال آماده‌سازی مدل‌ها…</div>
+              </div>
+
+              <div class="px-visualizer-actions">
+                <button class="px-btn red px-visualizer-advisor" type="button">مشاوره با AI Advisor ←</button>
+                <a class="px-btn soft" href="{{ route('services',['type'=>'design']) }}">ادامه طراحی ←</a>
+              </div>
+
               <div class="px-quick">
-                <a href="{{ route('shop') }}"><b>🧩 انتخاب محصول</b><span>بعد از پیش‌نمایش، محصول واقعی را انتخاب کن.</span></a>
+                <a href="{{ route('shop') }}"><b>🧩 مشاهده محصول</b><span>مدل انتخاب‌شده را در فروشگاه ببین.</span></a>
                 <a href="{{ route('services',['type'=>'measurement']) }}"><b>⌗ درخواست اندازه‌گیری</b><span>اگر آماده اجرا هستی، اندازه‌گیری را ثبت کن.</span></a>
               </div>
             </div>
           </div>
         </div>
+
         <script>
           (() => {
             const root = document.querySelector('.palaz-reference-home #visualizer');
             if (!root) return;
+
             const preview = root.querySelector('.px-visualizer-preview');
             const empty = root.querySelector('.px-preview-empty');
             const upload = root.querySelector('#px-space-upload');
-            const pills = [...root.querySelectorAll('[data-surface]')];
+            const tabs = [...root.querySelectorAll('.px-surface-tab')];
+            const productsEl = root.querySelector('.px-visualizer-products');
             const status = root.querySelector('.px-visualizer-status');
-            const surfaces = {
+            const compare = root.querySelector('.px-visualizer-compare');
+            const advisorButton = root.querySelector('.px-visualizer-advisor');
+
+            const fallbackImages = {
               carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
               laminate: 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
-              spc: 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
-              wallpaper: 'https://palazonline.com/storage/uploads/IMG_5796.jpg'
+              spc: 'https://palazonline.com/storage/uploads/IMG_5777.PNG'
             };
+
+            let surface = 'carpet';
             let uploadedUrl = '';
-            const applySurface = (key) => {
-              pills.forEach(p => p.classList.toggle('active', p.dataset.surface === key));
-              if (uploadedUrl) {
-                preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08)),url('${uploadedUrl}')`;
-                preview.dataset.surface = key;
-                status.querySelector('b').textContent = 'فضای شما آماده پیش‌نمایش است';
+            let selectedProduct = null;
+            let products = [];
+            let compareProducts = [];
+
+            const imageUrl = value => {
+              if (!value) return fallbackImages[surface];
+              if (/^https?:\/\//i.test(value) || value.startsWith('data:') || value.startsWith('blob:')) return value;
+              return value.startsWith('/') ? value : '/storage/' + value.replace(/^storage\//, '');
+            };
+
+            const setStatus = (title, detail) => {
+              status.querySelector('b').textContent = title;
+              status.querySelector('small').textContent = detail;
+            };
+
+            const paintPreview = () => {
+              const base = uploadedUrl || fallbackImages[surface];
+              const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
+
+              if (uploadedUrl && texture) {
+                // نسخه اول Visualizer: عکس کاربر حفظ می‌شود و تکسچر محصول
+                // با ماسک نرم روی ناحیه کف قرار می‌گیرد. موتور تشخیص دقیق
+                // گوشه‌های کف در مرحله Vision به همین API متصل خواهد شد.
+                preview.style.backgroundImage =
+                  'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
+                preview.dataset.texture = texture;
+                preview.style.setProperty('--palaz-texture', 'url("' + texture + '")');
+                preview.classList.add('has-product');
               } else {
-                preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url('${surfaces[key]}')`;
-                empty.style.display = 'none';
-                status.querySelector('b').textContent = 'نمونه فضای انتخاب‌شده';
+                preview.style.backgroundImage =
+                  'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
+                preview.classList.remove('has-product');
+                preview.style.removeProperty('--palaz-texture');
+              }
+
+              if (selectedProduct) {
+                setStatus(
+                  selectedProduct.name + ' روی فضای شما',
+                  'برای مقایسه، یک مدل دیگر را انتخاب کن.'
+                );
+              } else if (uploadedUrl) {
+                setStatus('عکس شما آماده است', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
+              } else {
+                setStatus('عکس فضا را اضافه کن', 'بعد از انتخاب عکس، مدل‌های واقعی کاتالوگ پالاز نمایش داده می‌شوند.');
               }
             };
-            pills.forEach(p => p.addEventListener('click', () => applySurface(p.dataset.surface)));
-            upload?.addEventListener('change', e => {
-              const file = e.target.files?.[0];
+
+            const renderProducts = () => {
+              if (!products.length) {
+                productsEl.innerHTML = '<div class="px-product-loading">برای این دسته هنوز مدلی در کاتالوگ ثبت نشده است.</div>';
+                return;
+              }
+
+              productsEl.innerHTML = products.map((product, index) => {
+                const active = selectedProduct?.id === product.id;
+                const compared = compareProducts.some(item => item.id === product.id);
+                return '<button type="button" class="px-product-chip' + (active ? ' active' : '') + (compared ? ' compared' : '') + '" data-product-index="' + index + '">' +
+                  '<img src="' + imageUrl(product.image) + '" alt="" loading="lazy">' +
+                  '<span><b>' + product.name + '</b><small>' + (product.tone || 'مدل پالاز') + '</small></span>' +
+                  '<i>' + (compared ? '✓' : '＋') + '</i>' +
+                '</button>';
+              }).join('');
+
+              productsEl.querySelectorAll('[data-product-index]').forEach(button => {
+                button.addEventListener('click', () => {
+                  const product = products[Number(button.dataset.productIndex)];
+                  if (!product) return;
+
+                  selectedProduct = product;
+                  if (!compareProducts.some(item => item.id === product.id)) {
+                    compareProducts = [product, ...compareProducts].slice(0, 2);
+                  }
+                  renderProducts();
+                  renderCompare();
+                  paintPreview();
+                });
+              });
+            };
+
+            const renderCompare = () => {
+              if (compareProducts.length < 2) {
+                compare.hidden = true;
+                return;
+              }
+
+              compare.hidden = false;
+              compare.querySelectorAll('button').forEach((button, index) => {
+                const product = compareProducts[index];
+                button.textContent = product ? product.name : '';
+                button.hidden = !product;
+                button.classList.toggle('active', product?.id === selectedProduct?.id);
+                button.onclick = () => {
+                  if (product) {
+                    selectedProduct = product;
+                    paintPreview();
+                    renderProducts();
+                    renderCompare();
+                  }
+                };
+              });
+            };
+
+            const loadProducts = async () => {
+              productsEl.innerHTML = '<div class="px-product-loading">در حال دریافت مدل‌های واقعی پالاز…</div>';
+              try {
+                const response = await fetch('{{ route('visualizer.products') }}?category=' + encodeURIComponent(surface), {
+                  headers: { 'Accept': 'application/json' }
+                });
+                if (!response.ok) throw new Error('products_failed');
+                const data = await response.json();
+                products = Array.isArray(data.products) ? data.products : [];
+                selectedProduct = null;
+                compareProducts = [];
+                renderProducts();
+                renderCompare();
+                paintPreview();
+              } catch (error) {
+                productsEl.innerHTML = '<div class="px-product-loading">دریافت مدل‌ها انجام نشد. دوباره تلاش کن.</div>';
+              }
+            };
+
+            tabs.forEach(tab => tab.addEventListener('click', () => {
+              surface = tab.dataset.surface || 'carpet';
+              tabs.forEach(item => item.classList.toggle('active', item === tab));
+              loadProducts();
+            }));
+
+            upload?.addEventListener('change', event => {
+              const file = event.target.files?.[0];
               if (!file) return;
+
+              if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+                setStatus('فرمت عکس مناسب نیست', 'فقط JPG، PNG یا WEBP انتخاب کن.');
+                return;
+              }
+
+              if (file.size > 8 * 1024 * 1024) {
+                setStatus('حجم عکس زیاد است', 'برای عملکرد بهتر، عکس زیر ۸ مگابایت انتخاب کن.');
+                return;
+              }
+
               if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
               uploadedUrl = URL.createObjectURL(file);
-              preview.style.backgroundImage = `linear-gradient(rgba(0,0,0,.06),rgba(0,0,0,.12)),url('${uploadedUrl}')`;
               empty.style.display = 'none';
-              status.querySelector('b').textContent = 'عکس شما آماده پیش‌نمایش است';
-              status.querySelector('small').textContent = 'حالا نوع پوشش را انتخاب کن.';
+              selectedProduct = null;
+              compareProducts = [];
+              renderCompare();
+              renderProducts();
+              paintPreview();
             });
+
+            advisorButton?.addEventListener('click', () => {
+              const opener = document.querySelector('.palaz-advisor-shortcut, .px-open-advisor');
+              opener?.click();
+            });
+
+            loadProducts();
           })();
         </script>
       </section>

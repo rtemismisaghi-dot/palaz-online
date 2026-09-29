@@ -7,6 +7,18 @@ use Illuminate\Http\Request;
 
 final class AdvisorController extends Controller
 {
+    public function analyzeSpace(Request $request, PalazAdvisorAgent $agent)
+    {
+        $request->validate([
+            'image' => ['required', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:8192'],
+        ]);
+
+        $file = $request->file('image');
+        $mime = $file->getMimeType() ?: $file->getClientMimeType();
+        $dataUrl = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+
+        return response()->json($agent->analyzeSpace($dataUrl));
+    }
     public function chat(Request $request, PalazAdvisorAgent $agent)
     {
         $data = $request->validate([

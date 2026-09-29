@@ -302,7 +302,7 @@
 .palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,20,20,.18)}
 .palaz-advisor-shortcut-icon{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#b71929,#8e1420);color:#fff;display:grid;place-items:center;position:relative;box-shadow:0 6px 14px rgba(183,25,41,.22)}
 .palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:15px;animation:palazAdvisorRing 2.2s ease-out infinite}
-.palaz-advisor-shortcut-icon img{width:24px;height:24px;object-fit:contain;display:block;filter:brightness(0) invert(1)}
+.palaz-advisor-shortcut-icon img{width:34px;height:34px;object-fit:cover;object-position:center;display:block;border-radius:11px;filter:none}
 @keyframes palazAdvisorPulse{0%,100%{box-shadow:0 10px 30px rgba(20,20,20,.14)}50%{box-shadow:0 10px 30px rgba(183,25,41,.24)}}
 @keyframes palazAdvisorRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.35);opacity:0}}
 @media(max-width:1100px){.palaz-advisor-shortcut{right:18px;top:84px}.palaz-advisor-shortcut>span:last-child{display:inline}}
@@ -584,8 +584,8 @@
         <a href="{{ route('cart') }}" class="ref-cart"><i>🛒</i><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
       </div>
       <button class="palaz-advisor-shortcut" type="button" aria-label="باز کردن مشاور هوشمند پالاز" aria-controls="palaz-advisor-panel" aria-expanded="false">
-        <span class="palaz-advisor-shortcut-icon palaz-advisor-palaz-mark" aria-hidden="true">
-          <img src="{{ asset('images/palaz-p-mark.png') }}" alt="" loading="eager">
+        <span class="palaz-advisor-shortcut-icon palaz-advisor-character" aria-hidden="true">
+          <img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 28, 2026, 08_36_42 PM.png') }}" alt="" loading="eager">
         </span>
         <span>مشاور هوشمند</span>
       </button>

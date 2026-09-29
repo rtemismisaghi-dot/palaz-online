@@ -33,6 +33,10 @@ final class AdvisorController extends Controller
             'context.product.id' => ['nullable', 'string', 'max:100'],
             'context.product.name' => ['nullable', 'string', 'max:160'],
             'context.product.tone' => ['nullable', 'string', 'max:80'],
+            'context.compare' => ['nullable', 'array', 'max:2'],
+            'context.compare.*.id' => ['nullable', 'string', 'max:100'],
+            'context.compare.*.name' => ['nullable', 'string', 'max:160'],
+            'context.compare.*.tone' => ['nullable', 'string', 'max:80'],
         ]);
 
         $result = $agent->reply($data['message'], $data['messages'] ?? [], $data['context'] ?? []);

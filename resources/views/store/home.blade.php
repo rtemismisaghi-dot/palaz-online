@@ -714,6 +714,16 @@
             let compareProducts = [];
             let floorPolygon = null;
 
+            window.palazVisualizerState = () => ({
+              surface,
+              spaceAnalyzed: Array.isArray(floorPolygon) && floorPolygon.length >= 4,
+              product: selectedProduct ? {
+                id: selectedProduct.id,
+                name: selectedProduct.name,
+                tone: selectedProduct.tone || ''
+              } : null
+            });
+
             const imageUrl = value => {
               if (!value) return fallbackImages[surface];
               if (/^https?:\/\//i.test(value) || value.startsWith('data:') || value.startsWith('blob:')) return value;
@@ -1103,6 +1113,7 @@
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       let lastFocusedElement = null;
       const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
+      const getAdvisorContext = () => window.palazVisualizerState?.() || {};
 
       const getPersianVoice = () => {
         const voices = window.speechSynthesis.getVoices();
@@ -1254,7 +1265,7 @@
               'Accept': 'application/json',
               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
             },
-            body: JSON.stringify({ message: value, messages: history })
+            body: JSON.stringify({ message: value, messages: history, context: window.palazVisualizerState?.() || {} })
           });
 
           const data = await response.json();

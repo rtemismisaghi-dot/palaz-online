@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-27",
+  "generated_at": "2026-09-29",
   "source": "https://palazonline.com",
   "vat_percent": 10,
   "rule": "final_unit_price = base_unit_price * 1.10",
-  "note": "Verified category-page extraction batches are stored with source URLs. Detail-page image/spec enrichment remains in progress; image URLs should be optimized to WebP/AVIF in the site's asset pipeline.",
+  "note": "Verified category/detail-page extraction batches are stored with source URLs. Current batch includes verified artificial-grass and carpet-tile detail data. Remaining catalog categories/pages and full image/spec enrichment are still being extracted; no incomplete data is imported into the store database.",
   "products": [
     {
       "category": "موکت",
@@ -3003,6 +3003,83 @@
       "vat_percent": 10,
       "unit": "رول",
       "source_url": "https://palazonline.com/category/%DA%A9%D8%A7%D8%BA%D8%B0-%D8%AF%DB%8C%D9%88%D8%A7%D8%B1%DB%8C"
+    },
+    {
+      "category": "چمن مصنوعی",
+      "album": "هلن",
+      "product_name": "چمن مصنوعی هلن ضخامت 25 میلی متر",
+      "code": "1525",
+      "base_unit_price": 13300000,
+      "final_unit_price": 14630000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "25mm",
+      "abrasion": null,
+      "country": "ایران",
+      "brand": "پالاز",
+      "color": "سبز",
+      "suitable_for": "فضای اداری، مسکونی، ویلایی",
+      "backing": "دارای خروجی آب",
+      "product_url": "https://palazonline.com/product/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C-%D9%87%D9%84%D9%86-%D8%B6%D8%AE%D8%A7%D9%85%D8%AA-25-%D9%85%DB%8C%D9%84%DB%8C-%D9%85%D8%AA%D8%B1",
+      "source_url": "https://palazonline.com/category/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C"
+    },
+    {
+      "category": "چمن مصنوعی",
+      "album": "هلن",
+      "product_name": "چمن مصنوعی هلن ضخامت 20 میلی متر",
+      "code": "1520",
+      "base_unit_price": 13080000,
+      "final_unit_price": 14388000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "20mm",
+      "abrasion": null,
+      "country": "ایران",
+      "brand": "پالاز",
+      "color": null,
+      "suitable_for": "فضای اداری، مسکونی، ویلایی",
+      "backing": "دارای خروجی آب",
+      "product_url": "https://palazonline.com/product/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C-%D9%87%D9%84%D9%86-%D8%B6%D8%AE%D8%A7%D9%85%D8%AA-20-%D9%85%DB%8C%D9%84%DB%8C-%D9%85%D8%AA%D8%B1",
+      "source_url": "https://palazonline.com/category/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C"
+    },
+    {
+      "category": "چمن مصنوعی",
+      "album": "هلن",
+      "product_name": "چمن مصنوعی هلن ضخامت 15 میلی متر",
+      "code": "1515",
+      "base_unit_price": 12860000,
+      "final_unit_price": 14146000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "15mm",
+      "abrasion": null,
+      "country": "ایران",
+      "brand": "پالاز",
+      "color": "سبز",
+      "suitable_for": "فضای اداری، مسکونی، ویلایی",
+      "backing": "دارای خروجی آب",
+      "product_url": "https://palazonline.com/product/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C-%D9%87%D9%84%D9%86-%D8%B6%D8%AE%D8%A7%D9%85%D8%AA-15-%D9%85%DB%8C%D9%84%DB%8C-%D9%85%D8%AA%D8%B1",
+      "source_url": "https://palazonline.com/category/%DA%86%D9%85%D9%86-%D9%85%D8%B5%D9%86%D9%88%D8%B9%DB%8C"
+    },
+    {
+      "category": "موکت تایل",
+      "album": null,
+      "product_name": "موکت تایل پالاز کد 555 ضخامت 5 میلی متر",
+      "code": "555",
+      "base_unit_price": 90900000,
+      "final_unit_price": 99990000,
+      "vat_percent": 10,
+      "unit": "متر مربع",
+      "thickness": "5mm",
+      "abrasion": null,
+      "suitable_for": "اداری",
+      "material": "100% پلی آمید",
+      "washable": true,
+      "tile_size": "50×50 سانتی‌متر",
+      "antistatic": true,
+      "slow_burning": true,
+      "product_url": "https://palazonline.com/product/%D9%85%D9%88%DA%A9%D8%AA-%D8%AA%D8%A7%DB%8C%D9%84-%D9%BE%D8%A7%D9%84%D8%A7%D8%B2-%DA%A9%D8%AF-555-%D8%B6%D8%AE%D8%A7%D9%85%D8%AA-5-%D9%85%DB%8C%D9%84%DB%8C-%D9%85%D8%AA%D8%B1",
+      "source_url": "https://palazonline.com/category/%D9%85%D9%88%DA%A9%D8%AA-%D8%AA%D8%A7%DB%8C%D9%84"
     }
   ],
   "filters": {
@@ -3086,5 +3163,22 @@
         "ایران"
       ]
     }
+  },
+  "catalog_status": {
+    "structured_records": 255,
+    "visible_product_baseline": 464,
+    "last_verified": "2026-09-29",
+    "dedupe_key": [
+      "category",
+      "code",
+      "source_url"
+    ],
+    "next_batches": [
+      "کاغذ دیواری باقی‌مانده",
+      "موکت باقی‌مانده",
+      "SPC/تفکیک از لمینیت",
+      "کفپوش اسپاگتی",
+      "پادری باقی‌مانده"
+    ]
   }
 }

@@ -239,7 +239,7 @@
 .palaz-advisor-backdrop.is-open .palaz-advisor-panel{transform:translateX(0)}
 .palaz-advisor-header{min-height:76px;padding:12px 18px;border-bottom:1px solid #eee9e5;display:flex;align-items:center;justify-content:space-between;gap:14px;flex:0 0 auto}
 .palaz-advisor-brand{display:flex;align-items:center;gap:11px;min-width:0}
-.palaz-advisor-brand img{width:52px;height:52px;max-height:52px;object-fit:cover;object-position:center;border-radius:15px;display:block}
+.palaz-advisor-brand img{width:68px;height:68px;max-height:68px;object-fit:cover;object-position:center;border-radius:18px;display:block;animation:palazAdvisorHeaderFloat 2.8s ease-in-out infinite}
 .palaz-advisor-brand strong{display:block;color:#202327;font-size:14px}
 .palaz-advisor-brand span{display:flex;align-items:center;gap:5px;color:#8a8d91;font-size:10px;margin-top:5px}
 .palaz-advisor-brand span i{width:6px;height:6px;border-radius:50%;background:#2b9a62;display:inline-block}
@@ -248,7 +248,7 @@
 .palaz-advisor-voice-orb{position:relative;width:76px;height:76px;margin:0 auto 12px;border-radius:24px;background:linear-gradient(145deg,#b71929,#86121f);display:grid;place-items:center;box-shadow:0 12px 28px rgba(183,25,41,.25)}
 .palaz-advisor-voice-orb:before,.palaz-advisor-voice-orb:after{content:"";position:absolute;border:1px solid rgba(183,25,41,.28);border-radius:30px;inset:-7px;animation:palazVoiceWave 2.2s ease-out infinite}
 .palaz-advisor-voice-orb:after{animation-delay:1.1s}
-.palaz-advisor-voice-orb img{width:58px;height:58px;object-fit:cover;border-radius:18px;filter:none}
+.palaz-advisor-voice-orb img{width:70px;height:70px;object-fit:cover;border-radius:20px;filter:none;animation:palazAdvisorOrbMotion 2.2s ease-in-out infinite}
 .palaz-advisor-voice-intro strong{display:block;font-size:15px;color:#25282c;margin-bottom:4px}
 .palaz-advisor-voice-intro span{display:block;font-size:10px;color:#969292}
 .palaz-advisor-context{display:inline-flex;align-items:center;justify-content:center;margin-top:9px;padding:6px 10px;border-radius:999px;background:#f8f4f2;color:#777;font-size:9px;line-height:1.5}.palaz-advisor-context.is-active{background:#fff4f5;color:#b71929}.palaz-advisor-voice-intro button{margin-top:12px;border:1px solid #eadbdd;background:#fff;border-radius:999px;padding:8px 13px;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer}
@@ -267,17 +267,20 @@
 @keyframes palazAdvisorListening{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 @keyframes palazAdvisorThinking{0%,100%{transform:translateY(0) scale(.99)}50%{transform:translateY(-2px) scale(1.025)}}
 @keyframes palazAdvisorAnswering{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-2px) scale(1.02)}70%{transform:translateY(1px) scale(.998)}}
-.palaz-advisor-avatar img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAdvisorAvatarBreath 4s ease-in-out infinite}.palaz-advisor-backdrop.is-listening .palaz-advisor-avatar img{animation:palazAdvisorAvatarListen 1.05s ease-in-out infinite}
+.palaz-advisor-avatar img{width:100%;height:100%;object-fit:cover;display:block;animation:palazAdvisorAvatarBreath 2.4s ease-in-out infinite}.palaz-advisor-backdrop.is-listening .palaz-advisor-avatar img{animation:palazAdvisorAvatarListen 1.05s ease-in-out infinite}
 .palaz-advisor-backdrop.is-thinking .palaz-advisor-avatar img{animation:palazAdvisorAvatarThink .8s ease-in-out infinite}
 .palaz-advisor-backdrop.is-answering .palaz-advisor-avatar img{animation:palazAdvisorAvatarSpeak 1.15s ease-in-out infinite}
 @keyframes palazAdvisorAvatarListen{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.045) translateY(-2px)}}
 @keyframes palazAdvisorAvatarThink{0%,100%{transform:rotate(0) scale(1)}35%{transform:rotate(-1deg) scale(1.025)}70%{transform:rotate(1deg) scale(1.035)}}
 @keyframes palazAdvisorAvatarSpeak{0%,100%{transform:scale(1) translateY(0)}30%{transform:scale(1.035) translateY(-2px)}60%{transform:scale(.995) translateY(1px)}}
 
-@keyframes palazAdvisorAvatarBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.012) translateY(-1px)}}
+@keyframes palazAdvisorAvatarBreath{0%,100%{transform:translate3d(0,0,0) scale(1)}35%{transform:translate3d(0,-2px,0) scale(1.035) rotate(-.4deg)}70%{transform:translate3d(0,1px,0) scale(1.015) rotate(.4deg)}}
+@keyframes palazAdvisorHeaderFloat{0%,100%{transform:translate3d(0,0,0) rotate(0)}35%{transform:translate3d(0,-3px,0) rotate(-1deg)}70%{transform:translate3d(0,1px,0) rotate(1deg)}}
+@keyframes palazAdvisorOrbMotion{0%,100%{transform:translateY(0) scale(1) rotate(0)}35%{transform:translateY(-4px) scale(1.045) rotate(-1deg)}70%{transform:translateY(2px) scale(1.015) rotate(1deg)}}
+@keyframes palazAdvisorShortcutMotion{0%,100%{transform:translate3d(0,0,0) scale(1) rotate(0)}35%{transform:translate3d(0,-3px,0) scale(1.05) rotate(-1deg)}70%{transform:translate3d(0,2px,0) scale(1.02) rotate(1deg)}}
 @media(prefers-reduced-motion:reduce){.palaz-advisor-voice-orb img,.palaz-advisor-avatar img,.palaz-advisor-backdrop.is-listening .palaz-advisor-voice-orb{animation:none!important}}
 .palaz-advisor-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:16px}
-.palaz-advisor-avatar{width:32px;height:32px;border-radius:50%;background:#25282c;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}
+.palaz-advisor-avatar{width:44px;height:44px;border-radius:50%;background:#25282c;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 auto}
 .palaz-advisor-bubble{max-width:82%;padding:12px 15px;border-radius:17px 17px 5px 17px;background:#f2efec;color:#333;font-size:13px;line-height:1.9}
 .palaz-advisor-message.user{justify-content:flex-start;direction:ltr}
 .palaz-advisor-message.user .palaz-advisor-bubble{background:#b71929;color:#fff;border-radius:17px 17px 17px 5px;direction:rtl}
@@ -300,9 +303,9 @@
 .palaz-advisor-note{text-align:center;color:#aaa;font-size:9px;padding:9px 14px 13px;line-height:1.7}
 .palaz-advisor-shortcut{position:fixed;right:20px;top:92px;height:50px;padding:0 14px 0 11px;border:1px solid #eadbdd;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#fff8f8 100%);color:#34383d;display:flex;align-items:center;gap:9px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(20,20,20,.14);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;z-index:100001;animation:palazAdvisorPulse 2.2s ease-in-out infinite}
 .palaz-advisor-shortcut:hover{border-color:#b71929;color:#b71929;transform:translateY(-3px);box-shadow:0 14px 34px rgba(20,20,20,.18)}
-.palaz-advisor-shortcut-icon{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#b71929,#8e1420);color:#fff;display:grid;place-items:center;position:relative;box-shadow:0 6px 14px rgba(183,25,41,.22)}
+.palaz-advisor-shortcut-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#b71929,#8e1420);color:#fff;display:grid;place-items:center;position:relative;box-shadow:0 6px 14px rgba(183,25,41,.22)}
 .palaz-advisor-shortcut-icon:after{content:"";position:absolute;inset:-5px;border:1px solid rgba(183,25,41,.35);border-radius:15px;animation:palazAdvisorRing 2.2s ease-out infinite}
-.palaz-advisor-shortcut-icon img{width:34px;height:34px;object-fit:cover;object-position:center;display:block;border-radius:11px;filter:none}
+.palaz-advisor-shortcut-icon img{width:52px;height:52px;object-fit:cover;object-position:center;display:block;border-radius:15px;filter:none;animation:palazAdvisorShortcutMotion 2.6s ease-in-out infinite}
 @keyframes palazAdvisorPulse{0%,100%{box-shadow:0 10px 30px rgba(20,20,20,.14)}50%{box-shadow:0 10px 30px rgba(183,25,41,.24)}}
 @keyframes palazAdvisorRing{0%{transform:scale(.72);opacity:.8}100%{transform:scale(1.35);opacity:0}}
 @media(max-width:1100px){.palaz-advisor-shortcut{right:18px;top:84px}.palaz-advisor-shortcut>span:last-child{display:inline}}

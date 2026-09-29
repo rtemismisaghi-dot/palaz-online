@@ -168,7 +168,22 @@
 .palaz-experience .px-visualizer-actions .px-btn{border:0;cursor:pointer}
 .palaz-experience .px-visualizer-compare{position:absolute;z-index:5;right:16px;bottom:16px;display:flex;gap:6px;padding:6px;border-radius:13px;background:rgba(255,255,255,.9);box-shadow:0 8px 25px rgba(0,0,0,.16)}
 .palaz-experience .px-visualizer-compare button{border:1px solid #e2ddd9;border-radius:9px;background:#fff;padding:7px 9px;font:inherit;font-size:9px;font-weight:800;color:#555;cursor:pointer}
-.palaz-experience .px-visualizer-compare button.active{border-color:#b71929;color:#b71929}
+.palaz-experience .px-visualizer-compare button.active{border-color:#b71929;color:#b71929}.palaz-experience .px-visualizer-compare .px-compare-open{background:#25282c;color:#fff;border-color:#25282c}
+.palaz-experience .px-compare-modal{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px}
+.palaz-experience .px-compare-modal[hidden]{display:none}
+.palaz-experience .px-compare-backdrop{position:absolute;inset:0;background:rgba(16,17,19,.62);backdrop-filter:blur(5px)}
+.palaz-experience .px-compare-dialog{position:relative;width:min(1080px,100%);max-height:min(88vh,820px);overflow:auto;border-radius:26px;background:#f7f5f2;box-shadow:0 30px 90px rgba(0,0,0,.3);padding:22px}
+.palaz-experience .px-compare-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:16px}
+.palaz-experience .px-compare-header strong{display:block;margin-top:5px;font-size:18px;color:#24272b}
+.palaz-experience .px-compare-close{width:38px;height:38px;border:1px solid #ddd8d3;border-radius:50%;background:#fff;font-size:24px;line-height:1;cursor:pointer}
+.palaz-experience .px-compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.palaz-experience .px-compare-view{position:relative;min-height:420px;overflow:hidden;border-radius:20px;background:#ddd}
+.palaz-experience .px-compare-image{position:absolute;inset:0;background-position:center;background-size:cover}
+.palaz-experience .px-compare-image:after{content:"";position:absolute;left:7%;right:7%;bottom:7%;height:52%;background-image:var(--compare-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%))}
+.palaz-experience .px-compare-label{position:absolute;z-index:3;right:14px;top:14px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.92);font-size:11px;font-weight:900;color:#25282c;box-shadow:0 8px 25px rgba(0,0,0,.12)}
+.palaz-experience .px-compare-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:#777;font-size:10px}
+@media(max-width:700px){.palaz-experience .px-compare-grid{grid-template-columns:1fr}.palaz-experience .px-compare-view{min-height:300px}.palaz-experience .px-compare-footer{flex-direction:column;align-items:stretch}.palaz-experience .px-compare-footer .px-btn{width:100%}}
+
 .palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
 @media(max-width:900px){.palaz-experience .px-product-chip{min-width:165px}.palaz-experience .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-experience .px-product-chip{min-width:155px}.palaz-experience .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-experience .px-visualizer-actions .px-btn{width:100%}}
@@ -662,6 +677,31 @@
               <div class="px-visualizer-compare" hidden>
                 <button type="button" data-compare="0"></button>
                 <button type="button" data-compare="1"></button>
+                <button type="button" class="px-compare-open" aria-label="مقایسه دو مدل">مقایسه</button>
+              </div>
+
+              <div class="px-compare-modal" hidden aria-hidden="true">
+                <div class="px-compare-backdrop"></div>
+                <section class="px-compare-dialog" role="dialog" aria-modal="true" aria-labelledby="px-compare-title">
+                  <header class="px-compare-header">
+                    <div><span class="px-kicker">PRODUCT COMPARISON</span><strong id="px-compare-title">دو مدل را روی فضای خودت مقایسه کن</strong></div>
+                    <button type="button" class="px-compare-close" aria-label="بستن">×</button>
+                  </header>
+                  <div class="px-compare-grid">
+                    <article class="px-compare-view" data-compare-view="0">
+                      <div class="px-compare-image"></div>
+                      <div class="px-compare-label"></div>
+                    </article>
+                    <article class="px-compare-view" data-compare-view="1">
+                      <div class="px-compare-image"></div>
+                      <div class="px-compare-label"></div>
+                    </article>
+                  </div>
+                  <footer class="px-compare-footer">
+                    <span>هر مدل را انتخاب کن تا در Visualizer اصلی هم نمایش داده شود.</span>
+                    <button type="button" class="px-btn red px-compare-use">استفاده از مدل انتخاب‌شده ←</button>
+                  </footer>
+                </section>
               </div>
             </div>
 
@@ -710,6 +750,10 @@
             const productsEl = root.querySelector('.px-visualizer-products');
             const status = root.querySelector('.px-visualizer-status');
             const compare = root.querySelector('.px-visualizer-compare');
+            const compareOpen = root.querySelector('.px-compare-open');
+            const compareModal = root.querySelector('.px-compare-modal');
+            const compareClose = root.querySelector('.px-compare-close');
+            const compareUse = root.querySelector('.px-compare-use');
             const advisorButton = root.querySelector('.px-visualizer-advisor');
 
             const fallbackImages = {
@@ -825,6 +869,7 @@
             const renderCompare = () => {
               if (compareProducts.length < 2) {
                 compare.hidden = true;
+                if (compareModal) compareModal.hidden = true;
                 return;
               }
 
@@ -844,6 +889,56 @@
                 };
               });
             };
+
+            const renderCompareModal = () => {
+              if (!compareModal || compareProducts.length < 2) return;
+              const base = uploadedUrl || fallbackImages[surface];
+              const points = Array.isArray(floorPolygon) && floorPolygon.length >= 4
+                ? floorPolygon.map(point => (Number(point[0]) || 0) + '% ' + (Number(point[1]) || 0) + '%').join(', ')
+                : '4% 18%,96% 18%,100% 100%,0 100%';
+              compareModal.querySelectorAll('[data-compare-view]').forEach((view, index) => {
+                const product = compareProducts[index];
+                const image = view.querySelector('.px-compare-image');
+                const label = view.querySelector('.px-compare-label');
+                if (!product) return;
+                image.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
+                image.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
+                image.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
+                label.textContent = product.name + (product.tone ? ' • ' + product.tone : '');
+                view.onclick = () => {
+                  selectedProduct = product;
+                  paintPreview();
+                  renderProducts();
+                  renderCompare();
+                  renderCompareModal();
+                };
+              });
+            };
+
+            const openCompare = () => {
+              if (compareProducts.length < 2) return;
+              renderCompareModal();
+              compareModal.hidden = false;
+              compareModal.setAttribute('aria-hidden','false');
+              document.body.style.overflow = 'hidden';
+            };
+            const closeCompare = () => {
+              if (!compareModal) return;
+              compareModal.hidden = true;
+              compareModal.setAttribute('aria-hidden','true');
+              document.body.style.overflow = '';
+            };
+
+            compareOpen?.addEventListener('click', openCompare);
+            compareClose?.addEventListener('click', closeCompare);
+            compareModal?.querySelector('.px-compare-backdrop')?.addEventListener('click', closeCompare);
+            document.addEventListener('keydown', event => {
+              if (event.key === 'Escape' && compareModal && !compareModal.hidden) closeCompare();
+            });
+            compareUse?.addEventListener('click', () => {
+              closeCompare();
+              root.scrollIntoView({ behavior:'smooth', block:'center' });
+            });
 
             const loadProducts = async () => {
               productsEl.innerHTML = '<div class="px-product-loading">در حال دریافت مدل‌های واقعی پالاز…</div>';

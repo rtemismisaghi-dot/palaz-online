@@ -101,6 +101,7 @@ final class StoreCatalog
             'unit' => $product->unit,
             'tone' => $product->tone,
             'description' => $product->description,
+            'image' => optional($product->media->first())->path,
         ];
     }
 }

@@ -184,6 +184,8 @@
 .palaz-experience .px-compare-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:#777;font-size:10px}
 @media(max-width:700px){.palaz-experience .px-compare-grid{grid-template-columns:1fr}.palaz-experience .px-compare-view{min-height:300px}.palaz-experience .px-compare-footer{flex-direction:column;align-items:stretch}.palaz-experience .px-compare-footer .px-btn{width:100%}}
 
+.palaz-experience .px-visualizer-preview.has-product:after{opacity:var(--palaz-floor-opacity,.78)!important;mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));transform:scale(1.002);transform-origin:center}
+.palaz-experience .px-visualizer-preview.has-product:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 38%,rgba(0,0,0,.08));opacity:.72}
 .palaz-experience .px-visualizer-preview.has-product:after{content:"";position:absolute;z-index:2;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));pointer-events:none;box-shadow:0 -10px 35px rgba(0,0,0,.08) inset}
 @media(max-width:900px){.palaz-experience .px-product-chip{min-width:165px}.palaz-experience .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-experience .px-product-chip{min-width:155px}.palaz-experience .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-experience .px-visualizer-actions .px-btn{width:100%}}
@@ -798,6 +800,9 @@
             const paintPreview = () => {
               const base = uploadedUrl || fallbackImages[surface];
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
+              const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
+                ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
+                : null;
 
               if (uploadedUrl && texture) {
                 // نسخه اول Visualizer: عکس کاربر حفظ می‌شود و تکسچر محصول
@@ -807,11 +812,17 @@
                   'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
                 preview.dataset.texture = texture;
                 preview.style.setProperty('--palaz-texture', 'url("' + texture + '")');
-                if (Array.isArray(floorPolygon) && floorPolygon.length >= 4) {
-                  const points = floorPolygon.map(point => (Number(point[0]) || 0) + '% ' + (Number(point[1]) || 0) + '%').join(', ');
+                if (floorPoints) {
+                  const points = floorPoints.map(point => point[0] + '% ' + point[1] + '%').join(', ');
                   preview.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
+                  preview.style.setProperty('--palaz-floor-opacity', '0.82');
+                  preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
+                  preview.style.setProperty('--palaz-floor-saturation', surface === 'carpet' ? '0.94' : '0.88');
                 } else {
                   preview.style.removeProperty('--palaz-floor-clip');
+                  preview.style.removeProperty('--palaz-floor-opacity');
+                  preview.style.removeProperty('--palaz-floor-blend');
+                  preview.style.removeProperty('--palaz-floor-saturation');
                 }
                 preview.classList.add('has-product');
               } else {

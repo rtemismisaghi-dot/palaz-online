@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductPricingRule;
+use App\Models\ProductInventoryRoll;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'pricingRule']);
+        $query = Product::with(['category', 'pricingRule', 'inventoryRolls']);
 
         if ($search = trim((string) $request->input('q'))) {
             $query->where(function ($q) use ($search) {
@@ -104,6 +105,8 @@ class ProductController extends Controller
             'calculation_type' => 'required|in:fixed,area,roll,quantity',
             'calculation_unit' => 'required|string|max:40',
             'waste_percent' => 'nullable|numeric|min:0|max:100',
+            'roll_stock' => 'nullable|array',
+            'roll_stock.*' => 'nullable|integer|min:0|max:100000',
         ]);
 
         $attributes = null;
@@ -125,6 +128,15 @@ class ProductController extends Controller
                 'is_featured' => $request->boolean('is_featured'),
             ]);
             $product->save();
+
+            if (($data['calculation_type'] ?? null) === 'roll') {
+                foreach (range(1, 15) as $length) {
+                    ProductInventoryRoll::updateOrCreate(
+                        ['product_id' => $product->id, 'width' => 3, 'length' => $length],
+                        ['quantity' => (int) ($data['roll_stock'][$length] ?? 0)]
+                    );
+                }
+            }
 
             ProductPricingRule::updateOrCreate(
                 ['product_id' => $product->id],

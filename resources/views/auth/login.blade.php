@@ -10,15 +10,11 @@ button.submit{width:100%;border:0;background:#9f1820;color:#fff;padding:14px;bor
 .error{background:#fff1f1;color:#9f1820;border-radius:12px;padding:10px 12px;font-size:12px;margin-top:14px}
 </style></head><body><main class="box">
 <div class="logo"><span class="mark">P</span><span>PALAZ ONLINE<br><small style="font-size:11px;color:#877d77;font-weight:500">ورود به حساب</small></span></div>
-<h2>ورود</h2>
-<p class="hint">شماره موبایل و رمز عبور خود را وارد کنید.</p>
+<h2>ورود</h2><p class="hint">با شماره موبایل و رمز عبور وارد شوید.</p>
 @if($errors->any())<div class="error">{{ $errors->first() }}</div>@endif
 <form method="post" action="{{ route('login.staff') }}">@csrf
-<label>شماره موبایل</label>
-<input name="phone" type="tel" inputmode="numeric" autocomplete="username" value="{{ old('phone') }}" placeholder="09xxxxxxxxx" required>
-<label>رمز عبور</label>
-<input name="password" type="password" autocomplete="current-password" required>
-<button class="submit" type="submit">ورود به پنل</button>
-</form>
-<a class="back" href="{{ route('home') }}">بازگشت به سایت</a>
+<label>شماره موبایل</label><input name="phone" type="tel" inputmode="numeric" autocomplete="username" value="{{ old('phone') }}" placeholder="09xxxxxxxxx" required>
+<label>رمز عبور</label><input name="password" type="password" autocomplete="current-password" required>
+<button class="submit">ورود</button>
+</form><a class="back" href="{{ route('home') }}">بازگشت به سایت</a>
 </main></body></html>

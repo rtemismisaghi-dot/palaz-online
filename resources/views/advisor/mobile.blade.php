@@ -74,7 +74,7 @@
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
     <main class="messages" id="messages" aria-live="polite">
-        <div class="message assistant"><div class="avatar"><img src="{{ $character }}" alt=""></div><div class="bubble">سلام 👋 من مشاور هوشمند پالاز هستم.
+        <div class="message assistant"><div class="bubble">سلام 👋 من مشاور هوشمند پالاز هستم.
 هر سؤالی دارید بپرسید؛ برای انتخاب کفپوش، مقایسه، طراحی فضا و مسیر اجرا تخصصی راهنمایی‌تان می‌کنم.</div></div>
     </main>
     <div class="quick" id="quick">
@@ -107,7 +107,7 @@
         if(role==='assistant'){const im=document.createElement('img');im.src=character;im.alt='';av.appendChild(im)}else av.textContent='شما';
         const b=document.createElement('div');b.className='bubble';b.textContent=text;row.append(av,b);messages.appendChild(row);scroll();return b;
     };
-    const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="avatar"><img src="'+character+'" alt=""></div><div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
+    const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
     const removeTyping=()=>document.getElementById('typing')?.remove();
 
     let voicesReady=false;

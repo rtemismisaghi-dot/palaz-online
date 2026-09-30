@@ -45,6 +45,30 @@ final class PalazCatalogImageResolver
         }
     }
 
+    public static function debugCode(string $code): array
+    {
+        $result = ['code' => $code, 'pages' => [], 'urls' => []];
+
+        foreach (range(1, 15) as $page) {
+            $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+            try {
+                $response = Http::timeout(5)->connectTimeout(2)->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                    'Accept' => 'text/html,application/xhtml+xml',
+                ])->get($url);
+                $body = $response->body();
+                $urls = self::extractProductUrlsForCode($body, $code);
+                $result['pages'][] = ['page'=>$page,'status'=>$response->status(),'has_code'=>stripos($body,$code)!==false,'urls'=>$urls];
+                foreach ($urls as $u) $result['urls'][$u] = true;
+            } catch (\Throwable $e) {
+                $result['pages'][] = ['page'=>$page,'error'=>$e->getMessage()];
+            }
+        }
+
+        $result['urls'] = array_keys($result['urls']);
+        return $result;
+    }
+
     private static function searchCatalogPages(string $code): ?string
     {
         $responses = Http::pool(function ($pool) {

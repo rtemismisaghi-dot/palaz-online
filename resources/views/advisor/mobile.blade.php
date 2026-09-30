@@ -66,6 +66,9 @@
         @keyframes typing{50%{transform:translateY(-3px)}}
         @media(min-width:681px){body{display:grid;place-items:center}.advisor{height:min(900px,100dvh);border-left:1px solid #e9e2dd;border-right:1px solid #e9e2dd;box-shadow:0 20px 80px rgba(30,25,20,.12)}}
         @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+            /* Final cleanup: no duplicate avatar or secondary controls in advisor messages */
+        .message .avatar,.message .palaz-ai-avatar,.message img.avatar,.message .speak,.message .speak-btn,.message .voice-btn,.message .consultation-btn,.message .advisor-btn{display:none!important}
+        .message{gap:0!important}
     </style>
 </head>
 <body>

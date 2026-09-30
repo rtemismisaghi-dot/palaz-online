@@ -65,9 +65,9 @@ final class PalazCatalogImageResolver
                 continue;
             }
 
-            $productUrl = self::extractProductUrlForCode($response->body(), $code);
+            $productUrls = self::extractProductUrlsForCode($response->body(), $code);
 
-            if ($productUrl) {
+            foreach ($productUrls as $productUrl) {
                 $image = self::extractProductPageImage($productUrl);
                 if ($image) {
                     return $image;
@@ -230,6 +230,20 @@ final class PalazCatalogImageResolver
         } catch (\Throwable) {}
 
         return null;
+    }
+
+    private static function isLikelyProductPage(string $url): bool
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+
+        if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host)) {
+            return false;
+        }
+
+        return str_contains($path, '/product/')
+            || str_contains($path, '/products/')
+            || str_contains($path, '/موکت-');
     }
 
     private static function normalizeUrl(string $url): ?string

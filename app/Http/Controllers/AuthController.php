@@ -19,21 +19,40 @@ class AuthController extends Controller
         ]);
 
         $phone = env('PALAZ_STAFF_PHONE');
-        $password = env('PALAZ_STAFF_PASSWORD');
+        $passwords = [
+            'admin' => env('PALAZ_ADMIN_PASSWORD'),
+            'sales' => env('PALAZ_SALES_PASSWORD'),
+            'installation' => env('PALAZ_INSTALLATION_PASSWORD'),
+        ];
 
-        if (!$phone || !$password || !hash_equals((string) $phone, (string) $data['phone']) || !hash_equals((string) $password, (string) $data['password'])) {
-            return back()->withErrors(['phone' => 'شماره پرسنلی یا رمز عبور صحیح نیست.'])->withInput($request->only('phone'));
+        $role = null;
+        foreach ($passwords as $candidateRole => $candidatePassword) {
+            if ($candidatePassword && hash_equals((string) $candidatePassword, (string) $data['password'])) {
+                $role = $candidateRole;
+                break;
+            }
+        }
+
+        if (!$phone || !$role || !hash_equals((string) $phone, (string) $data['phone'])) {
+            return back()->withErrors(['phone' => 'شماره موبایل یا رمز عبور صحیح نیست.'])->withInput($request->only('phone'));
         }
 
         $request->session()->regenerate();
-        $request->session()->put('palaz_staff_authenticated', true);
+        $request->session()->put([
+            'palaz_staff_authenticated' => true,
+            'palaz_staff_role' => $role,
+        ]);
 
-        return redirect()->intended(route('admin.dashboard'));
+        return redirect()->route(match ($role) {
+            'admin' => 'admin.dashboard',
+            'sales' => 'sales.dashboard',
+            'installation' => 'installation.dashboard',
+        });
     }
 
     public function logout(Request $request)
     {
-        $request->session()->forget('palaz_staff_authenticated');
+        $request->session()->forget(['palaz_staff_authenticated', 'palaz_staff_role']);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

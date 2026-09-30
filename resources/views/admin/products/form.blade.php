@@ -14,7 +14,7 @@
         <div class="col-md-6"><label class="form-label">نوع محاسبه</label><select name="calculation_type" class="form-select"><option value="fixed" @selected(old('calculation_type',$rule->calculation_type)=='fixed')>ثابت / عددی</option><option value="area" @selected(old('calculation_type',$rule->calculation_type)=='area')>بر اساس مترمربع</option><option value="roll" @selected(old('calculation_type',$rule->calculation_type)=='roll')>بر اساس رول / طاقه</option><option value="quantity" @selected(old('calculation_type',$rule->calculation_type)=='quantity')>بر اساس تعداد</option></select></div>
         <div class="col-md-3"><label class="form-label">واحد محاسبه</label><input name="calculation_unit" class="form-control" value="{{ old('calculation_unit',$rule->unit ?? 'item') }}" required></div>
         <div class="col-md-3"><label class="form-label">پرت / ضریب اضافه ٪</label><input type="number" min="0" max="100" step=".01" name="waste_percent" class="form-control" value="{{ old('waste_percent',$rule->waste_percent ?? 0) }}"></div>
-        <div class="col-12 mt-2">
+        <div class="col-12 mt-2" id="rollInventorySection">
             <div class="border rounded-3 p-3 bg-light">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
@@ -45,4 +45,13 @@
     </div>
     <div class="mt-4 d-flex gap-2"><button class="btn btn-palaz">ذخیره محصول و قیمت‌گذاری</button><a class="btn btn-light" href="{{ route('admin.products.index') }}">انصراف</a></div>
 </form>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const type = document.querySelector('[name="calculation_type"]');
+    const section = document.getElementById('rollInventorySection');
+    const sync = () => { section.hidden = type.value !== 'roll'; };
+    type.addEventListener('change', sync);
+    sync();
+});
+</script>
 @endsection

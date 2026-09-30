@@ -111,20 +111,63 @@
     const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="avatar"><img src="'+character+'" alt=""></div><div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
     const removeTyping=()=>document.getElementById('typing')?.remove();
 
-    const persianVoice=()=>{
-        if(!('speechSynthesis' in window)) return null;
-        const vs=speechSynthesis.getVoices();
-        return vs.find(v=>/^fa(-|_)?IR$/i.test(v.lang))||vs.find(v=>/^fa/i.test(v.lang))||null;
+    let voicesReady=false;
+    const loadVoices=()=>{
+        if(!('speechSynthesis' in window)) return [];
+        const voices=speechSynthesis.getVoices();
+        voicesReady=voices.length>0;
+        return voices;
     };
-    const speak=(text)=>{
-        if(!('speechSynthesis' in window)||!text) return;
+    const persianVoice=()=>{
+        const voices=loadVoices();
+        if(!voices.length) return null;
+        return voices.find(v=>/^fa(-|_)?IR$/i.test(v.lang))
+            || voices.find(v=>/^fa/i.test(v.lang))
+            || voices.find(v=>/persian|farsi|iran/i.test(v.name))
+            || null;
+    };
+    const speak=async(text)=>{
+        if(!('speechSynthesis' in window)||!text) return false;
         speechSynthesis.cancel();
+
+        if(!voicesReady){
+            loadVoices();
+            await new Promise(resolve=>setTimeout(resolve,120));
+        }
+
         const u=new SpeechSynthesisUtterance(text);
-        const v=persianVoice(); u.lang=v?.lang||'fa-IR'; if(v)u.voice=v; u.rate=.94;u.pitch=1.05;u.volume=1;
-        u.onstart=()=>{speaking=true;setState('speaking','مشاور پالاز در حال صحبت است...')};
-        u.onend=()=>{speaking=false;setState('','آماده شنیدن شما 🎙')};
-        u.onerror=()=>{speaking=false;setState('','پاسخ آماده است؛ اگر صدا پخش نشد دوباره روی میکروفن بزنید.')};
-        speechSynthesis.speak(u);
+        const v=persianVoice();
+        u.lang=v?.lang||'fa-IR';
+        if(v) u.voice=v;
+        u.rate=.92;
+        u.pitch=1.03;
+        u.volume=1;
+
+        return await new Promise(resolve=>{
+            let started=false;
+            u.onstart=()=>{
+                started=true;
+                speaking=true;
+                setState('speaking','مشاور پالاز در حال صحبت است...');
+            };
+            u.onend=()=>{
+                speaking=false;
+                setState('','آماده شنیدن شما 🎙');
+                resolve(true);
+            };
+            u.onerror=()=>{
+                speaking=false;
+                setState('','برای پخش صدا، یک بار روی صفحه لمس کنید و دوباره امتحان کنید.');
+                resolve(false);
+            };
+            speechSynthesis.speak(u);
+            setTimeout(()=>{
+                if(!started && !speechSynthesis.speaking){
+                    setState('','برای فعال کردن صدای مشاور یک بار روی صفحه لمس کنید.');
+                    resolve(false);
+                }
+            },900);
+        });
     };
 
     const send=async(text)=>{
@@ -154,7 +197,26 @@
         recognition.onend=()=>{mic.classList.remove('listening');if(!busy&&!speaking)setState('','آماده شنیدن شما 🎙')};
     };
     mic.addEventListener('click',startVoice);
-    window.speechSynthesis?.addEventListener?.('voiceschanged',()=>{});
+
+    if('speechSynthesis' in window){
+        loadVoices();
+        window.speechSynthesis.addEventListener('voiceschanged',loadVoices);
+
+        // موبایل‌ها معمولاً پخش خودکار صدا را بدون تعامل کاربر مسدود می‌کنند.
+        // اولین لمس کاربر صدای خوش‌آمد را فعال می‌کند و بعد از آن پاسخ‌ها صوتی خوانده می‌شوند.
+        const welcome=()=>{
+            document.removeEventListener('pointerdown',welcome);
+            speak('سلام، من مشاور هوشمند پالاز هستم. برای انتخاب کفپوش مناسب کمکتان می‌کنم.');
+        };
+        document.addEventListener('pointerdown',welcome,{once:true});
+
+        setTimeout(()=>{
+            if(!speaking && !busy){
+                setState('','برای شروع گفتگو روی میکروفن بزنید 🎙');
+            }
+        },800);
+    }
+
 })();
 </script>
 </body>

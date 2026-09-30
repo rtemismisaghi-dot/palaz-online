@@ -40,6 +40,86 @@ final class PalazCatalogImageResolver
         }
     }
 
+    public static function resolveStrictBatch(iterable $products): array
+    {
+        $productsByCode = [];
+        foreach ($products as $product) {
+            $code = trim((string) ($product->attributes['code'] ?? ''));
+            if ($code !== '') $productsByCode[$code] = $product;
+        }
+
+        if (!$productsByCode) return [];
+
+        $pages = Cache::remember('palaz:carpet-catalog-pages:v4', now()->addMinutes(30), function () {
+            $responses = Http::pool(function ($pool) {
+                $requests = [];
+                for ($page = 1; $page <= 15; $page++) {
+                    $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+                    $requests[] = $pool->as('page' . $page)
+                        ->timeout(4)->connectTimeout(2)
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                            'Accept' => 'text/html,application/xhtml+xml',
+                        ])->get($url);
+                }
+                return $requests;
+            }, concurrency: 8);
+
+            $html = [];
+            foreach ($responses as $response) {
+                if ($response instanceof \Throwable) continue;
+                if ($response->successful()) $html[] = $response->body();
+            }
+            return $html;
+        });
+
+        $urlByCode = [];
+        foreach ($pages as $html) {
+            foreach (array_keys($productsByCode) as $code) {
+                if (isset($urlByCode[$code]) || stripos($html, $code) === false) continue;
+                $urls = self::extractProductUrlsForCode($html, $code);
+                if ($urls) $urlByCode[$code] = $urls[0];
+            }
+        }
+
+        if (!$urlByCode) return [];
+
+        $responses = Http::pool(function ($pool) use ($urlByCode) {
+            $requests = [];
+            foreach ($urlByCode as $code => $url) {
+                $requests[$code] = $pool->as('code_' . $code)
+                    ->timeout(5)->connectTimeout(2)
+                    ->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                        'Accept' => 'text/html,application/xhtml+xml',
+                    ])->get($url);
+            }
+            return $requests;
+        }, concurrency: 8);
+
+        $found = [];
+        foreach ($urlByCode as $code => $url) {
+            $response = $responses[$code] ?? null;
+            if (!$response || $response instanceof \Throwable || !$response->successful()) continue;
+
+            $image = self::extractProductPageImage($url);
+            if (!$image) continue;
+
+            $product = $productsByCode[$code];
+            ProductMedia::updateOrCreate(
+                ['product_id' => $product->id, 'sort_order' => 0],
+                [
+                    'path' => $image,
+                    'alt' => $product->name . ' - کد ' . $code,
+                    'is_cover' => true,
+                ]
+            );
+            $found[$code] = $image;
+        }
+
+        return $found;
+    }
+
     public static function debugCode(string $code): array
     {
         $url = 'https://palazonline.com/category/موکت?page=10';

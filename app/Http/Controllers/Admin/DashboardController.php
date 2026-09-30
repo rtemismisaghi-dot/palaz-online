@@ -28,9 +28,24 @@ class DashboardController extends Controller
         return view('admin.management', compact('data'));
     }
 
-    public function sales()
+    public function sales(Request $request)
     {
-        return view('admin.dashboard', ['stats' => [], 'staffArea' => 'sales']);
+        $query = Product::query()
+            ->with(['category', 'media', 'pricingRule', 'inventoryRolls'])
+            ->where('is_active', true);
+
+        if ($request->filled('q')) {
+            $q = trim((string) $request->input('q'));
+            $query->where(function ($builder) use ($q) {
+                $builder->where('name', 'ilike', "%{$q}%")
+                    ->orWhere('slug', 'ilike', "%{$q}%");
+            });
+        }
+
+        $products = $query->orderBy('name')->orderBy('slug')->get();
+        $categories = Category::orderBy('sort_order')->orderBy('name')->get();
+
+        return view('sales.index', compact('products', 'categories'));
     }
 
     public function installation()

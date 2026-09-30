@@ -73,52 +73,38 @@ final class PalazCatalogImageResolver
         }
     }
 
+    private static ?array $catalogPages = null;
+
     private static function searchCatalogPages(string $code): ?string
     {
-        for ($page = 1; $page <= 15; $page++) {
-            $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
-
-            try {
-                $response = Http::timeout(4)->connectTimeout(2)->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
-                    'Accept' => 'text/html,application/xhtml+xml',
-                ])->get($url);
-
-                if (!$response->successful()) continue;
-
-                $html = $response->body();
-                $position = stripos($html, $code);
-                if ($position === false) continue;
-
-                $start = max(0, $position - 12000);
-                $block = substr($html, $start, 24000);
-
-                // Product cards may use lazy/background attributes instead of <img src>.
-                $patterns = [
-                    '/<(?:img|source)\\b[^>]*(?:src|data-src|data-lazy-src|data-original|data-image|srcset|data-srcset)\\s*=\\s*["\']([^"\']+)["\']/iu',
-                    '/(?:background-image|image|thumbnail|image_url|imageUrl|src|url)\\s*[:=]\\s*["\']([^"\']+)["\']/iu',
-                    "~https?://[^\"'\\s<>]+~iu",
-                ];
-
-                $candidates = [];
-                foreach ($patterns as $pattern) {
-                    if (!preg_match_all($pattern, $block, $matches)) continue;
-
-                    foreach ($matches[1] ?? $matches[0] as $raw) {
-                        foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
-                            $candidate = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
-                            $candidate = self::normalizeUrl($candidate);
-                            if ($candidate && self::isLikelyProductImage($candidate)) {
-                                $candidates[$candidate] = true;
-                            }
-                        }
-                    }
+        if (self::$catalogPages === null) {
+            self::$catalogPages = [];
+            $responses = Http::pool(function ($pool) {
+                $requests = [];
+                for ($page = 1; $page <= 15; $page++) {
+                    $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+                    $requests[] = $pool->as('page' . $page)
+                        ->timeout(4)
+                        ->connectTimeout(2)
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                            'Accept' => 'text/html,application/xhtml+xml',
+                        ])->get($url);
                 }
+                return $requests;
+            });
 
-                if ($candidates) return array_key_first($candidates);
-            } catch (\Throwable) {
-                continue;
+            foreach ($responses as $response) {
+                if ($response->successful()) {
+                    self::$catalogPages[] = $response->body();
+                }
             }
+        }
+
+        foreach (self::$catalogPages as $html) {
+            if (stripos($html, $code) === false) continue;
+            $image = self::extractImageForCode($html, $code);
+            if ($image) return $image;
         }
 
         return null;

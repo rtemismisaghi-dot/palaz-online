@@ -1,10 +1,10 @@
 <?php
 
-namespace App\\Services;
+namespace App\Services;
 
-use App\\Models\\Product;
-use App\\Models\\ProductMedia;
-use Illuminate\\Support\\Facades\\Http;
+use App\Models\Product;
+use App\Models\ProductMedia;
+use Illuminate\Support\Facades\Http;
 
 final class PalazCatalogImageResolver
 {
@@ -16,11 +16,14 @@ final class PalazCatalogImageResolver
         }
 
         $name = trim((string) $product->name);
-        $slug = rawurlencode(str_replace(' ', '-', $name . ' کد ' . $code));
-        $url = 'https://palazonline.com/product/' . $slug;
+        $pathName = preg_match('/(?:^|\s)کد\s*' . preg_quote($code, '/') . '\b/u', $name)
+            ? $name
+            : $name . ' کد ' . $code;
+
+        $url = 'https://palazonline.com/product/' . rawurlencode(str_replace(' ', '-', $pathName));
 
         try {
-            $response = Http::timeout(5)
+            $response = Http::timeout(6)
                 ->connectTimeout(3)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
                 ->get($url);
@@ -46,7 +49,7 @@ final class PalazCatalogImageResolver
             );
 
             return $image;
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -54,10 +57,10 @@ final class PalazCatalogImageResolver
     private static function extractImage(string $html): ?string
     {
         $patterns = [
-            '/<meta[^>]+property=["\\\']og:image["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']/iu',
-            '/<meta[^>]+content=["\\\']([^"\\\']+)["\\\'][^>]+property=["\\\']og:image["\\\']/iu',
-            '/<meta[^>]+name=["\\\']twitter:image["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']/iu',
-            '/<meta[^>]+content=["\\\']([^"\\\']+)["\\\'][^>]+name=["\\\']twitter:image["\\\']/iu',
+            '~<meta[^>]+property=["\\']og:image["\\'][^>]+content=["\\']([^"\\']+)["\\']~iu',
+            '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+property=["\\']og:image["\\']~iu',
+            '~<meta[^>]+name=["\\']twitter:image["\\'][^>]+content=["\\']([^"\\']+)["\\']~iu',
+            '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+name=["\\']twitter:image["\\']~iu',
         ];
 
         foreach ($patterns as $pattern) {

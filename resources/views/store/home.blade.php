@@ -1129,6 +1129,15 @@
             <button class="palaz-advisor-send" type="submit" aria-label="ارسال پیام">↑</button>
           </form>
           <div class="palaz-advisor-note">مشاور پالاز می‌تواند درباره انتخاب، مقایسه، محاسبه و اجرای محصول راهنمایی کند.</div>
+          <style>
+          /* Mobile advisor: keep the main character, remove duplicate message avatar and replay/extra consultation control */
+          @media (max-width:700px){
+            #palaz-advisor-panel .palaz-advisor-message .palaz-advisor-avatar,
+            #palaz-advisor-panel .palaz-advisor-message .palaz-advisor-avatar img{display:none!important}
+            #palaz-advisor-panel .palaz-advisor-message{gap:0!important}
+            #palaz-advisor-panel .palaz-advisor-voice-replay{display:none!important}
+          }
+          </style>
         </section>
       </div>
     </div>

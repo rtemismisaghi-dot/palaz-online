@@ -16,7 +16,13 @@ final class PalazCatalogImageResolver
         $name = trim((string) $product->name);
 
         try {
-            $image = self::searchCatalogPages($code);
+            $image = self::extractProductPageImage(
+                'https://palazonline.com/product/' . rawurlencode($name . ' کد-' . $code)
+            );
+
+            if (!$image) {
+                $image = self::searchCatalogPages($code);
+            }
 
             if (!$image) {
                 $image = self::searchIndexedImage($name, $code);

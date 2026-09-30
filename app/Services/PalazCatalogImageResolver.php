@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductMedia;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 final class PalazCatalogImageResolver
@@ -73,16 +74,15 @@ final class PalazCatalogImageResolver
         }
     }
 
-    private static ?array $catalogPages = null;
-
     private static function searchCatalogPages(string $code): ?string
     {
-        if (self::$catalogPages === null) {
-            self::$catalogPages = [];
+        $pages = Cache::remember('palaz:carpet-catalog-pages:v2', now()->addMinutes(30), function () {
             $responses = Http::pool(function ($pool) {
                 $requests = [];
+
                 for ($page = 1; $page <= 15; $page++) {
                     $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+
                     $requests[] = $pool->as('page' . $page)
                         ->timeout(4)
                         ->connectTimeout(2)
@@ -91,18 +91,23 @@ final class PalazCatalogImageResolver
                             'Accept' => 'text/html,application/xhtml+xml',
                         ])->get($url);
                 }
+
                 return $requests;
             });
 
+            $html = [];
             foreach ($responses as $response) {
                 if ($response->successful()) {
-                    self::$catalogPages[] = $response->body();
+                    $html[] = $response->body();
                 }
             }
-        }
 
-        foreach (self::$catalogPages as $html) {
+            return $html;
+        });
+
+        foreach ($pages as $html) {
             if (stripos($html, $code) === false) continue;
+
             $image = self::extractImageForCode($html, $code);
             if ($image) return $image;
         }

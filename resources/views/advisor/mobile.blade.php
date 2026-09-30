@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>مشاور هوشمند پالاز</title>
+    <!-- Palaz Advisor Mobile v2 -->
     <style>
         :root{--red:#b71929;--ink:#202327;--muted:#85888d;--paper:#fbfaf8}
         *{box-sizing:border-box}
@@ -68,7 +69,7 @@
     </header>
     <section class="stage" id="stage">
         <div class="character"><img src="{{ $character }}" alt="مشاور پالاز"></div>
-        <div class="status" id="status">سلام، با صدای خودتان شروع کنید <b>🎙</b></div>
+        <div class="status" id="status">برای شروع، روی میکروفن بزنید <b>🎙</b></div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
     <main class="messages" id="messages" aria-live="polite">

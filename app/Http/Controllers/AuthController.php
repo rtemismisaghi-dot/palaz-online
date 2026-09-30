@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -19,19 +18,25 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt(['phone' => $data['phone'], 'password' => $data['password'], 'role' => 'staff'], $request->boolean('remember'))) {
+        $phone = env('PALAZ_STAFF_PHONE');
+        $password = env('PALAZ_STAFF_PASSWORD');
+
+        if (!$phone || !$password || !hash_equals((string) $phone, (string) $data['phone']) || !hash_equals((string) $password, (string) $data['password'])) {
             return back()->withErrors(['phone' => 'شماره پرسنلی یا رمز عبور صحیح نیست.'])->withInput($request->only('phone'));
         }
 
         $request->session()->regenerate();
+        $request->session()->put('palaz_staff_authenticated', true);
+
         return redirect()->intended(route('admin.dashboard'));
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        $request->session()->forget('palaz_staff_authenticated');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }

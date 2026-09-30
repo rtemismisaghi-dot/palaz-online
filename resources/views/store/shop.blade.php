@@ -74,7 +74,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
       <div class="model-rail" id="modelRail">
         <button class="model-pill active" data-model="all">همه مدل‌ها</button>
         @foreach($products as $p)
-          <button class="model-pill" data-model="{{ md5($p['name']) }}">{{ $p['name'] }}</button>
+          <button class="model-pill" data-model="{{ md5($p['attributes']['album'] ?? $p['name']) }}">{{ $p['attributes']['album'] ?? $p['name'] }}</button>
         @endforeach
       </div>
 
@@ -82,7 +82,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
 
       <div class="store-grid" id="productGrid">
         @forelse($products as $index=>$product)
-          <article class="store-card product-item" data-model="{{ md5($product['name']) }}" data-name="{{ e($product['name']) }}" data-price="{{ (float)($product['price'] ?? 0) }}" data-id="{{ $product['id'] }}">
+          <article class="store-card product-item" data-model="{{ md5($product['attributes']['album'] ?? $product['name']) }}" data-name="{{ e($product['name']) }}" data-price="{{ (float)($product['price'] ?? 0) }}" data-id="{{ $product['id'] }}">
             <a href="{{ route('product',$product['id']) }}" class="card-image">
               @if(!empty($product['image']))
                 <img src="{{ str_starts_with($product['image'],'http') ? $product['image'] : asset($product['image']) }}" alt="{{ $product['name'] }}" loading="lazy">
@@ -90,8 +90,9 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
               <span class="code-badge">کد {{ $product['id'] }}</span>
             </a>
             <div class="card-body">
-              <small>{{ $activeLabel }}</small>
+              <small>{{ $product['attributes']['album'] ?? $activeLabel }}</small>
               <h3>{{ $product['name'] }}</h3>
+              @if(!empty($product['attributes']['code']))<div class="card-unit">کد محصول: {{ $product['attributes']['code'] }}</div>@endif
               <div class="card-unit">{{ $product['unit'] }}</div>
               <div class="card-price">{{ $product['price'] !== null ? number_format((float)$product['price']).' تومان' : 'استعلام قیمت' }}</div>
               <div class="card-actions">

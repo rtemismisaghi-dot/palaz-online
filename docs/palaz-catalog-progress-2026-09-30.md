@@ -9,7 +9,7 @@ Source: https://palazonline.com
 - پادری: 31
 - چمن مصنوعی: 3
 - موکت تایل: 1
-- Current verified catalog records: 449
+- Current catalog records after final verified backlog additions: 462
 - Previously audited upper bound: 464 (requires final page-by-page reconciliation before claiming completion)
 
 ## Current catalog extraction file
@@ -26,7 +26,7 @@ Source: https://palazonline.com
 - موکت: 101
 - کاغذ دیواری: 96
 - پادری: 12
-- Remaining reconciliation: 15 records are not yet verified in the local catalog file (4 carpet + 12 doormat, offset by 1 extra wallpaper record versus the earlier 464 estimate).
+- Final backlog additions verified from live source: 1 carpet + 12 doormat. The catalog now contains 462 records. A final source-count reconciliation remains only for the wallpaper category: local 229 vs current source pagination inventory 228.
 
 ## Source pagination confirmed
 - موکت: 15 pages
@@ -45,4 +45,4 @@ The site's search/category filters also expose `کفپوش اسپاگتی`; its 
 
 
 ## Latest extraction
-The catalog JSON now contains 449 verified category-page records. No unverified placeholder records were added. Final reconciliation still requires resolving the remaining 15 records directly from the source.
+The catalog JSON now contains 462 records, including the final verified carpet/doormat backlog additions. No unverified placeholder records were added. Only the one-record wallpaper count discrepancy remains to be reconciled before declaring the entire catalog mathematically closed.

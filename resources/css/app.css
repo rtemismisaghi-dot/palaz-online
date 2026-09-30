@@ -2528,3 +2528,131 @@ body:has(.palaz-reference-home)>.flash{z-index:100}
   }
   .site-header.mobile-open .nav-dropdown{display:none!important}
 }
+
+/* DESKTOP STOREFRONT FINAL PASS — 2026-09-30 */
+@media (min-width:1101px){
+  .site-header{
+    position:relative;
+    z-index:100;
+    background:#fff;
+  }
+  .site-header > .header-main{
+    width:min(1320px,calc(100% - 72px));
+    height:88px;
+    gap:28px;
+  }
+  .site-header .brand-real{
+    flex:0 0 190px;
+    min-width:190px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    overflow:visible;
+  }
+  .site-header .brand-logo{
+    width:174px;
+    height:58px;
+    max-width:none;
+    max-height:none;
+    object-fit:contain;
+    object-position:center;
+  }
+  .site-header .brand-wordmark{display:none}
+  .site-header .search-real{
+    height:48px;
+    min-height:48px;
+    max-width:none;
+    margin:0;
+    border:1px solid #e7e2dc;
+    border-radius:14px;
+    background:#faf9f7;
+    box-shadow:0 4px 18px rgba(25,30,35,.035);
+    transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+  }
+  .site-header .search-real:focus-within{
+    background:#fff;
+    border-color:rgba(197,31,44,.32);
+    box-shadow:0 8px 24px rgba(25,30,35,.07);
+  }
+  .site-header .search-real>span{color:#777}
+  .site-header .search-real input{font-size:12px}
+  .site-header .search-real button{
+    width:48px;
+    min-width:48px;
+    height:46px;
+    border:0;
+    background:transparent;
+    color:#333;
+    cursor:pointer;
+  }
+  .site-header .header-actions{
+    flex:0 0 auto;
+    gap:10px;
+    align-items:center;
+  }
+  .site-header .header-action{
+    min-width:78px;
+    min-height:48px;
+    padding:7px 10px;
+    border:1px solid transparent;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    color:#3b3d40;
+    transition:.2s ease;
+  }
+  .site-header .header-action:hover{
+    background:#faf8f6;
+    border-color:#ece6e0;
+    color:#c51f2c;
+  }
+  .site-header .header-action .action-icon{font-size:19px;line-height:1}
+  .site-header .header-action span:last-of-type{font-size:10px}
+  .site-header .header-action.cart{position:relative}
+  .site-header .header-action.cart b{
+    width:18px;
+    height:18px;
+    font-size:9px;
+    position:absolute;
+    top:3px;
+    right:4px;
+  }
+  .site-header .main-nav{
+    border-top:1px solid #eee9e4;
+    border-bottom:1px solid #eee9e4;
+    background:#fff;
+  }
+  .site-header .nav-inner{
+    width:min(1180px,calc(100% - 72px));
+    height:54px;
+    gap:8px;
+    justify-content:center;
+  }
+  .site-header .nav-inner>a,
+  .site-header .nav-dropdown>span{
+    height:42px;
+    padding:0 18px;
+    border-bottom:0;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    font-weight:600;
+    transition:.2s ease;
+  }
+  .site-header .nav-inner>a:hover,
+  .site-header .nav-dropdown>span:hover{
+    color:#c51f2c;
+    background:#faf7f5;
+  }
+  .site-header .nav-inner>a.active{
+    color:#fff;
+    border:0;
+    background:#c51f2c;
+    box-shadow:0 6px 18px rgba(197,31,44,.18);
+  }
+}

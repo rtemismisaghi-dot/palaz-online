@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PalazCatalogImageResolver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +21,20 @@ class Product extends Model
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function (Product $product): void {
+            if (
+                app()->environment('local')
+                && request()->routeIs('dev.import-carpet-catalog')
+                && ($product->attributes['stock_type'] ?? null) === 'roll'
+                && ! $product->media()->exists()
+            ) {
+                PalazCatalogImageResolver::resolve($product);
+            }
+        });
+    }
 
     public function inventoryRolls(): HasMany
     {

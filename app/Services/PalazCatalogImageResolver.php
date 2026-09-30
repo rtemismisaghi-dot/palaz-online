@@ -23,8 +23,8 @@ final class PalazCatalogImageResolver
         $url = 'https://palazonline.com/product/' . rawurlencode(str_replace(' ', '-', $pathName));
 
         try {
-            $response = Http::timeout(6)
-                ->connectTimeout(3)
+            $response = Http::timeout(8)
+                ->connectTimeout(4)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
                 ->get($url);
 
@@ -32,8 +32,7 @@ final class PalazCatalogImageResolver
                 return null;
             }
 
-            $html = $response->body();
-            $image = self::extractImage($html);
+            $image = self::extractImage($response->body());
 
             if (! $image) {
                 return null;
@@ -61,11 +60,21 @@ final class PalazCatalogImageResolver
             '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+property=["\\']og:image["\\']~iu',
             '~<meta[^>]+name=["\\']twitter:image["\\'][^>]+content=["\\']([^"\\']+)["\\']~iu',
             '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+name=["\\']twitter:image["\\']~iu',
+            '~(?:href|src|data-src)=["\\']([^"\\']*?/storage/uploads/[^"\\']+)["\\']~iu',
         ];
 
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $html, $m)) {
-                return html_entity_decode(trim($m[1]));
+                $image = html_entity_decode(trim($m[1]));
+                if (str_starts_with($image, '//')) {
+                    return 'https:' . $image;
+                }
+                if (str_starts_with($image, '/')) {
+                    return 'https://palazonline.com' . $image;
+                }
+                if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
+                    return $image;
+                }
             }
         }
 

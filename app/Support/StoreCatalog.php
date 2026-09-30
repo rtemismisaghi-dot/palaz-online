@@ -22,7 +22,6 @@ final class StoreCatalog
             ])
             ->all();
 
-        // Keep the storefront visible even before the local category migration is run.
         if (! isset($categories['wallpaper'])) {
             $categories['wallpaper'] = [
                 'title' => 'کاغذ دیواری',
@@ -34,11 +33,15 @@ final class StoreCatalog
         return $categories;
     }
 
+    private static function productQuery()
+    {
+        return Product::query()->with(['category', 'media', 'pricingRule']);
+    }
+
     public static function products(): array
     {
         return self::mapProducts(
-            Product::query()
-                ->with('category')
+            self::productQuery()
                 ->where('is_active', true)
                 ->latest('id')
                 ->get()
@@ -47,8 +50,7 @@ final class StoreCatalog
 
     public static function find(string $id): ?array
     {
-        $product = Product::query()
-            ->with('category')
+        $product = self::productQuery()
             ->where('slug', $id)
             ->where('is_active', true)
             ->first();
@@ -58,8 +60,7 @@ final class StoreCatalog
 
     public static function byCategory(?string $category): array
     {
-        $query = Product::query()
-            ->with('category')
+        $query = self::productQuery()
             ->where('is_active', true)
             ->when($category, fn ($q) => $q->whereHas('category', fn ($cq) => $cq->where('slug', $category)))
             ->latest('id');
@@ -72,8 +73,7 @@ final class StoreCatalog
         $query = trim((string) $query);
 
         return self::mapProducts(
-            Product::query()
-                ->with('category')
+            self::productQuery()
                 ->where('is_active', true)
                 ->when($query !== '', function ($q) use ($query) {
                     $q->where(function ($search) use ($query) {

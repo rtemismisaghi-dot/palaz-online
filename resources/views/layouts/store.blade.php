@@ -14,6 +14,9 @@
 .site-header.header-variant-2 .nav-inner{box-shadow:0 8px 24px rgba(20,20,20,.04)}
 .site-header.header-variant-3 .nav-inner{box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 6px 20px rgba(20,20,20,.035)}
 }
+/* Palaz AI desktop cleanup: keep main advisor avatar, remove extra message avatars and secondary speak button */
+.palaz-ai-msg .palaz-ai-avatar{display:none!important}
+.palaz-ai-speak{display:none!important}
 </style>
 
 <script>

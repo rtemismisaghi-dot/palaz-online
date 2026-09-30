@@ -98,7 +98,7 @@ Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
 
-    $product = App\\Models\\Product::query()
+    $product = \App\Models\Product::query()
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')
@@ -107,7 +107,7 @@ Route::get('/dev/import-carpet-images', function () {
 
     if (! $product) {
         return response()->json([
-            'total' => App\\Models\\Product::query()
+            'total' => \App\Models\Product::query()
                 ->where('is_active', true)
                 ->where('attributes->stock_type', 'roll')
                 ->count(),
@@ -118,9 +118,9 @@ Route::get('/dev/import-carpet-images', function () {
         ]);
     }
 
-    $image = App\\Services\\PalazCatalogImageResolver::resolve($product);
+    $image = \App\Services\PalazCatalogImageResolver::resolve($product);
 
-    $remaining = App\\Models\\Product::query()
+    $remaining = \App\Models\Product::query()
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')

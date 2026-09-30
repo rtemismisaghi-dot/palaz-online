@@ -50,7 +50,7 @@ final class PalazCatalogImageResolver
 
         if (!$productsByCode) return [];
 
-        $pages = Cache::remember('palaz:carpet-catalog-pages:v4', now()->addMinutes(30), function () {
+        $pages = Cache::remember('palaz:carpet-catalog-pages:v5', now()->addMinutes(30), function () {
             $responses = Http::pool(function ($pool) {
                 $requests = [];
                 for ($page = 1; $page <= 15; $page++) {
@@ -235,23 +235,29 @@ final class PalazCatalogImageResolver
         $urls = [];
 
         if (!preg_match_all(
-            "/<a\\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>/iu",
+            '/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/isu',
             $html,
-            $matches
+            $matches,
+            PREG_SET_ORDER
         )) {
             return [];
         }
 
-        foreach ($matches[1] as $rawUrl) {
-            $url = self::normalizeUrl(html_entity_decode($rawUrl));
+        foreach ($matches as $match) {
+            $url = self::normalizeUrl(html_entity_decode($match[1]));
             if (!$url) continue;
 
             $host = parse_url($url, PHP_URL_HOST);
             $path = rawurldecode((string) parse_url($url, PHP_URL_PATH));
-            if (!$host || !preg_match('/(^|\\.)palazonline\\.com$/i', $host) || !str_starts_with($path, '/product/')) continue;
+            if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host) || !str_starts_with($path, '/product/')) {
+                continue;
+            }
 
-            // Only accept a product URL whose slug explicitly ends with this code.
-            if (!preg_match('/(?:^|[-_\/])' . preg_quote($code, '/') . '(?:$|[-_\/])/u', $path)) {
+            $anchorHtml = html_entity_decode(strip_tags($match[2]));
+            $combined = $path . ' ' . $anchorHtml;
+
+            // The product card itself must contain this exact code.
+            if (!preg_match('/(?<!\d)' . preg_quote($code, '/') . '(?!\d)/u', $combined)) {
                 continue;
             }
 
@@ -260,6 +266,7 @@ final class PalazCatalogImageResolver
 
         return array_keys($urls);
     }
+
 
     private static function extractProductPageImage(string $productUrl): ?string
     {

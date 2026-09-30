@@ -11,40 +11,26 @@ final class PalazCatalogImageResolver
     public static function resolve(Product $product): ?string
     {
         $code = trim((string) ($product->attributes['code'] ?? ''));
-        if ($code === '') {
-            return null;
-        }
+        if ($code === '') return null;
 
         $name = trim((string) $product->name);
-        $pathName = preg_match('/(?:^|\s)کد\s*' . preg_quote($code, '/') . '\b/u', $name)
-            ? $name
-            : $name . ' کد ' . $code;
-
-        $url = 'https://palazonline.com/product/' . rawurlencode(str_replace(' ', '-', $pathName));
 
         try {
-            $response = Http::timeout(8)
-                ->connectTimeout(4)
+            $response = Http::timeout(8)->connectTimeout(4)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
-                ->get($url);
+                ->get('https://palazonline.com/category/موکت');
 
-            $image = $response->successful() ? self::extractImage($response->body()) : null;
+            $image = $response->successful() ? self::extractImageForCode($response->body(), $code) : null;
 
-            if (! $image) {
+            if (!$image) {
                 $image = self::searchIndexedImage($name, $code);
             }
 
-            if (! $image) {
-                return null;
-            }
+            if (!$image) return null;
 
             ProductMedia::updateOrCreate(
                 ['product_id' => $product->id, 'sort_order' => 0],
-                [
-                    'path' => $image,
-                    'alt' => $name . ' - کد ' . $code,
-                    'is_cover' => true,
-                ]
+                ['path' => $image, 'alt' => $name . ' - کد ' . $code, 'is_cover' => true]
             );
 
             return $image;
@@ -53,70 +39,68 @@ final class PalazCatalogImageResolver
         }
     }
 
-    private static function searchIndexedImage(string $name, string $code): ?string
+    private static function extractImageForCode(string $html, string $code): ?string
     {
-        try {
-            $query = rawurlencode('site:palazonline.com/product/ ' . $code . ' ' . $name);
-            $response = Http::timeout(8)
-                ->connectTimeout(4)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
-                ->get('https://www.bing.com/images/search?q=' . $query);
+        $escapedCode = preg_quote($code, '/');
 
-            if (! $response->successful()) {
-                return null;
-            }
+        $patterns = [
+            '/.{0,2500}' . $escapedCode . '.{0,2500}/isu',
+        ];
 
-            $html = $response->body();
+        foreach ($patterns as $pattern) {
+            if (!preg_match_all($pattern, $html, $matches)) continue;
 
-            if (preg_match_all('/"murl":"(https?:\\/\\/[^"]+)"/i', $html, $matches)) {
-                foreach ($matches[1] as $raw) {
-                    $image = json_decode('"' . $raw . '"');
-                    if (! is_string($image)) {
-                        $image = str_replace('\\/', '/', $raw);
-                    }
-
-                    $host = parse_url($image, PHP_URL_HOST);
-                    if ($host && preg_match('/(^|\.)palazonline\.com$/i', $host)) {
-                        return $image;
+            foreach ($matches[0] as $block) {
+                if (preg_match_all('/(?:src|data-src|data-lazy-src|data-original|href)\s*=\s*["\']([^"\']+)["\']/iu', $block, $images)) {
+                    foreach ($images[1] as $image) {
+                        $url = self::normalizeUrl(html_entity_decode(trim($image)));
+                        if ($url && self::isImageUrl($url)) return $url;
                     }
                 }
+
+                if (preg_match('/https?:\/\/[^"\'\s<>]+\.(?:jpg|jpeg|png|webp)(?:\?[^"\'\s<>]*)?/iu', $block, $m)) {
+                    return html_entity_decode($m[0]);
+                }
             }
-        } catch (\Throwable) {
-            return null;
         }
 
         return null;
     }
 
-    private static function extractImage(string $html): ?string
+    private static function searchIndexedImage(string $name, string $code): ?string
     {
-        $patterns = [
-            '~<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']~iu',
-            '~<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']~iu',
-            '~<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']~iu',
-            '~<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']~iu',
-            '~(?:href|src|data-src|data-lazy-src)=["']([^"']*?/wp-content/uploads/[^"']+)["']~iu',
-            '~(?:href|src|data-src|data-lazy-src)=["']([^"']*?/storage/uploads/[^"']+)["']~iu',
-        ];
+        try {
+            $query = rawurlencode('site:palazonline.com ' . $code . ' ' . $name);
+            $response = Http::timeout(8)->connectTimeout(4)
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
+                ->get('https://www.bing.com/images/search?q=' . $query);
 
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $html, $m)) {
-                $image = html_entity_decode(trim($m[1]));
+            if (!$response->successful()) return null;
 
-                if (str_starts_with($image, '//')) {
-                    return 'https:' . $image;
-                }
-
-                if (str_starts_with($image, '/')) {
-                    return 'https://palazonline.com' . $image;
-                }
-
-                if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
-                    return $image;
+            if (preg_match_all('/"murl":"(https?:\\/\\/[^"]+)"/i', $response->body(), $matches)) {
+                foreach ($matches[1] as $raw) {
+                    $image = json_decode('"' . $raw . '"');
+                    if (!is_string($image)) $image = str_replace('\\/', '/', $raw);
+                    $host = parse_url($image, PHP_URL_HOST);
+                    if ($host && preg_match('/(^|\.)palazonline\.com$/i', $host)) return $image;
                 }
             }
-        }
+        } catch (\Throwable) {}
 
         return null;
+    }
+
+    private static function normalizeUrl(string $url): ?string
+    {
+        if ($url === '') return null;
+        if (str_starts_with($url, '//')) return 'https:' . $url;
+        if (str_starts_with($url, '/')) return 'https://palazonline.com' . $url;
+        if (preg_match('/^https?:\/\//i', $url)) return $url;
+        return null;
+    }
+
+    private static function isImageUrl(string $url): bool
+    {
+        return (bool) preg_match('/\.(?:jpg|jpeg|png|webp)(?:\?|$)/iu', $url);
     }
 }

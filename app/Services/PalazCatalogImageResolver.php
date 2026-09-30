@@ -211,7 +211,7 @@ final class PalazCatalogImageResolver
             $length = min(60000, strlen($html) - $start);
             $block = substr($html, $start, $length);
 
-            if (preg_match_all('/https?:\\/\\/[^"\\'\\s<>]+/iu', $block, $links)) {
+            if (preg_match_all("/https?:\\/\\/[^\"'\\s<>]+/iu", $block, $links)) {
                 foreach ($links[0] as $raw) {
                     $url = self::normalizeUrl(html_entity_decode($raw));
                     if ($url && self::isLikelyProductImage($url)) {
@@ -220,7 +220,7 @@ final class PalazCatalogImageResolver
                 }
             }
 
-            if (preg_match_all('/(?:src|data-src|data-lazy-src|data-original|background-image|image|thumbnail|url)\\s*[=:()]\\s*["\\\']?([^"\\\')\\s]+)["\\\']?/iu', $block, $embedded)) {
+            if (preg_match_all("/(?:src|data-src|data-lazy-src|data-original|background-image|image|thumbnail|url)\\s*[=:()]\\s*[\"']?([^\"'\\)\\s]+)[\"']?/iu", $block, $embedded)) {
                 foreach ($embedded[1] as $raw) {
                     $url = self::normalizeUrl(html_entity_decode(trim($raw)));
                     if ($url && self::isLikelyProductImage($url)) {

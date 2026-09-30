@@ -213,15 +213,16 @@ final class PalazCatalogImageResolver
 
     private static function extractProductPageImageFromHtml(string $html): ?string
     {
-        $patterns = [
-            '/<(?:meta|img|source)\\b[^>]*(?:content|src|data-src|data-lazy-src|data-original|data-image)\\s*=\\s*["\']([^"\']+)["\']/iu',
-            "~https?://[^\"'\\s<>]+~iu",
-        ];
+        // Prefer the page's own og:image; never scan arbitrary URLs on the page.
+        if (preg_match('/<meta\\b[^>]*(?:property|name)=["']og:image["'][^>]*content=["']([^"']+)["']/iu', $html, $m)
+            || preg_match('/<meta\\b[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']og:image["']/iu', $html, $m)) {
+            $url = self::normalizeUrl(html_entity_decode(trim($m[1])));
+            if ($url && self::isLikelyProductImage($url)) return $url;
+        }
 
-        foreach ($patterns as $pattern) {
-            if (!preg_match_all($pattern, $html, $matches)) continue;
-
-            foreach (($matches[1] ?? $matches[0]) as $raw) {
+        // Fallback only to explicit gallery image attributes.
+        if (preg_match_all('/<(?:img|source)\\b[^>]*(?:data-src|data-lazy-src|data-original|data-image|src)=["']([^"']+)["']/iu', $html, $matches)) {
+            foreach ($matches[1] as $raw) {
                 $url = self::normalizeUrl(html_entity_decode(trim($raw)));
                 if ($url && self::isLikelyProductImage($url)) return $url;
             }
@@ -251,7 +252,7 @@ final class PalazCatalogImageResolver
             if (!$host || !preg_match('/(^|\\.)palazonline\\.com$/i', $host) || !str_starts_with($path, '/product/')) continue;
 
             // Only accept a product URL whose slug explicitly ends with this code.
-            if (!preg_match('/(?:کد|code)[-_ ]?' . preg_quote($code, '/') . '(?:$|[-_])/iu', $path)) {
+            if (!preg_match('/(?:^|[-_\/])' . preg_quote($code, '/') . '(?:$|[-_\/])/u', $path)) {
                 continue;
             }
 

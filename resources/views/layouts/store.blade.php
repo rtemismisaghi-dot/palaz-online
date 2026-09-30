@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded',function(){
 .palaz-ai-head strong{display:block;font-size:15px}.palaz-ai-head small{display:block;margin-top:4px;opacity:.82}
 .palaz-ai-close{margin-right:auto;border:0;background:transparent;color:#fff;font-size:25px;cursor:pointer}
 .palaz-ai-body{flex:1;padding:20px;overflow:auto;background:#faf9f7}
-.palaz-ai-messages{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}.palaz-ai-msg{max-width:88%;padding:9px 11px;border-radius:14px;font-size:13px;line-height:1.8}.palaz-ai-msg.user{align-self:flex-start;background:#f1f1f1}.palaz-ai-msg.assistant{align-self:flex-end;background:#a51d2d;color:#fff}.palaz-ai-welcome{background:#fff;border:1px solid #eee8e2;border-radius:18px;padding:16px;line-height:1.9}
+.palaz-ai-messages{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}.palaz-ai-msg{max-width:88%;padding:9px 11px;border-radius:14px;font-size:13px;line-height:1.8}.palaz-ai-msg.user{align-self:flex-start;background:#f1f1f1}.palaz-ai-msg.assistant{align-self:flex-end;background:#a51d2d;color:#fff}.palaz-ai-msg .palaz-ai-avatar{display:none!important}.palaz-ai-welcome{background:#fff;border:1px solid #eee8e2;border-radius:18px;padding:16px;line-height:1.9}
 .palaz-ai-welcome b{display:block;margin-bottom:5px}
 .palaz-ai-state{display:flex;align-items:center;gap:7px;margin-top:12px;color:#777;font-size:12px}
 .palaz-ai-dot{width:7px;height:7px;border-radius:50%;background:#a51f32;animation:palazAiBlink 1.4s infinite}

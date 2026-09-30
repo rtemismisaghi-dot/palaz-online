@@ -50,22 +50,20 @@ final class PalazCatalogImageResolver
 
         if (!$productsByCode) return [];
 
-        // Build a deterministic code -> product URL index from the live category pages.
-        // We do not depend on the markup around an individual card.
-        $pages = Cache::remember('palaz:carpet-catalog-pages:v6', now()->addMinutes(30), function () {
+        $pages = Cache::remember('palaz:carpet-catalog-pages:v7', now()->addMinutes(30), function () {
             $responses = Http::pool(function ($pool) {
                 $requests = [];
                 for ($page = 1; $page <= 15; $page++) {
                     $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
                     $requests[] = $pool->as('page' . $page)
-                        ->timeout(6)->connectTimeout(2)
+                        ->timeout(8)->connectTimeout(3)
                         ->withHeaders([
                             'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
                             'Accept' => 'text/html,application/xhtml+xml',
                         ])->get($url);
                 }
                 return $requests;
-            }, concurrency: 8);
+            }, concurrency: 6);
 
             $html = [];
             foreach ($responses as $response) {
@@ -75,72 +73,89 @@ final class PalazCatalogImageResolver
             return $html;
         });
 
-        $urlByCode = [];
+        $found = [];
+
         foreach ($pages as $html) {
-            if (!preg_match_all('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>/iu', $html, $matches)) {
-                continue;
-            }
+            if (!$html || !class_exists(\DOMDocument::class)) continue;
 
-            foreach ($matches[1] as $rawUrl) {
-                $url = self::normalizeUrl(html_entity_decode($rawUrl));
-                if (!$url) continue;
+            $dom = new \DOMDocument();
+            libxml_use_internal_errors(true);
+            @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+            libxml_clear_errors();
 
-                $host = parse_url($url, PHP_URL_HOST);
-                $path = rawurldecode((string) parse_url($url, PHP_URL_PATH));
+            $xpath = new \DOMXPath($dom);
+            $anchors = $xpath->query('//a[@href]');
+
+            foreach ($anchors as $anchor) {
+                $href = self::normalizeUrl(html_entity_decode((string) $anchor->getAttribute('href')));
+                if (!$href) continue;
+
+                $host = parse_url($href, PHP_URL_HOST);
+                $path = rawurldecode((string) parse_url($href, PHP_URL_PATH));
                 if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host) || !preg_match('#^/product/#i', $path)) {
                     continue;
                 }
 
-                // Palaz product slugs use the product code as a 4-digit token.
-                // Prefer an explicit "کد/code" marker; otherwise use the final 4-digit token.
-                $code = null;
-                if (preg_match('/(?:کد|code)[-_ ]*(\d{4})(?:$|[-_\/])/iu', $path, $m)) {
-                    $code = $m[1];
-                } elseif (preg_match('/(\d{4})(?:$|[-_\/])/u', $path, $m)) {
-                    $code = $m[1];
-                } elseif (preg_match('/(\d{4})(?!\d)/u', $path, $m)) {
-                    $code = $m[1];
+                $node = $anchor;
+                $matchedCode = null;
+
+                // Product cards vary in markup. Check the anchor and a few parent
+                // containers, but never mix content from neighboring cards.
+                for ($level = 0; $level <= 5 && $node; $level++, $node = $node->parentNode) {
+                    $text = preg_replace('/\s+/u', ' ', trim((string) $node->textContent));
+                    foreach (array_keys($productsByCode) as $code) {
+                        if (preg_match('/(?<!\d)' . preg_quote($code, '/') . '(?!\d)/u', $text)) {
+                            $matchedCode = $code;
+                            break 2;
+                        }
+                    }
                 }
 
-                if ($code !== null && isset($productsByCode[$code])) {
-                    $urlByCode[$code] = $url;
+                if (!$matchedCode || isset($found[$matchedCode])) continue;
+
+                // Prefer an image physically inside the same matched card.
+                $imageNodes = $xpath->query('.//img[@src or @data-src or @data-lazy-src or @data-original]', $anchor);
+                $image = null;
+                foreach ($imageNodes as $img) {
+                    foreach (['data-src', 'data-lazy-src', 'data-original', 'src'] as $attr) {
+                        if (!$img->hasAttribute($attr)) continue;
+                        $candidate = self::normalizeUrl(html_entity_decode((string) $img->getAttribute($attr)));
+                        if ($candidate && self::isLikelyProductImage($candidate)) {
+                            $image = $candidate;
+                            break 2;
+                        }
+                    }
                 }
+
+                // If the image is on the card wrapper rather than the anchor,
+                // inspect that exact matched wrapper only.
+                if (!$image && $node instanceof \DOMElement) {
+                    $imageNodes = $xpath->query('.//img[@src or @data-src or @data-lazy-src or @data-original]', $node);
+                    foreach ($imageNodes as $img) {
+                        foreach (['data-src', 'data-lazy-src', 'data-original', 'src'] as $attr) {
+                            if (!$img->hasAttribute($attr)) continue;
+                            $candidate = self::normalizeUrl(html_entity_decode((string) $img->getAttribute($attr)));
+                            if ($candidate && self::isLikelyProductImage($candidate)) {
+                                $image = $candidate;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+
+                if (!$image) continue;
+
+                $product = $productsByCode[$matchedCode];
+                ProductMedia::updateOrCreate(
+                    ['product_id' => $product->id, 'sort_order' => 0],
+                    [
+                        'path' => $image,
+                        'alt' => $product->name . ' - کد ' . $matchedCode,
+                        'is_cover' => true,
+                    ]
+                );
+                $found[$matchedCode] = $image;
             }
-        }
-
-        if (!$urlByCode) return [];
-
-        $responses = Http::pool(function ($pool) use ($urlByCode) {
-            $requests = [];
-            foreach ($urlByCode as $code => $url) {
-                $requests[$code] = $pool->as('code_' . $code)
-                    ->timeout(6)->connectTimeout(2)
-                    ->withHeaders([
-                        'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
-                        'Accept' => 'text/html,application/xhtml+xml',
-                    ])->get($url);
-            }
-            return $requests;
-        }, concurrency: 8);
-
-        $found = [];
-        foreach ($urlByCode as $code => $url) {
-            $response = $responses[$code] ?? null;
-            if (!$response || $response instanceof \Throwable || !$response->successful()) continue;
-
-            $image = self::extractProductPageImageFromHtml($response->body());
-            if (!$image) continue;
-
-            $product = $productsByCode[$code];
-            ProductMedia::updateOrCreate(
-                ['product_id' => $product->id, 'sort_order' => 0],
-                [
-                    'path' => $image,
-                    'alt' => $product->name . ' - کد ' . $code,
-                    'is_cover' => true,
-                ]
-            );
-            $found[$code] = $image;
         }
 
         return $found;

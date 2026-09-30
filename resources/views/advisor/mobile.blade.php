@@ -20,11 +20,12 @@
                 .brand strong{display:block;font-size:14px}.brand small{display:flex;gap:5px;align-items:center;color:#8b8d91;font-size:9px;margin-top:4px}
         .dot{width:6px;height:6px;border-radius:50%;background:#35a36a}
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
-        .stage{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:center}
-        .character{width:min(48vw,230px);height:min(48vw,230px);max-height:230px;display:grid;place-items:center;position:relative}
+        .stage{padding:10px 16px 4px;display:flex;flex-direction:column;align-items:center}
+        .character{width:min(68vw,310px);height:min(68vw,310px);max-height:310px;display:grid;place-items:center;position:relative}
         .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55}
         .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8)}
         .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite}
+        .welcome-sound{margin-top:8px;border:1px solid #eadfda;background:#fff;color:var(--red);border-radius:999px;padding:7px 13px;font-size:10px;cursor:pointer;box-shadow:0 5px 14px rgba(30,25,20,.05)}
         .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
@@ -72,6 +73,7 @@
         <div class="character"><img src="{{ $character }}" alt="مشاور پالاز"></div>
         <div class="status" id="status">سلام، با صدای خودتان شروع کنید <b>🎙</b></div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <button class="welcome-sound" id="welcomeSound" type="button" aria-label="پخش خوش‌آمدگویی">🔊 پخش خوش‌آمدگویی</button>
     </section>
     <main class="messages" id="messages" aria-live="polite">
         <div class="message assistant"><div class="bubble">سلام 👋 من مشاور هوشمند پالاز هستم.
@@ -92,9 +94,9 @@
 </div>
 <script>
 (() => {
-    const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
+    const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status'), welcomeSound=document.getElementById('welcomeSound');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), quick=document.getElementById('quick'), hint=document.getElementById('hint');
-    const character=@json($character); let history=[]; let recognition=null; let speaking=false; let busy=false;
+    const character=@json($character); let history=[]; const welcomeText='سلام، من مشاور هوشمند پالاز هستم. برای انتخاب کفپوش مناسب کمکتان می‌کنم.'; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
         root.classList.remove('listening','thinking','speaking'); if(state) root.classList.add(state);
@@ -183,6 +185,8 @@
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
     quick.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.message)));
 
+    welcomeSound?.addEventListener('click',async()=>{ await speak(welcomeText); });
+
     const startVoice=()=>{
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
         if(!SR){hint.textContent='این مرورگر ورودی صوتی را پشتیبانی نمی‌کند؛ از Chrome/Safari به‌روز استفاده کنید.';input.focus();return}
@@ -205,7 +209,7 @@
         // اولین لمس کاربر صدای خوش‌آمد را فعال می‌کند و بعد از آن پاسخ‌ها صوتی خوانده می‌شوند.
         const welcome=()=>{
             document.removeEventListener('pointerdown',welcome);
-            speak('سلام، من مشاور هوشمند پالاز هستم. برای انتخاب کفپوش مناسب کمکتان می‌کنم.');
+            speak(welcomeText);
         };
         document.addEventListener('pointerdown',welcome,{once:true});
 

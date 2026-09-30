@@ -246,42 +246,7 @@ final class PalazCatalogImageResolver
 
     private static function searchIndexedImage(string $name, string $code): ?string
     {
-        try {
-            $query = rawurlencode('site:palazonline.com ' . $code . ' ' . $name);
-            $response = Http::timeout(3)->connectTimeout(1)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
-                ->get('https://www.bing.com/images/search?q=' . $query);
-
-            if (!$response->successful()) return null;
-
-            if (preg_match_all('/"murl":"(https?:\\/\\/[^"]+)"/i', $response->body(), $matches)) {
-                foreach ($matches[1] as $raw) {
-                    $image = json_decode('"' . $raw . '"');
-                    if (!is_string($image)) $image = str_replace('\\/', '/', $raw);
-
-                    $host = parse_url($image, PHP_URL_HOST);
-                    if ($host && preg_match('/(^|\\.)palazonline\\.com$/i', $host)) {
-                        return $image;
-                    }
-                }
-            }
-        } catch (\Throwable) {}
-
         return null;
-    }
-
-    private static function isLikelyProductPage(string $url): bool
-    {
-        $host = parse_url($url, PHP_URL_HOST);
-        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
-
-        if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host)) {
-            return false;
-        }
-
-        return str_contains($path, '/product/')
-            || str_contains($path, '/products/')
-            || str_contains($path, '/موکت-');
     }
 
     private static function normalizeUrl(string $url): ?string

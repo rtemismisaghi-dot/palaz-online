@@ -102,7 +102,7 @@ final class PalazCatalogImageResolver
             $response = $responses[$code] ?? null;
             if (!$response || $response instanceof \Throwable || !$response->successful()) continue;
 
-            $image = self::extractProductPageImage($url);
+            $image = self::extractProductPageImageFromHtml($response->body());
             if (!$image) continue;
 
             $product = $productsByCode[$code];

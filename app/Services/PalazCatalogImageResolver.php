@@ -79,7 +79,6 @@ final class PalazCatalogImageResolver
         $pages = Cache::remember('palaz:carpet-catalog-pages:v3', now()->addMinutes(30), function () {
             $responses = Http::pool(function ($pool) {
                 $requests = [];
-
                 for ($page = 1; $page <= 15; $page++) {
                     $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
                     $requests[] = $pool->as('page' . $page)
@@ -89,22 +88,63 @@ final class PalazCatalogImageResolver
                             'Accept' => 'text/html,application/xhtml+xml',
                         ])->get($url);
                 }
-
                 return $requests;
             }, concurrency: 8);
 
             $html = [];
             foreach ($responses as $response) {
-                if ($response instanceof Throwable) continue;
+                if ($response instanceof \Throwable) continue;
                 if ($response->successful()) $html[] = $response->body();
             }
             return $html;
         });
 
+        $productUrl = null;
         foreach ($pages as $html) {
             if (stripos($html, $code) === false) continue;
+
+            $urls = self::extractProductUrlsForCode($html, $code);
+            if ($urls) {
+                $productUrl = $urls[0];
+                break;
+            }
+
             $image = self::extractImageForCode($html, $code);
             if ($image) return $image;
+        }
+
+        if (!$productUrl) return null;
+
+        try {
+            $response = Http::timeout(5)->connectTimeout(2)->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                'Accept' => 'text/html,application/xhtml+xml',
+            ])->get($productUrl);
+
+            if ($response->successful()) {
+                return self::extractProductPageImageFromHtml($response->body());
+            }
+        } catch (\Throwable) {
+            // Product page is only a fallback; never fail the whole import.
+        }
+
+        return null;
+    }
+
+    private static function extractProductPageImageFromHtml(string $html): ?string
+    {
+        $patterns = [
+            '/<(?:meta|img|source)\\b[^>]*(?:content|src|data-src|data-lazy-src|data-original|data-image)\\s*=\\s*["\']([^"\']+)["\']/iu',
+            "~https?://[^\"'\\s<>]+~iu",
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (!preg_match_all($pattern, $html, $matches)) continue;
+
+            foreach (($matches[1] ?? $matches[0]) as $raw) {
+                $url = self::normalizeUrl(html_entity_decode(trim($raw)));
+                if ($url && self::isLikelyProductImage($url)) return $url;
+            }
         }
 
         return null;

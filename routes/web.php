@@ -29,8 +29,11 @@ Route::get('/login', [AuthController::class, 'show'])->name('login');
 Route::post('/login/staff', [AuthController::class, 'staffLogin'])->name('login.staff');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('staff:admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);
 });
+
+Route::view('/sales', 'staff.sales')->name('sales.dashboard')->middleware('staff:sales');
+Route::view('/installation', 'staff.installation')->name('installation.dashboard')->middleware('staff:installation');

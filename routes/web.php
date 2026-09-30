@@ -104,7 +104,7 @@ Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
 
-    $product = \App\Models\Product::query()
+    $products = \App\Models\Product::query()
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')
@@ -115,24 +115,19 @@ Route::get('/dev/import-carpet-images', function () {
             });
         })
         ->orderBy('id')
-        ->first();
+        ->limit(200)
+        ->get();
 
-    if (! $product) {
-        return response()->json([
-            'processed_now' => 0,
-            'images_found_now' => 0,
-            'remaining' => 0,
-            'message' => request()->boolean('retry')
-                ? 'No unprocessed carpet products with missing images remain.'
-                : 'Carpet product images import completed.',
-        ]);
+    $found = 0;
+    $processed = 0;
+    foreach ($products as $product) {
+        $image = \App\Services\PalazCatalogImageResolver::resolve($product);
+        $attributes = $product->attributes ?? [];
+        $attributes['image_import_attempted'] = true;
+        $product->forceFill(['attributes' => $attributes])->saveQuietly();
+        if ($image) $found++;
+        $processed++;
     }
-
-    $image = \App\Services\PalazCatalogImageResolver::resolve($product);
-
-    $attributes = $product->attributes ?? [];
-    $attributes['image_import_attempted'] = true;
-    $product->forceFill(['attributes' => $attributes])->save();
 
     $remaining = \App\Models\Product::query()
         ->where('is_active', true)
@@ -141,14 +136,10 @@ Route::get('/dev/import-carpet-images', function () {
         ->count();
 
     return response()->json([
-        'product_code' => $product->attributes['code'] ?? null,
-        'processed_now' => 1,
-        'images_found_now' => $image ? 1 : 0,
+        'processed_now' => $processed,
+        'images_found_now' => $found,
         'remaining' => $remaining,
-        'image' => $image,
-        'message' => $image
-            ? 'Product image replaced from Palaz Online source.'
-            : 'No source image found for this product; continuing to the next one.',
+        'message' => $remaining ? 'Batch complete. Refresh to process the next batch.' : 'Carpet product images import completed.',
     ]);
 })->name('dev.import-carpet-images');
 

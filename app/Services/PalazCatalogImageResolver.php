@@ -67,7 +67,8 @@ final class PalazCatalogImageResolver
             }
 
             $html = $response->body();
-            if (preg_match_all('/"murl":"(https?:\\/\\/[^"\\]+)"/i', $html, $matches)) {
+
+            if (preg_match_all('/"murl":"(https?:\\/\\/[^"]+)"/i', $html, $matches)) {
                 foreach ($matches[1] as $raw) {
                     $image = json_decode('"' . $raw . '"');
                     if (! is_string($image)) {
@@ -75,7 +76,7 @@ final class PalazCatalogImageResolver
                     }
 
                     $host = parse_url($image, PHP_URL_HOST);
-                    if ($host && preg_match('/(^|\\.)palazonline\\.com$/i', $host)) {
+                    if ($host && preg_match('/(^|\.)palazonline\.com$/i', $host)) {
                         return $image;
                     }
                 }
@@ -90,23 +91,26 @@ final class PalazCatalogImageResolver
     private static function extractImage(string $html): ?string
     {
         $patterns = [
-            '~<meta[^>]+property=["\\']og:image["\\'][^>]+content=["\\']([^"\\']+)["\\']~iu',
-            '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+property=["\\']og:image["\\']~iu',
-            '~<meta[^>]+name=["\\']twitter:image["\\'][^>]+content=["\\']([^"\\']+)["\\']~iu',
-            '~<meta[^>]+content=["\\']([^"\\']+)["\\'][^>]+name=["\\']twitter:image["\\']~iu',
-            '~(?:href|src|data-src|data-lazy-src)=["\\']([^"\\']*?/wp-content/uploads/[^"\\']+)["\\']~iu',
-            '~(?:href|src|data-src|data-lazy-src)=["\\']([^"\\']*?/storage/uploads/[^"\\']+)["\\']~iu',
+            '~<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']~iu',
+            '~<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']~iu',
+            '~<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']~iu',
+            '~<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']~iu',
+            '~(?:href|src|data-src|data-lazy-src)=["']([^"']*?/wp-content/uploads/[^"']+)["']~iu',
+            '~(?:href|src|data-src|data-lazy-src)=["']([^"']*?/storage/uploads/[^"']+)["']~iu',
         ];
 
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $html, $m)) {
                 $image = html_entity_decode(trim($m[1]));
+
                 if (str_starts_with($image, '//')) {
                     return 'https:' . $image;
                 }
+
                 if (str_starts_with($image, '/')) {
                     return 'https://palazonline.com' . $image;
                 }
+
                 if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://')) {
                     return $image;
                 }

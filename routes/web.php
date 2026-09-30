@@ -118,15 +118,12 @@ Route::get('/dev/import-carpet-images', function () {
         ->limit(200)
         ->get();
 
-    $found = 0;
-    $processed = 0;
+    $found = \App\Services\PalazCatalogImageResolver::resolveStrictBatch($products);
+
     foreach ($products as $product) {
-        $image = \App\Services\PalazCatalogImageResolver::resolve($product);
         $attributes = $product->attributes ?? [];
         $attributes['image_import_attempted'] = true;
         $product->forceFill(['attributes' => $attributes])->saveQuietly();
-        if ($image) $found++;
-        $processed++;
     }
 
     $remaining = \App\Models\Product::query()
@@ -136,10 +133,11 @@ Route::get('/dev/import-carpet-images', function () {
         ->count();
 
     return response()->json([
-        'processed_now' => $processed,
-        'images_found_now' => $found,
+        'processed_now' => $products->count(),
+        'images_found_now' => count($found),
         'remaining' => $remaining,
-        'message' => $remaining ? 'Batch complete. Refresh to process the next batch.' : 'Carpet product images import completed.',
+        'codes_found' => array_keys($found),
+        'message' => $remaining ? 'Strict batch complete. Only exact product-code images were accepted.' : 'Carpet product images import completed.',
     ]);
 })->name('dev.import-carpet-images');
 

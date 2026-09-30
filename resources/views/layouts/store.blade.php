@@ -17,6 +17,8 @@
 /* Palaz AI desktop cleanup: keep main advisor avatar, remove extra message avatars and secondary speak button */
 .palaz-ai-msg .palaz-ai-avatar{display:none!important}
 .palaz-ai-speak{display:none!important}
+/* Final cleanup: keep only main advisor avatar; hide duplicate message avatar and secondary controls */
+.palaz-ai-msg .palaz-ai-avatar,.palaz-ai-msg .avatar,.palaz-ai-msg img.avatar,.palaz-ai-msg .speak,.palaz-ai-msg .speak-btn,.palaz-ai-msg .voice-btn,.palaz-ai-msg .consultation-btn,.palaz-ai-msg .advisor-btn,.palaz-ai-panel .palaz-ai-speak{display:none!important}
 </style>
 
 <script>

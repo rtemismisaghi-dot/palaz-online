@@ -4,7 +4,6 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;

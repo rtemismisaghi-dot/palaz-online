@@ -13,6 +13,7 @@ Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');
 Route::get('/visualizer/products', [StoreController::class, 'visualizerProducts'])->name('visualizer.products');
 Route::get('/services', [StoreController::class, 'services'])->name('services');
+Route::get('/advisor', fn () => view('advisor.mobile'))->name('advisor');
 Route::get('/calculate/{id}', [CalculatorController::class, 'show'])->name('calculator.show');
 Route::post('/calculate/{id}', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
 Route::get('/cart', [StoreController::class, 'cart'])->name('cart');

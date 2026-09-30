@@ -21,7 +21,7 @@
         .dot{width:6px;height:6px;border-radius:50%;background:#35a36a}
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
         .stage{padding:10px 16px 4px;display:flex;flex-direction:column;align-items:center}
-        .character{width:min(68vw,310px);height:min(68vw,310px);max-height:310px;display:grid;place-items:center;position:relative}
+        .character{width:min(78vw,350px);height:min(78vw,350px);max-height:350px;display:grid;place-items:center;position:relative}
         .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55}
         .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8)}
         .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite}
@@ -181,9 +181,18 @@
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
     quick.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.message)));
 
-    const startVoice=()=>{
+    const welcomeText='سلام 👋 من مشاور هوشمند پالاز هستم. هر سؤالی دارید بپرسید؛ برای انتخاب کفپوش، مقایسه، طراحی فضا و مسیر اجرا تخصصی راهنمایی‌تان می‌کنم.';
+    let welcomePlayed=false;
+
+    const startVoice=async()=>{
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
         if(!SR){hint.textContent='این مرورگر ورودی صوتی را پشتیبانی نمی‌کند؛ از Chrome/Safari به‌روز استفاده کنید.';input.focus();return}
+        if(!welcomePlayed && 'speechSynthesis' in window){
+            welcomePlayed=true;
+            setState('speaking','سلام، خوش آمدید 🌷');
+            await speak(welcomeText);
+            if(speaking&&'speechSynthesis' in window){speechSynthesis.cancel();speaking=false}
+        }
         if(speaking&&'speechSynthesis'in window){speechSynthesis.cancel();speaking=false}
         if(recognition){try{recognition.stop()}catch(e){} recognition=null}
         recognition=new SR(); recognition.lang='fa-IR';recognition.interimResults=false;recognition.maxAlternatives=1;

@@ -25,8 +25,7 @@
         .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55}
         .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8)}
         .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite}
-        .welcome-sound{margin-top:8px;border:1px solid #eadfda;background:#fff;color:var(--red);border-radius:999px;padding:7px 13px;font-size:10px;cursor:pointer;box-shadow:0 5px 14px rgba(30,25,20,.05)}
-        .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
+                .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
         .bars i{width:3px;height:5px;background:var(--red);border-radius:4px;animation:bars .75s ease-in-out infinite;opacity:.55}
@@ -73,7 +72,6 @@
         <div class="character"><img src="{{ $character }}" alt="مشاور پالاز"></div>
         <div class="status" id="status">سلام، با صدای خودتان شروع کنید <b>🎙</b></div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-        <button class="welcome-sound" id="welcomeSound" type="button" aria-label="پخش خوش‌آمدگویی">🔊 پخش خوش‌آمدگویی</button>
     </section>
     <main class="messages" id="messages" aria-live="polite">
         <div class="message assistant"><div class="bubble">سلام 👋 من مشاور هوشمند پالاز هستم.
@@ -94,9 +92,9 @@
 </div>
 <script>
 (() => {
-    const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status'), welcomeSound=document.getElementById('welcomeSound');
+    const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), quick=document.getElementById('quick'), hint=document.getElementById('hint');
-    const character=@json($character); let history=[]; const welcomeText='سلام، من مشاور هوشمند پالاز هستم. برای انتخاب کفپوش مناسب کمکتان می‌کنم.'; let recognition=null; let speaking=false; let busy=false;
+    const character=@json($character); let history=[]; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
         root.classList.remove('listening','thinking','speaking'); if(state) root.classList.add(state);
@@ -130,6 +128,7 @@
     const speak=async(text)=>{
         if(!('speechSynthesis' in window)||!text) return false;
         speechSynthesis.cancel();
+        try{speechSynthesis.resume()}catch(e){}
 
         if(!voicesReady){
             loadVoices();
@@ -162,6 +161,7 @@
                 resolve(false);
             };
             speechSynthesis.speak(u);
+            try{speechSynthesis.resume()}catch(e){}
             setTimeout(()=>{
                 if(!started && !speechSynthesis.speaking){
                     setState('','برای فعال کردن صدای مشاور یک بار روی صفحه لمس کنید.');
@@ -185,8 +185,6 @@
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
     quick.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.message)));
 
-    welcomeSound?.addEventListener('click',async()=>{ await speak(welcomeText); });
-
     const startVoice=()=>{
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
         if(!SR){hint.textContent='این مرورگر ورودی صوتی را پشتیبانی نمی‌کند؛ از Chrome/Safari به‌روز استفاده کنید.';input.focus();return}
@@ -209,15 +207,11 @@
         // اولین لمس کاربر صدای خوش‌آمد را فعال می‌کند و بعد از آن پاسخ‌ها صوتی خوانده می‌شوند.
         const welcome=()=>{
             document.removeEventListener('pointerdown',welcome);
-            speak(welcomeText);
+
         };
         document.addEventListener('pointerdown',welcome,{once:true});
 
-        setTimeout(()=>{
-            if(!speaking && !busy){
-                setState('','برای شروع گفتگو روی میکروفن بزنید 🎙');
-            }
-        },800);
+        setTimeout(()=>{ if(!speaking && !busy) setState('','آماده شنیدن شما 🎙'); },800);
     }
 
 })();

@@ -210,45 +210,34 @@ final class PalazCatalogImageResolver
     private static function extractImageForCode(string $html, string $code): ?string
     {
         $escapedCode = preg_quote($code, '/');
-
-        if (!preg_match('/.{0,8000}' . $escapedCode . '.{0,8000}/isu', $html, $match)) {
-            return null;
-        }
-
-        $block = $match[0];
+        $offset = 0;
         $candidates = [];
 
-        if (preg_match_all(
-            '/<(?:img|source)\\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original)\\s*=\\s*["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
-            $block,
-            $images
-        )) {
-            foreach ($images[1] as $raw) {
-                foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
-                    $url = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
-                    $url = self::normalizeUrl($url);
+        while (($position = stripos($html, $code, $offset)) !== false) {
+            $start = max(0, $position - 20000);
+            $length = min(40000, strlen($html) - $start);
+            $block = substr($html, $start, $length);
 
-                    if ($url && self::isLikelyProductImage($url)) {
-                        $candidates[] = $url;
+            if (preg_match_all(
+                '/<(?:img|source)\\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original|data-image)\\s*=\\s*["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
+                $block,
+                $images
+            )) {
+                foreach ($images[1] as $raw) {
+                    foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
+                        $url = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
+                        $url = self::normalizeUrl($url);
+                        if ($url && self::isLikelyProductImage($url)) {
+                            $candidates[] = $url;
+                        }
                     }
                 }
             }
+
+            $offset = $position + strlen($code);
         }
 
-        if (preg_match_all(
-            '/(?:image|thumbnail|src|url|medium|large)["\']?\\s*[:=]\\s*["\']([^"\']+)["\']/iu',
-            $block,
-            $embedded
-        )) {
-            foreach ($embedded[1] as $raw) {
-                $url = self::normalizeUrl(html_entity_decode(trim($raw)));
-                if ($url && self::isLikelyProductImage($url)) {
-                    $candidates[] = $url;
-                }
-            }
-        }
-
-        return $candidates[0] ?? null;
+        return array_values(array_unique($candidates))[0] ?? null;
     }
 
     private static function searchIndexedImage(string $name, string $code): ?string

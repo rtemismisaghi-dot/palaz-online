@@ -103,16 +103,11 @@ Route::get('/dev/import-carpet-images', function () {
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')
-        ->where(function ($query) {
-            $query->whereNull('attributes->image_import_attempted')
-                ->orWhere('attributes->image_import_attempted', false);
-        })
         ->orderBy('id')
         ->first();
 
     if (! $product) {
         return response()->json([
-            'total' => 0,
             'processed_now' => 0,
             'images_found_now' => 0,
             'remaining' => 0,
@@ -120,30 +115,27 @@ Route::get('/dev/import-carpet-images', function () {
         ]);
     }
 
+    $image = \App\Services\PalazCatalogImageResolver::resolve($product);
+
     $attributes = $product->attributes ?? [];
     $attributes['image_import_attempted'] = true;
+    $product->forceFill(['attributes' => $attributes])->save();
 
-    // Mark immediately so a slow/failed lookup cannot keep the same product waiting.
-    \App\Models\Product::query()
-        ->whereKey($product->id)
-        ->update(['attributes' => $attributes]);
+    $remaining = \App\Models\Product::query()
+        ->where('is_active', true)
+        ->where('attributes->stock_type', 'roll')
+        ->whereDoesntHave('media')
+        ->count();
 
-    // Do not perform remote image lookup in the browser request.
     return response()->json([
         'product_code' => $product->attributes['code'] ?? null,
         'processed_now' => 1,
-        'images_found_now' => 0,
-        'remaining' => max(0, \App\Models\Product::query()
-            ->where('is_active', true)
-            ->where('attributes->stock_type', 'roll')
-            ->whereDoesntHave('media')
-            ->where(function ($query) {
-                $query->whereNull('attributes->image_import_attempted')
-                    ->orWhere('attributes->image_import_attempted', false);
-            })
-            ->count()),
-        'image' => null,
-        'message' => 'Product marked for image processing without waiting.',
+        'images_found_now' => $image ? 1 : 0,
+        'remaining' => $remaining,
+        'image' => $image,
+        'message' => $image
+            ? 'Product image replaced from Palaz Online source.'
+            : 'No source image found for this product; continuing to the next one.',
     ]);
 })->name('dev.import-carpet-images');
 

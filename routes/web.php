@@ -98,34 +98,46 @@ Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
 
-    $products = \App\Models\Product::query()
+    $product = App\\Models\\Product::query()
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
-        ->with('media')
-        ->get();
+        ->whereDoesntHave('media')
+        ->orderBy('id')
+        ->first();
 
-    $pending = $products->filter(fn ($product) => $product->media->isEmpty())->values();
-    $batch = $pending->take(10);
-    $found = 0;
-
-    foreach ($batch as $product) {
-        if (\App\Services\PalazCatalogImageResolver::resolve($product)) {
-            $found++;
-        }
+    if (! $product) {
+        return response()->json([
+            'total' => App\\Models\\Product::query()
+                ->where('is_active', true)
+                ->where('attributes->stock_type', 'roll')
+                ->count(),
+            'processed_now' => 0,
+            'images_found_now' => 0,
+            'remaining' => 0,
+            'message' => 'Carpet product images import completed.',
+        ]);
     }
 
-    $remaining = max(0, $pending->count() - $batch->count());
+    $image = App\\Services\\PalazCatalogImageResolver::resolve($product);
+
+    $remaining = App\\Models\\Product::query()
+        ->where('is_active', true)
+        ->where('attributes->stock_type', 'roll')
+        ->whereDoesntHave('media')
+        ->count();
 
     return response()->json([
-        'total' => $products->count(),
-        'processed_now' => $batch->count(),
-        'images_found_now' => $found,
+        'product_code' => $product->attributes['code'] ?? null,
+        'processed_now' => 1,
+        'images_found_now' => $image ? 1 : 0,
         'remaining' => $remaining,
+        'image' => $image,
         'message' => $remaining > 0
-            ? '10 products processed. Refresh this URL to continue.'
+            ? '1 product processed. Refresh this URL to continue.'
             : 'Carpet product images import completed.',
     ]);
 })->name('dev.import-carpet-images');
+
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');
 Route::get('/visualizer/products', [StoreController::class, 'visualizerProducts'])->name('visualizer.products');
 Route::get('/services', [StoreController::class, 'services'])->name('services');

@@ -27,6 +27,31 @@ class StoreController extends Controller
         return view('store.shop', compact('products', 'category', 'query'));
     }
 
+    public function visualizerProducts(Request $request)
+    {
+        $category = $request->string('category')->toString() ?: null;
+        $allowed = ['carpet', 'laminate', 'spc'];
+        abort_unless($category && in_array($category, $allowed, true), 422);
+
+        $fallbackImages = [
+            'carpet' => 'https://palazonline.com/storage/uploads/005-1-2.jpg',
+            'laminate' => 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
+            'spc' => 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
+        ];
+
+        $products = collect(StoreCatalog::byCategory($category))
+            ->take(24)
+            ->map(fn (array $product) => [
+                'id' => $product['id'],
+                'name' => $product['name'],
+                'tone' => $product['tone'],
+                'image' => $product['image'] ?: $fallbackImages[$category],
+            ])
+            ->values();
+
+        return response()->json(['category' => $category, 'products' => $products]);
+    }
+
     public function product(string $id)
     {
         $product = StoreCatalog::find($id);
@@ -149,6 +174,350 @@ class StoreController extends Controller
         $request->session()->forget('cart');
 
         return view('store.order-success', ['order' => $order]);
+    }
+
+    public function advisorChat(Request $request)
+    {
+        $data = $request->validate([
+            'message' => ['required', 'string', 'max:1200'],
+            'messages' => ['nullable', 'array', 'max:12'],
+            'messages.*.role' => ['required', 'in:user,assistant'],
+            'messages.*.content' => ['required', 'string', 'max:1200'],
+        ]);
+
+        $catalog = collect(StoreCatalog::products())
+            ->map(fn (array $product) => implode(' | ', array_filter([
+                'نام: ' . $product['name'],
+                'دسته: ' . ($product['category'] ?? ''),
+                'قیمت: ' . ($product['price'] !== null ? number_format((float) $product['price']) : 'استعلامی'),
+                'واحد: ' . ($product['unit'] ?? ''),
+                'توضیح: ' . ($product['description'] ?? ''),
+            ])))
+            ->take(80)
+            ->implode("\n");
+
+        $history = collect($data['messages'] ?? [])
+            ->map(fn (array $message) => [
+                'role' => $message['role'],
+                'content' => $message['content'],
+            ])
+            ->values()
+            ->all();
+
+        $apiKey = (string) config('services.openrouter.key');
+        if ($apiKey !== '') {
+            $payloadMessages = array_merge([
+                [
+                    'role' => 'system',
+                    'content' => "تو مشاور هوشمند فروشگاه پالاز آنلاین هستی. تمام پاسخ‌های تو باید فقط و فقط به زبان فارسی و با خط فارسی باشند. اگر کاربر فارسی می‌نویسد، هرگز انگلیسی پاسخ نده و حتی سؤال‌های ساده را هم به انگلیسی ترجمه نکن. فقط نام برندها، مدل‌ها، کد محصولات یا اصطلاحات فنی که ذاتاً انگلیسی هستند می‌توانند به شکل اصلی خود باقی بمانند. فارسی، صمیمی، کوتاه و کاربردی پاسخ بده. نقش تو فروشنده صرف نیست؛ باید نیاز مشتری را مرحله‌ای کشف کنی. ترتیب پیشنهادی: کاربرد/فضا، متراژ، سبک یا اولویت، سپس محصول و پیشنهاد. در هر پیام فقط یک یا دو سؤال ضروری بپرس تا گفتگو طبیعی بماند. اگر کاربر اطلاعات کافی برای پیشنهاد دارد، پیشنهاد بده و دلیل کوتاه بیاور. فقط بر اساس کاتالوگ زیر درباره محصول و قیمت صحبت کن و هرگز قیمت یا مشخصات را حدس نزن. برای اندازه‌گیری، نصب و طراحی مسیر خدمات پالاز را معرفی کن. کاتالوگ فعلی:\n" . $catalog,
+                ],
+            ], $history);
+
+            $payloadMessages[] = ['role' => 'user', 'content' => $data['message']];
+
+            try {
+                $response = \Illuminate\Support\Facades\Http::withToken($apiKey)
+                    ->acceptJson()
+                    ->withHeaders([
+                        'HTTP-Referer' => config('app.url'),
+                        'X-Title' => 'Palaz Online',
+                    ])
+                    ->timeout(30)
+                    ->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => config('services.openrouter.model', 'openrouter/free'),
+                        'messages' => $payloadMessages,
+                        'max_tokens' => 500,
+                    ]);
+
+                if ($response->successful()) {
+                    $text = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
+
+                    if ($text !== '') {
+                        return response()->json([
+                            'reply' => $text,
+                            'actions' => $this->advisorActions($data['message']),
+                            'mode' => 'ai',
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $fallback = $this->advisorFallback($data['message'], $history);
+
+        return response()->json([
+            'reply' => $fallback['reply'],
+            'actions' => $fallback['actions'],
+            'mode' => 'catalog',
+        ]);
+    }
+
+    private function advisorFallback(string $message, array $history = []): array
+    {
+        $text = mb_strtolower(trim($message));
+        // فقط پیام‌های کاربر وارد حافظه تحلیلی شوند؛ متن پاسخ‌های قبلی
+        // نباید دوباره به‌عنوان «نیاز مشتری» تفسیر شوند.
+        $userContext = collect($history)
+            ->filter(fn (array $item) => ($item['role'] ?? null) === 'user')
+            ->pluck('content')
+            ->implode(' ');
+        $context = mb_strtolower($userContext);
+        $combined = trim($context . ' ' . $text);
+
+        $area = $this->extractAdvisorArea($combined);
+        $room = $this->detectAdvisorRoom($combined);
+        $style = $this->detectAdvisorStyle($combined);
+        $productTerm = $this->detectAdvisorProductTerm($combined);
+
+        // وقتی کاربر یک فضای جدید را صریحاً می‌گوید، محصول قبلی را به این
+        // پیام نچسبان؛ «پذیرایی» نباید به‌اشتباه «کفپوش ورزشی» تعبیر شود.
+        $currentRoom = $this->detectAdvisorRoom($text);
+        $currentProductTerm = $this->detectAdvisorProductTerm($text);
+        if ($currentRoom !== null && $currentProductTerm === null) {
+            $room = $currentRoom;
+            $area = $this->extractAdvisorArea($text);
+            $style = $this->detectAdvisorStyle($text);
+            $productTerm = null;
+        }
+
+        $actions = $this->advisorActions($message);
+
+        if ($this->isGreeting($text)) {
+            return [
+                'reply' => 'سلام 👋 من مشاور پالاز هستم. برای شروع، بگویید برای چه فضایی دنبال پوشش هستید؟',
+                'actions' => [],
+            ];
+        }
+
+        if ($room === null && $productTerm === null && !$this->isGeneralQuestion($text)) {
+            return [
+                'reply' => 'حتماً. اول بگویید برای کدام فضا می‌خواهید؟ مثلاً پذیرایی، اتاق خواب، دفتر یا فضای ورزشی.',
+                'actions' => [],
+            ];
+        }
+
+        if ($area === null && ($room !== null || $productTerm !== null)) {
+            return [
+                'reply' => 'خیلی خوب. حدود متراژ فضا چند متر است؟ متراژ تقریبی هم کافی است.',
+                'actions' => $actions,
+            ];
+        }
+
+        if (($room !== null || $productTerm !== null) && $area !== null && $style === null && $productTerm === null) {
+            return [
+                'reply' => 'عالی. حالا بگویید اولویت شما بیشتر کدام است: ظاهر و حس فضا، دوام و نظافت، یا قیمت مناسب؟',
+                'actions' => $actions,
+            ];
+        }
+
+        if ($productTerm !== null && $area !== null) {
+            $productActions = $this->advisorProductActions($productTerm, 3);
+            $names = collect($productActions)->pluck('label')->map(fn ($label) => preg_replace('/^مشاهده /u', '', $label))->filter()->values();
+
+            $reply = 'برای ' . $productTerm . ' با متراژ حدود ' . $this->formatAdvisorNumber($area) . ' مترمربع، چند گزینه مرتبط از کاتالوگ پالاز را پیدا کردم.';
+            if ($names->isNotEmpty()) {
+                $reply .= ' گزینه‌ها: ' . $names->implode('، ') . '. اگر سبک یا بودجه‌تان را بگویید، بین این‌ها دقیق‌تر راهنمایی می‌کنم.';
+            } else {
+                $reply .= ' برای پیشنهاد دقیق‌تر، مدل یا سبک موردنظرتان را بگویید تا اطلاعات کاتالوگ را بررسی کنم.';
+            }
+
+            return [
+                'reply' => $reply,
+                'actions' => array_values(array_unique(array_merge($actions, $productActions), SORT_REGULAR)),
+            ];
+        }
+
+        if ($room !== null && $area !== null && $style !== null && $productTerm === null) {
+            return [
+                'reply' => 'متوجه شدم: ' . $room . '، حدود ' . $this->formatAdvisorNumber($area) . ' مترمربع و اولویت «' . $style . '». حالا نوع پوشش را مشخص کنیم: موکت، لمینت، فرش‌گونه یا کاغذ دیواری؟',
+                'actions' => [['label' => 'دیدن محصولات', 'url' => route('shop')]],
+            ];
+        }
+
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            return [
+                'reply' => $productTerm
+                    ? 'برای محاسبه دقیق ' . $productTerm . '، متراژ را بگویید. مثلاً ۶۰ مترمربع.'
+                    : 'برای محاسبه دقیق، نام محصول و متراژ را بگویید؛ مثلاً «لمینت برای ۶۰ متر».',
+                'actions' => [['label' => 'محاسبه و برآورد', 'url' => route('shop')]],
+            ];
+        }
+
+        if (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
+            return [
+                'reply' => 'حتماً. اگر متراژ دقیق ندارید، می‌توانید درخواست اندازه‌گیری ثبت کنید.',
+                'actions' => [['label' => 'درخواست اندازه‌گیری', 'url' => route('services')]],
+            ];
+        }
+
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            return [
+                'reply' => 'برای نصب و اجرا، درخواستتان را از مسیر خدمات ثبت کنید. نوع محصول و شهر را هم بگویید تا راهنمایی دقیق‌تری بدهم.',
+                'actions' => [['label' => 'درخواست نصب', 'url' => route('services')]],
+            ];
+        }
+
+        return [
+            'reply' => 'برای اینکه دقیق راهنمایی‌تان کنم، نوع فضا، متراژ و نوع پوشش موردنظرتان را بگویید.',
+            'actions' => $actions,
+        ];
+    }
+
+    private function isGreeting(string $text): bool
+    {
+        return collect(['سلام', 'درود', 'خوبی', 'سلام وقت بخیر', 'وقت بخیر'])
+            ->contains(fn ($word) => str_contains($text, $word));
+    }
+
+    private function detectAdvisorProductTerm(string $text): ?string
+    {
+        foreach ([
+            'کاغذدیواری' => 'کاغذ دیواری',
+            'کاغذ دیواری' => 'کاغذ دیواری',
+            'لمینت' => 'لمینت',
+            'فرش‌گونه' => 'فرش‌گونه',
+            'فرش' => 'فرش‌گونه',
+            'موکت' => 'موکت',
+            'کفپوش ورزشی' => 'کفپوش ورزشی',
+            'ورزشی' => 'کفپوش ورزشی',
+            'پادری' => 'پادری',
+        ] as $needle => $label) {
+            if (str_contains($text, $needle)) {
+                return $label;
+            }
+        }
+
+        return null;
+    }
+
+    private function advisorProductActions(string $productTerm, int $limit = 3): array
+    {
+        $products = StoreCatalog::products();
+        $termMap = [
+            'کاغذ دیواری' => ['wallpaper', 'کاغذ'],
+            'لمینت' => ['laminate', 'لمینت'],
+            'فرش‌گونه' => ['spc', 'فرش'],
+            'موکت' => ['carpet', 'موکت'],
+            'کفپوش ورزشی' => ['carpet-tile', 'ورزشی'],
+            'پادری' => ['decorative', 'پادری'],
+        ];
+        $matches = $termMap[$productTerm] ?? [$productTerm];
+
+        return collect($products)
+            ->filter(function ($product) use ($matches) {
+                $haystack = mb_strtolower(
+                    ($product['name'] ?? '') . ' ' .
+                    ($product['category'] ?? '') . ' ' .
+                    ($product['description'] ?? '')
+                );
+
+                return collect($matches)->contains(fn ($match) => str_contains($haystack, mb_strtolower($match)));
+            })
+            ->take($limit)
+            ->map(fn ($product) => [
+                'label' => 'مشاهده ' . $product['name'],
+                'url' => route('product', ['id' => $product['id']]),
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function formatAdvisorNumber(float $number): string
+    {
+        return rtrim(rtrim(number_format($number, 2, '.', ''), '0'), '.');
+    }
+
+    private function advisorActions(string $message): array
+    {
+        $text = mb_strtolower(trim($message));
+        $actions = [];
+
+        if (str_contains($text, 'اندازه')) {
+            $actions[] = ['label' => 'درخواست اندازه‌گیری', 'url' => route('services')];
+        }
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            $actions[] = ['label' => 'درخواست نصب', 'url' => route('services')];
+        }
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            $actions[] = ['label' => 'محاسبه و برآورد', 'url' => route('shop')];
+        }
+
+        foreach (StoreCatalog::products() as $product) {
+            $haystack = mb_strtolower(($product['name'] ?? '') . ' ' . ($product['description'] ?? ''));
+            if ($product['name'] && str_contains($text, mb_strtolower($product['name']))) {
+                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']])];
+            } elseif (str_contains($text, 'لمینت') && str_contains($haystack, 'laminate')) {
+                $actions[] = ['label' => 'مشاهده ' . $product['name'], 'url' => route('product', ['id' => $product['id']])];
+            }
+            if (count($actions) >= 3) break;
+        }
+
+        return array_values(array_unique($actions, SORT_REGULAR));
+    }
+
+    private function extractAdvisorArea(string $text): ?float
+    {
+        if (preg_match('/(?:حدود|تقریباً|تقریبا)?\s*(\d+(?:[\.,]\d+)?)\s*(?:متر|متری|مترمربع|متر مربع)/u', $text, $m)) {
+            return (float) str_replace(',', '.', $m[1]);
+        }
+        return null;
+    }
+
+    private function detectAdvisorRoom(string $text): ?string
+    {
+        foreach (['پذیرایی', 'اتاق خواب', 'اتاق', 'دفتر', 'راهرو', 'فروشگاه', 'فضای ورزشی'] as $room) {
+            if (str_contains($text, $room)) return $room;
+        }
+        return null;
+    }
+
+    private function detectAdvisorStyle(string $text): ?string
+    {
+        foreach (['مدرن', 'مینیمال', 'کلاسیک', 'گرم', 'اقتصادی', 'بادوام', 'قابل شستشو', 'نظافت'] as $style) {
+            if (str_contains($text, $style)) return $style;
+        }
+        return null;
+    }
+
+    private function detectAdvisorProduct(string $text): bool
+    {
+        return collect(['موکت', 'لمینت', 'فرش', 'فرش‌گونه', 'کاغذ دیواری', 'کاغذدیواری', 'کفپوش ورزشی', 'پادری'])
+            ->contains(fn ($word) => str_contains($text, $word));
+    }
+
+    private function isGeneralQuestion(string $text): bool
+    {
+        return collect(['قیمت', 'هزینه', 'محاسبه', 'اندازه', 'نصب', 'اجرا', 'مقایسه', 'محصول'])
+            ->contains(fn ($word) => str_contains($text, $word));
+    }
+
+    private function advisorFallbackReply(string $message, string $catalog): string
+    {
+        $text = mb_strtolower(trim($message));
+
+        if (str_contains($text, 'قیمت') || str_contains($text, 'هزینه') || str_contains($text, 'محاسبه')) {
+            return 'حتماً. برای قیمت دقیق، نام محصول و متراژ فضا را بگویید. اگر اندازه دقیق ندارید، می‌توانیم ابتدا درخواست اندازه‌گیری ثبت کنیم.';
+        }
+
+        if (str_contains($text, 'اندازه') || str_contains($text, 'متراژ')) {
+            return 'برای اندازه‌گیری، می‌توانیم درخواست شما را ثبت کنیم تا مسیر اندازه‌گیری و اجرای پالاز ادامه پیدا کند. اگر متراژ تقریبی را دارید، همان را هم بگویید.';
+        }
+
+        if (str_contains($text, 'نصب') || str_contains($text, 'اجرا')) {
+            return 'برای نصب و اجرا می‌توانید درخواست نصب ثبت کنید. اگر نوع محصول و شهر را بگویید، راهنمایی دقیق‌تری می‌دهم.';
+        }
+
+        if (str_contains($text, 'پذیرایی') || str_contains($text, 'اتاق') || str_contains($text, 'خواب')) {
+            return 'برای پیشنهاد دقیق، کاربرد فضا، متراژ تقریبی و سبک مورد علاقه‌تان را بگویید؛ مثلاً مدرن، گرم، مینیمال یا کلاسیک.';
+        }
+
+        if (str_contains($text, 'موکت') || str_contains($text, 'فرش') || str_contains($text, 'لمینت') || str_contains($text, 'کاغذ دیواری')) {
+            return 'حتماً. نوع محصول، متراژ و کاربرد فضا را بگویید تا از بین اطلاعات کاتالوگ پالاز گزینه‌های مرتبط را بررسی کنیم.';
+        }
+
+        return 'در خدمتم. درباره انتخاب محصول، مقایسه، قیمت و محاسبه، اندازه‌گیری یا نصب سؤال کنید. اگر نام محصول یا متراژ را هم بگویید، پاسخ دقیق‌تر می‌شود.';
     }
 
     public function serviceRequest(Request $request)

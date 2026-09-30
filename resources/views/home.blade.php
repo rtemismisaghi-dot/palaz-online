@@ -3,7 +3,10 @@
 @section('content')
 <div class="palaz-home">
 <section class="ph-hero">
-    <div class="ph-hero-bg"></div>
+    <div class="ph-hero-bg ph-hero-bg-1"></div>
+    <div class="ph-hero-bg ph-hero-bg-2"></div>
+    <div class="ph-hero-bg ph-hero-bg-3"></div>
+    <div class="ph-hero-bg ph-hero-bg-4"></div>
     <div class="container ph-hero-inner">
         <div class="ph-hero-tools">
             <a href="{{ route('shop') }}" class="ph-tool"><span class="ph-tool-icon">▣</span><span><b>خرید محصول</b><small>موکت، لمینیت، کاغذدیواری و...</small></span><i>‹</i></a>
@@ -14,11 +17,11 @@
         <div class="ph-hero-copy">
             <span>PALAZ ONLINE</span>
             <h1>انتخابی مطمئن<br>برای <em>فضای بهتر زندگی</em></h1>
-            <p>از خرید محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
+            <p>از انتخاب محصول تا اجرای کامل، همه چیز در یک مسیر با کیفیت، سریع و مطمئن.</p>
             <a class="ph-primary-btn" href="{{ route('shop') }}">مشاهده محصولات <b>‹</b></a>
         </div>
     </div>
-    <div class="ph-slider-dots"><i></i><i class="on"></i><i></i></div>
+    <div class="ph-slider-dots"><i class="on"></i><i></i><i></i><i></i></div>
 </section>
 
 <section class="ph-categories">
@@ -86,7 +89,7 @@
 
 <section class="ph-promo">
     <div class="container ph-promo-inner">
-        <div><span>الهام بگیرید</span><h2>کوراسیون، یعنی ساختن<br><em>فضای واقعی شما</em></h2><p>ایده‌هایی برای یک زندگی زیباتر، با انتخاب درست کفپوش و پوشش دیوار.</p><a href="{{ route('shop') }}" class="ph-white-btn">مشاهده گالری <b>‹</b></a></div>
+        <div><span>الهام بگیرید</span><h2>کوراسیون، یعنی ساختن<br><em>فضای واقعی شما</em></h2><p>ایده‌هایی برای یک زندگی زیباتر، با انتخاب درست فرش‌گونه و پوشش دیوار.</p><a href="{{ route('shop') }}" class="ph-white-btn">مشاهده گالری <b>‹</b></a></div>
     </div>
 </section>
 

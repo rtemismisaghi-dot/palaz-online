@@ -203,27 +203,28 @@ final class PalazCatalogImageResolver
 
     private static function extractImageForCode(string $html, string $code): ?string
     {
-        $escapedCode = preg_quote($code, '/');
         $offset = 0;
         $candidates = [];
 
         while (($position = stripos($html, $code, $offset)) !== false) {
-            $start = max(0, $position - 20000);
-            $length = min(40000, strlen($html) - $start);
+            $start = max(0, $position - 30000);
+            $length = min(60000, strlen($html) - $start);
             $block = substr($html, $start, $length);
 
-            if (preg_match_all(
-                '/<(?:img|source)\\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original|data-image)\\s*=\\s*["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
-                $block,
-                $images
-            )) {
-                foreach ($images[1] as $raw) {
-                    foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
-                        $url = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
-                        $url = self::normalizeUrl($url);
-                        if ($url && self::isLikelyProductImage($url)) {
-                            $candidates[] = $url;
-                        }
+            if (preg_match_all('/https?:\\/\\/[^"\\'\\s<>]+/iu', $block, $links)) {
+                foreach ($links[0] as $raw) {
+                    $url = self::normalizeUrl(html_entity_decode($raw));
+                    if ($url && self::isLikelyProductImage($url)) {
+                        $candidates[] = $url;
+                    }
+                }
+            }
+
+            if (preg_match_all('/(?:src|data-src|data-lazy-src|data-original|background-image|image|thumbnail|url)\\s*[=:()]\\s*["\\\']?([^"\\\')\\s]+)["\\\']?/iu', $block, $embedded)) {
+                foreach ($embedded[1] as $raw) {
+                    $url = self::normalizeUrl(html_entity_decode(trim($raw)));
+                    if ($url && self::isLikelyProductImage($url)) {
+                        $candidates[] = $url;
                     }
                 }
             }

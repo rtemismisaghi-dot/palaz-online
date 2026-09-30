@@ -33,8 +33,8 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
 .model-pill.active{background:#241f1d;color:#fff;border-color:#241f1d}.model-count{font-size:11px;opacity:.65;margin-right:5px}
 .result-head{display:flex;justify-content:space-between;align-items:center;padding:18px 0 12px}.result-head span{color:#756d68;font-size:13px}
 .store-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
-.store-card{border:1px solid #ebe5e0;border-radius:16px;overflow:hidden;background:#fff;transition:.18s}.store-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px #241f1d10}
-.card-image{height:190px;background:#f0ebe7;position:relative;overflow:hidden}.card-image img{width:100%;height:100%;object-fit:cover}.code-badge{position:absolute;top:10px;right:10px;background:#fffdfbcc;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800}
+.store-card{display:block;position:relative;border:1px solid #ebe5e0;border-radius:16px;overflow:hidden;background:#fff;transition:.18s}.store-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px #241f1d10}
+.card-image{display:block;width:100%;height:190px;background:#f0ebe7;position:relative;overflow:hidden}.card-image img{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}.code-badge{position:absolute;top:10px;right:10px;background:#fffdfbcc;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800}
 .card-body{padding:12px}.card-body small{color:#756d68}.card-body h3{font-size:14px;margin:5px 0;font-weight:900}.card-price{font-weight:900;margin-top:8px}.card-unit{font-size:11px;color:#756d68}.card-actions{display:flex;gap:6px;margin-top:10px}.card-actions a,.card-actions button{flex:1;border:1px solid #e1d8d2;background:#fff;border-radius:9px;padding:8px;text-align:center;text-decoration:none;color:#241f1d;font-size:12px}.card-actions .buy{background:#9f1820;color:#fff;border-color:#9f1820}
 .empty-state{padding:60px;text-align:center;color:#756d68}
 @media(max-width:1050px){.store-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.store-layout{grid-template-columns:210px minmax(0,1fr)}}

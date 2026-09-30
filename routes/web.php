@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
+Route::get('/dev/import-carpet-catalog', function () {
+    abort_unless(app()->environment('local'), 404);
+    \Artisan::call('db:seed', ['--class' => \Database\Seeders\CarpetCatalogSeeder::class, '--force' => true]);
+    return redirect()->route('shop', ['category' => 'carpet']);
+})->name('dev.import-carpet-catalog');
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');
 Route::get('/visualizer/products', [StoreController::class, 'visualizerProducts'])->name('visualizer.products');
 Route::get('/services', [StoreController::class, 'services'])->name('services');

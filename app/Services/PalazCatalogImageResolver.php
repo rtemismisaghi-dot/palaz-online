@@ -16,13 +16,7 @@ final class PalazCatalogImageResolver
         $name = trim((string) $product->name);
 
         try {
-            $response = Http::timeout(4)->connectTimeout(2)
-                ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
-                ->get('https://palazonline.com/category/موکت');
-
-            $image = $response->successful()
-                ? self::extractImageForCode($response->body(), $code)
-                : null;
+            $image = self::searchCatalogPages($code);
 
             if (!$image) {
                 $image = self::searchIndexedImage($name, $code);
@@ -45,11 +39,38 @@ final class PalazCatalogImageResolver
         }
     }
 
+    private static function searchCatalogPages(string $code): ?string
+    {
+        $responses = Http::pool(function ($pool) {
+            $requests = [];
+
+            for ($page = 1; $page <= 15; $page++) {
+                $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+                $requests[] = $pool->as('page'.$page)
+                    ->timeout(2)
+                    ->connectTimeout(1)
+                    ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
+                    ->get($url);
+            }
+
+            return $requests;
+        });
+
+        foreach ($responses as $response) {
+            if ($response->successful()) {
+                $image = self::extractImageForCode($response->body(), $code);
+                if ($image) return $image;
+            }
+        }
+
+        return null;
+    }
+
     private static function extractImageForCode(string $html, string $code): ?string
     {
         $escapedCode = preg_quote($code, '/');
 
-        if (!preg_match('/.{0,1800}' . $escapedCode . '.{0,1800}/isu', $html, $match)) {
+        if (!preg_match('/.{0,2200}' . $escapedCode . '.{0,2200}/isu', $html, $match)) {
             return null;
         }
 
@@ -81,7 +102,7 @@ final class PalazCatalogImageResolver
     {
         try {
             $query = rawurlencode('site:palazonline.com ' . $code . ' ' . $name);
-            $response = Http::timeout(3)->connectTimeout(1)
+            $response = Http::timeout(2)->connectTimeout(1)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
                 ->get('https://www.bing.com/images/search?q=' . $query);
 
@@ -93,7 +114,7 @@ final class PalazCatalogImageResolver
                     if (!is_string($image)) $image = str_replace('\\/', '/', $raw);
 
                     $host = parse_url($image, PHP_URL_HOST);
-                    if ($host && preg_match('/(^|\.)palazonline\.com$/i', $host)) {
+                    if ($host && preg_match('/(^|\\.)palazonline\\.com$/i', $host)) {
                         return $image;
                     }
                 }

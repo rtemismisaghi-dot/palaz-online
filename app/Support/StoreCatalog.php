@@ -78,7 +78,9 @@ final class StoreCatalog
                 ->when($query !== '', function ($q) use ($query) {
                     $q->where(function ($search) use ($query) {
                         $search->where('name', 'like', '%' . $query . '%')
-                            ->orWhere('description', 'like', '%' . $query . '%');
+                            ->orWhere('description', 'like', '%' . $query . '%')
+                            ->orWhere('attributes->code', 'like', '%' . $query . '%')
+                            ->orWhere('attributes->album', 'like', '%' . $query . '%');
                     });
                 })
                 ->latest('id')

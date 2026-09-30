@@ -8,11 +8,23 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
 Route::get('/dev/import-carpet-catalog', function () {
     abort_unless(app()->environment('local'), 404);
+
+    if (! Schema::hasColumn('products', 'attributes') || ! Schema::hasColumn('products', 'is_featured')) {
+        Schema::table('products', function ($table) {
+            if (! Schema::hasColumn('products', 'attributes')) {
+                $table->json('attributes')->nullable()->after('tone');
+            }
+            if (! Schema::hasColumn('products', 'is_featured')) {
+                $table->boolean('is_featured')->default(false)->after('is_active');
+            }
+        });
+    }
 
     $path = base_path('docs/palaz-catalog-extraction-batch-2026-09-27.json');
     abort_unless(is_file($path), 404);

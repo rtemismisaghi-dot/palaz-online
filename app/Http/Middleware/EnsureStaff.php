@@ -10,7 +10,7 @@ class EnsureStaff
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->isStaff()) {
+        if (!$request->session()->boolean('palaz_staff_authenticated')) {
             return redirect()->route('login');
         }
 

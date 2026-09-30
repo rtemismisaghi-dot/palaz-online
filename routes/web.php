@@ -102,6 +102,10 @@ Route::get('/dev/import-carpet-images', function () {
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')
+        ->where(function ($query) {
+            $query->whereNull('attributes->image_import_attempted')
+                ->orWhere('attributes->image_import_attempted', false);
+        })
         ->orderBy('id')
         ->first();
 
@@ -119,6 +123,16 @@ Route::get('/dev/import-carpet-images', function () {
     }
 
     $image = \App\Services\PalazCatalogImageResolver::resolve($product);
+
+    if (! $image) {
+        $attributes = $product->attributes ?? [];
+        $attributes['image_import_attempted'] = true;
+
+        // Bypass model events so a failed lookup does not recursively retry.
+        \App\Models\Product::query()
+            ->whereKey($product->id)
+            ->update(['attributes' => $attributes]);
+    }
 
     $remaining = \App\Models\Product::query()
         ->where('is_active', true)

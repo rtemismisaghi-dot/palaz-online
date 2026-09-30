@@ -2,7 +2,9 @@
 @section('title','فروشگاه | PALAZ ONLINE')
 @section('content')
 @php
-$categories = collect($products)->groupBy('category');
+$products = collect($products);
+$categories = $products->groupBy('category');
+$albumGroups = $products->filter(fn ($p) => filled($p['attributes']['album'] ?? null))->groupBy(fn ($p) => (string) $p['attributes']['album']);
 $categoryLabels = [
  'carpet'=>'موکت','laminate'=>'لمینت','spc'=>'فرش‌گونه','wallpaper'=>'کاغذ دیواری',
  'tile'=>'موکت تایل','grass'=>'چمن مصنوعی','doormat'=>'پادری','guard'=>'گارد','spaghetti'=>'اسپاگتی',
@@ -28,7 +30,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
 .store-content{padding:18px;min-width:0}
 .model-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.model-head strong{font-size:17px}.model-rail{display:flex;gap:9px;overflow-x:auto;padding:5px 0 16px;border-bottom:1px solid #eee6e1}
 .model-pill{border:1px solid #ddd4ce;background:#faf8f6;border-radius:12px;padding:10px 15px;white-space:nowrap;cursor:pointer;font-weight:700}
-.model-pill.active{background:#241f1d;color:#fff;border-color:#241f1d}
+.model-pill.active{background:#241f1d;color:#fff;border-color:#241f1d}.model-count{font-size:11px;opacity:.65;margin-right:5px}
 .result-head{display:flex;justify-content:space-between;align-items:center;padding:18px 0 12px}.result-head span{color:#756d68;font-size:13px}
 .store-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
 .store-card{border:1px solid #ebe5e0;border-radius:16px;overflow:hidden;background:#fff;transition:.18s}.store-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px #241f1d10}
@@ -73,8 +75,10 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
       <div class="model-head"><strong>مدل‌ها</strong><span>{{ $activeLabel }}</span></div>
       <div class="model-rail" id="modelRail">
         <button class="model-pill active" data-model="all">همه مدل‌ها</button>
-        @foreach($products as $p)
-          <button class="model-pill" data-model="{{ md5($p['attributes']['album'] ?? $p['name']) }}">{{ $p['attributes']['album'] ?? $p['name'] }}</button>
+        @foreach($albumGroups as $album => $albumProducts)
+          <button class="model-pill" data-model="{{ md5($album) }}">
+            {{ $album }} <span class="model-count">{{ $albumProducts->count() }}</span>
+          </button>
         @endforeach
       </div>
 
@@ -87,7 +91,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
               @if(!empty($product['image']))
                 <img src="{{ str_starts_with($product['image'],'http') ? $product['image'] : asset($product['image']) }}" alt="{{ $product['name'] }}" loading="lazy">
               @endif
-              <span class="code-badge">کد {{ $product['id'] }}</span>
+              <span class="code-badge">کد {{ $product['attributes']['code'] ?? $product['id'] }}</span>
             </a>
             <div class="card-body">
               <small>{{ $product['attributes']['album'] ?? $activeLabel }}</small>

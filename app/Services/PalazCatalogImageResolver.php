@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services;
+namespace App\\Services;
 
-use App\Models\Product;
-use App\Models\ProductMedia;
-use Illuminate\Support\Facades\Http;
+use App\\Models\\Product;
+use App\\Models\\ProductMedia;
+use Illuminate\\Support\\Facades\\Http;
 
 final class PalazCatalogImageResolver
 {
     public static function resolve(Product $product): ?string
     {
-        $code = (string) ($product->attributes['code'] ?? '');
+        $code = trim((string) ($product->attributes['code'] ?? ''));
         if ($code === '') {
             return null;
         }
@@ -20,8 +20,8 @@ final class PalazCatalogImageResolver
         $url = 'https://palazonline.com/product/' . $slug;
 
         try {
-            $response = Http::timeout(12)
-                ->connectTimeout(5)
+            $response = Http::timeout(5)
+                ->connectTimeout(3)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
                 ->get($url);
 
@@ -30,13 +30,7 @@ final class PalazCatalogImageResolver
             }
 
             $html = $response->body();
-            $image = null;
-
-            if (preg_match('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/iu', $html, $m)) {
-                $image = html_entity_decode($m[1]);
-            } elseif (preg_match('/<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']/iu', $html, $m)) {
-                $image = html_entity_decode($m[1]);
-            }
+            $image = self::extractImage($html);
 
             if (! $image) {
                 return null;
@@ -52,8 +46,26 @@ final class PalazCatalogImageResolver
             );
 
             return $image;
-        } catch (\Throwable) {
+        } catch (\\Throwable) {
             return null;
         }
+    }
+
+    private static function extractImage(string $html): ?string
+    {
+        $patterns = [
+            '/<meta[^>]+property=["\\\']og:image["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']/iu',
+            '/<meta[^>]+content=["\\\']([^"\\\']+)["\\\'][^>]+property=["\\\']og:image["\\\']/iu',
+            '/<meta[^>]+name=["\\\']twitter:image["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']/iu',
+            '/<meta[^>]+content=["\\\']([^"\\\']+)["\\\'][^>]+name=["\\\']twitter:image["\\\']/iu',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $html, $m)) {
+                return html_entity_decode(trim($m[1]));
+            }
+        }
+
+        return null;
     }
 }

@@ -244,12 +244,14 @@ final class PalazCatalogImageResolver
 
         foreach ($matches[1] as $rawUrl) {
             $url = self::normalizeUrl(html_entity_decode($rawUrl));
-            if (!$url || !self::isLikelyProductPage($url)) continue;
+            if (!$url) continue;
 
+            $host = parse_url($url, PHP_URL_HOST);
             $path = rawurldecode((string) parse_url($url, PHP_URL_PATH));
+            if (!$host || !preg_match('/(^|\\.)palazonline\\.com$/i', $host) || !str_starts_with($path, '/product/')) continue;
 
             // Only accept a product URL whose slug explicitly ends with this code.
-            if (!preg_match('/(?:^|[-_])(?:کد|code)[-_ ]?' . preg_quote($code, '/') . '(?:$|[-_])/iu', $path)) {
+            if (!preg_match('/(?:کد|code)[-_ ]?' . preg_quote($code, '/') . '(?:$|[-_])/iu', $path)) {
                 continue;
             }
 

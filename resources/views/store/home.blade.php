@@ -1501,20 +1501,49 @@
         const recognition = new SpeechRecognition();
         recognition.lang = 'fa-IR';
         recognition.interimResults = false;
+        recognition.continuous = false;
         recognition.maxAlternatives = 1;
-        mic.classList.add('is-listening');
-        setAdvisorVisualState('listening');
-        recognition.start();
-        recognition.onresult = e => {
-          input.value = e.results[0][0].transcript;
-          input.focus();
+
+        recognition.onstart = () => {
+          mic.classList.add('is-listening');
+          setAdvisorVisualState('listening');
+          if (voiceStatus) voiceStatus.textContent = 'دارم گوش می‌دهم... صحبت کنید';
         };
-        recognition.onerror = () => { mic.classList.remove('is-listening'); setAdvisorVisualState(''); };
+
+        recognition.onresult = e => {
+          const transcript = e.results?.[0]?.[0]?.transcript?.trim() || '';
+          if (transcript) {
+            input.value = transcript;
+            input.focus();
+            if (voiceStatus) voiceStatus.textContent = 'پیام شما دریافت شد';
+          }
+        };
+
+        recognition.onerror = e => {
+          mic.classList.remove('is-listening');
+          setAdvisorVisualState('');
+          const messages = {
+            'not-allowed':'اجازه دسترسی به میکروفن داده نشد.',
+            'service-not-allowed':'سرویس تشخیص صدا در این مرورگر در دسترس نیست.',
+            'no-speech':'صدایی دریافت نشد؛ دوباره امتحان کنید.',
+            'audio-capture':'میکروفن پیدا نشد یا در اختیار برنامه دیگری است.'
+          };
+          if (voiceStatus) voiceStatus.textContent = messages[e.error] || 'خطا در دریافت صدا؛ دوباره امتحان کنید.';
+        };
+
         recognition.onend = () => {
           mic.classList.remove('is-listening');
           if (input?.value?.trim()) setAdvisorVisualState('thinking');
           else setAdvisorVisualState('');
         };
+
+        try {
+          recognition.start();
+        } catch (error) {
+          mic.classList.remove('is-listening');
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'شروع میکروفن ناموفق بود؛ دوباره بزنید.';
+        }
       });
     })();
   </script>

@@ -58,8 +58,27 @@ final class PalazCatalogImageResolver
                 ])->get($url);
                 $body = $response->body();
                 $urls = self::extractProductUrlsForCode($body, $code);
-                $result['pages'][] = ['page'=>$page,'status'=>$response->status(),'has_code'=>stripos($body,$code)!==false,'urls'=>$urls];
-                foreach ($urls as $u) $result['urls'][$u] = true;
+                $image = self::extractImageForCode($body, $code);
+                $result['pages'][] = ['page'=>$page,'status'=>$response->status(),'has_code'=>stripos($body,$code)!==false,'urls'=>$urls,'image'=>$image];
+                foreach ($urls as $u) {
+                    $result['urls'][$u] = true;
+                    try {
+                        $productResponse = Http::timeout(5)->connectTimeout(2)->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                            'Accept' => 'text/html,application/xhtml+xml',
+                        ])->get($u);
+                        $productBody = $productResponse->body();
+                        $result['product_pages'][] = [
+                            'url'=>$u,
+                            'status'=>$productResponse->status(),
+                            'length'=>strlen($productBody),
+                            'has_code'=>stripos($productBody,$code)!==false,
+                            'image'=>self::extractProductPageImage($u),
+                        ];
+                    } catch (\\Throwable $e) {
+                        $result['product_pages'][] = ['url'=>$u,'error'=>$e->getMessage()];
+                    }
+                }
             } catch (\Throwable $e) {
                 $result['pages'][] = ['page'=>$page,'error'=>$e->getMessage()];
             }

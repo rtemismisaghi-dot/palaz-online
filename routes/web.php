@@ -95,6 +95,11 @@ Route::get('/dev/import-carpet-catalog', function () {
     return redirect()->route('shop', ['category' => 'carpet']);
 })->name('dev.import-carpet-catalog');
 
+Route::get('/dev/debug-carpet-image/{code}', function (string $code) {
+    abort_unless(app()->environment('local'), 404);
+    return response()->json(\App\Services\PalazCatalogImageResolver::debugCode($code));
+});
+
 Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');

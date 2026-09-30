@@ -23,9 +23,12 @@
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
         .stage{padding:10px 16px 4px;display:flex;flex-direction:column;align-items:center}
         .character{width:min(82vw,365px);height:min(82vw,365px);max-height:365px;display:grid;place-items:center;position:relative}
-        .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55}
-        .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8)}
-        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite}
+        .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55;animation:halo 3.2s ease-in-out infinite}
+        .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8);animation-delay:.45s}
+        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite;transform-origin:50% 82%}
+        .listening .character:before,.listening .character:after{animation:ring-listen 1.2s ease-out infinite}
+        .thinking .character:before{animation:halo-think .8s ease-in-out infinite}
+        .speaking .character:before,.speaking .character:after{animation:ring-speak 1s ease-in-out infinite}
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
@@ -37,7 +40,7 @@
         .bubble{max-width:82%;padding:11px 13px;border-radius:17px 17px 3px 17px;background:#fff;border:1px solid #eee8e3;box-shadow:0 5px 18px rgba(30,25,20,.045);font-size:12px;line-height:1.9;white-space:pre-wrap}
         .user .bubble{background:#25282c;color:#fff;border-color:#25282c;border-radius:17px 17px 17px 3px}
         .quick{display:flex;gap:7px;overflow:auto;padding:4px 16px 9px;scrollbar-width:none}
-        .quick::-webkit-scrollbar{display:none}.quick button{flex:0 0 auto;border:1px solid #e6ded9;background:#fff;color:#555;border-radius:999px;padding:8px 11px;font-size:10px}
+        .quick::-webkit-scrollbar{display:none}.quick button,.visualizer-cta{flex:0 0 auto;border:1px solid #e6ded9;background:#fff;color:#555;border-radius:999px;padding:8px 11px;font-size:10px;text-decoration:none}.visualizer-cta{background:#25282c;color:#fff;border-color:#25282c}
         .composer{padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #eee8e3;display:flex;gap:8px;align-items:center}
         .mic{width:54px;height:54px;border:0;border-radius:18px;background:var(--red);color:#fff;display:grid;place-items:center;box-shadow:0 10px 25px rgba(183,25,41,.2);flex:0 0 54px;position:relative}
         .mic svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
@@ -51,6 +54,10 @@
         .typing{display:inline-flex;gap:3px;padding:13px 15px}.typing i{width:5px;height:5px;background:#aaa;border-radius:50%;animation:typing .8s infinite}.typing i:nth-child(2){animation-delay:.12s}.typing i:nth-child(3){animation-delay:.24s}
         .speaking .character img{animation:speak 1.1s ease-in-out infinite}.listening .character img{animation:listen 1s ease-in-out infinite}.thinking .character img{animation:think .75s ease-in-out infinite}
         @keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
+        @keyframes halo{0%,100%{opacity:.42;transform:scale(.9)}50%{opacity:.72;transform:scale(.96)}}
+        @keyframes ring-listen{0%{opacity:.7;transform:scale(.86)}70%,100%{opacity:.08;transform:scale(1.08)}}
+        @keyframes halo-think{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:.75;transform:scale(.98)}}
+        @keyframes ring-speak{0%,100%{opacity:.25;transform:scale(.9)}50%{opacity:.8;transform:scale(1.03)}}
         @keyframes listen{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.035)}}
         @keyframes think{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(1deg) scale(1.025)}}
         @keyframes speak{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-3px) scale(1.03)}70%{transform:translateY(1px) scale(.995)}}
@@ -80,6 +87,7 @@
         <button data-message="برای پذیرایی چه کفپوشی پیشنهاد می‌دهید؟">برای پذیرایی</button>
         <button data-message="بین موکت و لمینت کمکم کنید انتخاب کنم.">مقایسه موکت و لمینت</button>
         <button data-message="برای فضای من ایده طراحی بدهید.">ایده طراحی</button>
+        <a class="visualizer-cta" href="{{ route('visualizer.products') }}">مشاهده روی فضای خودم</a>
     </div>
     <form class="composer" id="form" data-url="{{ route('advisor.chat') }}">
         <button class="mic" id="mic" type="button" aria-label="شروع گفتگو با صدا">

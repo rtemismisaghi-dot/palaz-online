@@ -103,6 +103,12 @@ Route::get('/dev/import-carpet-images', function () {
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
         ->whereDoesntHave('media')
+        ->when(! request()->boolean('retry'), function ($query) {
+            $query->where(function ($query) {
+                $query->whereNull('attributes->image_import_attempted')
+                    ->orWhere('attributes->image_import_attempted', false);
+            });
+        })
         ->orderBy('id')
         ->first();
 
@@ -111,7 +117,9 @@ Route::get('/dev/import-carpet-images', function () {
             'processed_now' => 0,
             'images_found_now' => 0,
             'remaining' => 0,
-            'message' => 'Carpet product images import completed.',
+            'message' => request()->boolean('retry')
+                ? 'No unprocessed carpet products with missing images remain.'
+                : 'Carpet product images import completed.',
         ]);
     }
 

@@ -21,6 +21,11 @@ class Product extends Model
         'is_featured' => 'boolean',
     ];
 
+    public function inventoryRolls(): HasMany
+    {
+        return $this->hasMany(ProductInventoryRoll::class)->orderBy('width')->orderBy('length');
+    }
+
     public function pricingRule(): HasOne
     {
         return $this->hasOne(ProductPricingRule::class);

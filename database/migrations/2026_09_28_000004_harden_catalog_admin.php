@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        if (! Schema::hasColumn('products', 'attributes') || ! Schema::hasColumn('products', 'is_featured')) {
+        if (! Schema::hasColumn('products', 'attributes')) {
             Schema::table('products', function (Blueprint $table) {
-                if (! Schema::hasColumn('products', 'attributes')) {
-                    $table->json('attributes')->nullable()->after('tone');
-                }
+                $table->json('attributes')->nullable()->after('tone');
+            });
+        }
 
-                if (! Schema::hasColumn('products', 'is_featured')) {
-                    $table->boolean('is_featured')->default(false)->after('is_active');
-                }
+        if (! Schema::hasColumn('products', 'is_featured')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->boolean('is_featured')->default(false)->after('is_active');
             });
         }
 

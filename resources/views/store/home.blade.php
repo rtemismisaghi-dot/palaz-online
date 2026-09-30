@@ -1282,7 +1282,46 @@
         if (!voices.length) return null;
         return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
           || voices.find(v => /^fa/i.test(v.lang))
+          || voices.find(v => /persian|farsi/i.test(v.name))
           || null;
+      };
+
+      const speakText = (text) => {
+        if (!text || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
+        const synth = window.speechSynthesis;
+        synth.cancel();
+        synth.resume();
+
+        const utterance = new SpeechSynthesisUtterance(String(text));
+        const voice = getPersianVoice();
+        if (voice) {
+          utterance.voice = voice;
+          utterance.lang = voice.lang || 'fa-IR';
+        } else {
+          utterance.lang = 'fa-IR';
+        }
+        utterance.rate = .92;
+        utterance.pitch = 1.05;
+        utterance.volume = 1;
+
+        utterance.onstart = () => {
+          setAdvisorVisualState('answering');
+          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
+          voiceReplay?.classList.add('is-speaking');
+        };
+        utterance.onend = () => {
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+        utterance.onerror = () => {
+          setAdvisorVisualState('');
+          voiceReplay?.classList.remove('is-speaking');
+          if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ دوباره تلاش کنید.';
+        };
+
+        synth.speak(utterance);
+        return true;
       };
 
       const setAdvisorVisualState = state => {
@@ -1468,6 +1507,7 @@
           const data = await response.json();
           if (!response.ok || !data.reply) throw new Error('advisor_failed');
           addMessage(data.reply, 'assistant', data.actions || []);
+          speakText(data.reply);
           setAdvisorVisualState('answering');
           window.setTimeout(() => setAdvisorVisualState(''), 900);
         } catch (error) {

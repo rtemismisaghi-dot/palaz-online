@@ -75,7 +75,7 @@ final class PalazCatalogImageResolver
                             'has_code'=>stripos($productBody,$code)!==false,
                             'image'=>self::extractProductPageImage($u),
                         ];
-                    } catch (\\Throwable $e) {
+                    } catch (\Throwable $e) {
                         $result['product_pages'][] = ['url'=>$u,'error'=>$e->getMessage()];
                     }
                 }

@@ -3,6 +3,8 @@
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -24,7 +26,11 @@ Route::post('/services/request', [StoreController::class, 'serviceRequest'])->na
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::get('/login', [AuthController::class, 'show'])->name('login');
+Route::post('/login/staff', [AuthController::class, 'staffLogin'])->name('login.staff');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);

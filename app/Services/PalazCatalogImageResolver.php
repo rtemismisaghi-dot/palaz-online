@@ -41,26 +41,35 @@ final class PalazCatalogImageResolver
 
     public static function debugCode(string $code): array
     {
-        $url = 'https://palazonline.com/product/%D9%85%D9%88%DA%A9%D8%AA-%D9%84%D9%88%D9%BE-%D9%BE%D8%A7%D9%84%D8%A7%D8%B2-%D8%A2%D9%84%D8%A8%D9%88%D9%85-%D8%B4%D8%A8%D9%86%D9%85-%DA%A9%D8%AF-' . rawurlencode($code);
+        $url = 'https://palazonline.com/category/موکت?page=10';
 
         try {
-            $response = Http::timeout(8)->connectTimeout(3)->withHeaders([
+            $response = Http::timeout(5)->connectTimeout(2)->withHeaders([
                 'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
                 'Accept' => 'text/html,application/xhtml+xml',
             ])->get($url);
 
             $body = $response->body();
+            $position = stripos($body, $code);
+
+            if ($position === false) {
+                return ['code'=>$code,'status'=>$response->status(),'length'=>strlen($body),'found'=>false];
+            }
+
+            $start = max(0, $position - 10000);
+            $block = substr($body, $start, 20000);
+            preg_match_all('/https?:\\/\\/[^"\\'\\s<>]+/iu', $block, $links);
 
             return [
-                'code' => $code,
-                'url' => $url,
-                'status' => $response->status(),
-                'length' => strlen($body),
-                'has_code' => stripos($body, $code) !== false,
-                'image' => self::extractProductPageImage($url),
+                'code'=>$code,
+                'status'=>$response->status(),
+                'length'=>strlen($body),
+                'found'=>true,
+                'near_code_urls'=>array_values(array_unique($links[0] ?? [])),
+                'snippet'=>substr($block, 0, 20000),
             ];
-        } catch (Throwable $e) {
-            return ['code'=>$code,'url'=>$url,'error'=>$e->getMessage()];
+        } catch (\\Throwable $e) {
+            return ['code'=>$code,'error'=>$e->getMessage()];
         }
     }
 

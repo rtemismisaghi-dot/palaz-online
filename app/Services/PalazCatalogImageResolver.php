@@ -94,7 +94,7 @@ final class PalazCatalogImageResolver
             $window = substr($html, $start, $length);
 
             if (preg_match_all(
-                '/<a\\b[^>]*href=["\\']([^"\\']+)["\\'][^>]*>/iu',
+                "/<a\\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>/iu",
                 $window,
                 $matches
             )) {

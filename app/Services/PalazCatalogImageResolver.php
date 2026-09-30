@@ -50,13 +50,15 @@ final class PalazCatalogImageResolver
 
         if (!$productsByCode) return [];
 
-        $pages = Cache::remember('palaz:carpet-catalog-pages:v5', now()->addMinutes(30), function () {
+        // Build a deterministic code -> product URL index from the live category pages.
+        // We do not depend on the markup around an individual card.
+        $pages = Cache::remember('palaz:carpet-catalog-pages:v6', now()->addMinutes(30), function () {
             $responses = Http::pool(function ($pool) {
                 $requests = [];
                 for ($page = 1; $page <= 15; $page++) {
                     $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
                     $requests[] = $pool->as('page' . $page)
-                        ->timeout(4)->connectTimeout(2)
+                        ->timeout(6)->connectTimeout(2)
                         ->withHeaders([
                             'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
                             'Accept' => 'text/html,application/xhtml+xml',
@@ -75,10 +77,34 @@ final class PalazCatalogImageResolver
 
         $urlByCode = [];
         foreach ($pages as $html) {
-            foreach (array_keys($productsByCode) as $code) {
-                if (isset($urlByCode[$code]) || stripos($html, $code) === false) continue;
-                $urls = self::extractProductUrlsForCode($html, $code);
-                if ($urls) $urlByCode[$code] = $urls[0];
+            if (!preg_match_all('/<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>/iu', $html, $matches)) {
+                continue;
+            }
+
+            foreach ($matches[1] as $rawUrl) {
+                $url = self::normalizeUrl(html_entity_decode($rawUrl));
+                if (!$url) continue;
+
+                $host = parse_url($url, PHP_URL_HOST);
+                $path = rawurldecode((string) parse_url($url, PHP_URL_PATH));
+                if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host) || !preg_match('#^/product/#i', $path)) {
+                    continue;
+                }
+
+                // Palaz product slugs use the product code as a 4-digit token.
+                // Prefer an explicit "کد/code" marker; otherwise use the final 4-digit token.
+                $code = null;
+                if (preg_match('/(?:کد|code)[-_ ]*(\d{4})(?:$|[-_\/])/iu', $path, $m)) {
+                    $code = $m[1];
+                } elseif (preg_match('/(\d{4})(?:$|[-_\/])/u', $path, $m)) {
+                    $code = $m[1];
+                } elseif (preg_match('/(\d{4})(?!\d)/u', $path, $m)) {
+                    $code = $m[1];
+                }
+
+                if ($code !== null && isset($productsByCode[$code])) {
+                    $urlByCode[$code] = $url;
+                }
             }
         }
 
@@ -88,7 +114,7 @@ final class PalazCatalogImageResolver
             $requests = [];
             foreach ($urlByCode as $code => $url) {
                 $requests[$code] = $pool->as('code_' . $code)
-                    ->timeout(5)->connectTimeout(2)
+                    ->timeout(6)->connectTimeout(2)
                     ->withHeaders([
                         'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
                         'Accept' => 'text/html,application/xhtml+xml',
@@ -119,6 +145,7 @@ final class PalazCatalogImageResolver
 
         return $found;
     }
+
 
     public static function debugCode(string $code): array
     {

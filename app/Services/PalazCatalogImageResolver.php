@@ -152,28 +152,28 @@ final class PalazCatalogImageResolver
 
     private static function extractProductUrlsForCode(string $html, string $code): array
     {
-        $offset = 0;
         $urls = [];
 
-        while (($position = stripos($html, $code, $offset)) !== false) {
-            $start = max(0, $position - 12000);
-            $length = min(24000, strlen($html) - $start);
-            $window = substr($html, $start, $length);
+        if (!preg_match_all(
+            "/<a\\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>/iu",
+            $html,
+            $matches
+        )) {
+            return [];
+        }
 
-            if (preg_match_all(
-                "/<a\\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>/iu",
-                $window,
-                $matches
-            )) {
-                foreach ($matches[1] as $rawUrl) {
-                    $url = self::normalizeUrl(html_entity_decode($rawUrl));
-                    if ($url && self::isLikelyProductPage($url)) {
-                        $urls[$url] = true;
-                    }
-                }
+        foreach ($matches[1] as $rawUrl) {
+            $url = self::normalizeUrl(html_entity_decode($rawUrl));
+            if (!$url || !self::isLikelyProductPage($url)) continue;
+
+            $path = rawurldecode((string) parse_url($url, PHP_URL_PATH));
+
+            // Only accept a product URL whose slug explicitly ends with this code.
+            if (!preg_match('/(?:^|[-_])(?:کد|code)[-_ ]?' . preg_quote($code, '/') . '(?:$|[-_])/iu', $path)) {
+                continue;
             }
 
-            $offset = $position + strlen($code);
+            $urls[$url] = true;
         }
 
         return array_keys($urls);

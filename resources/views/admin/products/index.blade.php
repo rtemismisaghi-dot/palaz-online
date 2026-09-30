@@ -49,7 +49,7 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table align-middle mb-0">
-            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>وضعیت</th><th></th></tr></thead>
+            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>موجودی</th><th>وضعیت</th><th></th></tr></thead>
             <tbody>
             @forelse($products as $product)
                 <tr>
@@ -57,6 +57,18 @@
                     <td>{{ $product->category?->name }}</td>
                     <td>{{ $product->price !== null ? number_format($product->price) : 'تماس' }}<small class="d-block text-secondary">{{ $product->unit }}</small></td>
                     <td>{{ $product->pricingRule?->calculation_type ?? 'ثبت نشده' }} @if($product->pricingRule) · {{ $product->pricingRule->waste_percent }}٪ @endif</td>
+                    <td>
+                        @if($product->pricingRule?->calculation_type === 'roll')
+                            @php
+                                $rollCount = $product->inventoryRolls->sum('quantity');
+                                $rollArea = $product->inventoryRolls->sum(fn($roll) => $roll->width * $roll->length * $roll->quantity);
+                            @endphp
+                            <strong>{{ number_format($rollCount) }} طاقه</strong>
+                            <small class="d-block text-secondary">{{ number_format($rollArea) }} مترمربع</small>
+                        @else
+                            <span class="text-secondary">—</span>
+                        @endif
+                    </td>
                     <td>{{ $product->is_active ? 'فعال' : 'غیرفعال' }}</td>
                     <td class="text-nowrap">
                         <a class="me-2" href="{{ route('admin.products.edit',$product) }}">ویرایش</a>
@@ -67,7 +79,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center py-5">محصولی پیدا نشد.</td></tr>
+                <tr><td colspan="7" class="text-center py-5">محصولی پیدا نشد.</td></tr>
             @endforelse
             </tbody>
         </table>

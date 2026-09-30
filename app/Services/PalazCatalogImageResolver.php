@@ -83,19 +83,33 @@ final class PalazCatalogImageResolver
         return null;
     }
 
-    private static function extractProductUrlForCode(string $html, string $code): ?string
+    private static function extractProductUrlsForCode(string $html, string $code): array
     {
-        $escapedCode = preg_quote($code, '/');
+        $offset = 0;
+        $urls = [];
 
-        if (!preg_match(
-            '/<a\\b[^>]+href=["\\\']([^"\\\']+)["\\\'][^>]*>.*?' . $escapedCode . '.*?<\\/a>/isu',
-            $html,
-            $match
-        )) {
-            return null;
+        while (($position = stripos($html, $code, $offset)) !== false) {
+            $start = max(0, $position - 12000);
+            $length = min(24000, strlen($html) - $start);
+            $window = substr($html, $start, $length);
+
+            if (preg_match_all(
+                '/<a\\b[^>]*href=["\\']([^"\\']+)["\\'][^>]*>/iu',
+                $window,
+                $matches
+            )) {
+                foreach ($matches[1] as $rawUrl) {
+                    $url = self::normalizeUrl(html_entity_decode($rawUrl));
+                    if ($url && self::isLikelyProductPage($url)) {
+                        $urls[$url] = true;
+                    }
+                }
+            }
+
+            $offset = $position + strlen($code);
         }
 
-        return self::normalizeUrl(html_entity_decode($match[1]));
+        return array_keys($urls);
     }
 
     private static function extractProductPageImage(string $productUrl): ?string

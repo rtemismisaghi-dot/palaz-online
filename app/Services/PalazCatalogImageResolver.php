@@ -97,7 +97,7 @@ final class PalazCatalogImageResolver
                 $patterns = [
                     '/<(?:img|source)\\b[^>]*(?:src|data-src|data-lazy-src|data-original|data-image|srcset|data-srcset)\\s*=\\s*["\']([^"\']+)["\']/iu',
                     '/(?:background-image|image|thumbnail|image_url|imageUrl|src|url)\\s*[:=]\\s*["\']([^"\']+)["\']/iu',
-                    '~https?://[^"\\'\\s<>]+~iu',
+                    "~https?://[^\"'\\s<>]+~iu",
                 ];
 
                 $candidates = [];

@@ -101,19 +101,29 @@ Route::get('/dev/import-carpet-images', function () {
     $products = \App\Models\Product::query()
         ->where('is_active', true)
         ->where('attributes->stock_type', 'roll')
+        ->with('media')
         ->get();
 
+    $pending = $products->filter(fn ($product) => $product->media->isEmpty())->values();
+    $batch = $pending->take(10);
     $found = 0;
-    foreach ($products as $product) {
+
+    foreach ($batch as $product) {
         if (\App\Services\PalazCatalogImageResolver::resolve($product)) {
             $found++;
         }
     }
 
+    $remaining = max(0, $pending->count() - $batch->count());
+
     return response()->json([
         'total' => $products->count(),
-        'images_found' => $found,
-        'message' => 'Carpet product images imported.',
+        'processed_now' => $batch->count(),
+        'images_found_now' => $found,
+        'remaining' => $remaining,
+        'message' => $remaining > 0
+            ? '10 products processed. Refresh this URL to continue.'
+            : 'Carpet product images import completed.',
     ]);
 })->name('dev.import-carpet-images');
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');

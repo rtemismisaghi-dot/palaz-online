@@ -102,6 +102,8 @@ final class StoreCatalog
             'tone' => $product->tone,
             'description' => $product->description,
             'image' => optional($product->media->first())->path,
+            'attributes' => $product->attributes ?? [],
+            'calculation_type' => $product->pricingRule?->calculation_type,
         ];
     }
 }

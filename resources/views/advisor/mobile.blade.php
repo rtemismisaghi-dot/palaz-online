@@ -33,8 +33,6 @@
         .messages{flex:1;overflow:auto;padding:8px 16px 10px;scroll-behavior:smooth}
         .message{display:flex;gap:8px;align-items:flex-end;margin:8px 0}
         .message.user{flex-direction:row-reverse}
-        .avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex:0 0 32px;background:#27292d;color:#fff;display:grid;place-items:center;font-size:8px}
-        .avatar img{width:100%;height:100%;object-fit:cover}
         .bubble{max-width:82%;padding:11px 13px;border-radius:17px 17px 3px 17px;background:#fff;border:1px solid #eee8e3;box-shadow:0 5px 18px rgba(30,25,20,.045);font-size:12px;line-height:1.9;white-space:pre-wrap}
         .user .bubble{background:#25282c;color:#fff;border-color:#25282c;border-radius:17px 17px 17px 3px}
         .quick{display:flex;gap:7px;overflow:auto;padding:4px 16px 9px;scrollbar-width:none}
@@ -103,9 +101,7 @@
     const scroll=()=>messages.scrollTop=messages.scrollHeight;
     const add=(text,role)=>{
         const row=document.createElement('div'); row.className='message '+role;
-        const av=document.createElement('div'); av.className='avatar';
-        if(role==='assistant'){const im=document.createElement('img');im.src=character;im.alt='';av.appendChild(im)}else av.textContent='شما';
-        const b=document.createElement('div');b.className='bubble';b.textContent=text;row.append(av,b);messages.appendChild(row);scroll();return b;
+        const b=document.createElement('div');b.className='bubble';b.textContent=text;row.appendChild(b);messages.appendChild(row);scroll();return b;
     };
     const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
     const removeTyping=()=>document.getElementById('typing')?.remove();
@@ -202,14 +198,6 @@
     if('speechSynthesis' in window){
         loadVoices();
         window.speechSynthesis.addEventListener('voiceschanged',loadVoices);
-
-        // موبایل‌ها معمولاً پخش خودکار صدا را بدون تعامل کاربر مسدود می‌کنند.
-        // اولین لمس کاربر صدای خوش‌آمد را فعال می‌کند و بعد از آن پاسخ‌ها صوتی خوانده می‌شوند.
-        const welcome=()=>{
-            document.removeEventListener('pointerdown',welcome);
-
-        };
-        document.addEventListener('pointerdown',welcome,{once:true});
 
         setTimeout(()=>{ if(!speaking && !busy) setState('','آماده شنیدن شما 🎙'); },800);
     }

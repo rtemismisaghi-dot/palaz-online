@@ -58,7 +58,7 @@ final class PalazCatalogImageResolver
 
             $start = max(0, $position - 10000);
             $block = substr($body, $start, 20000);
-            preg_match_all('/https?:\\/\\/[^"\\'\\s<>]+/iu', $block, $links);
+            preg_match_all("/https?:\\/\\/[^\"'\\s<>]+/iu", $block, $links);
 
             return [
                 'code'=>$code,
@@ -68,7 +68,7 @@ final class PalazCatalogImageResolver
                 'near_code_urls'=>array_values(array_unique($links[0] ?? [])),
                 'snippet'=>substr($block, 0, 20000),
             ];
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             return ['code'=>$code,'error'=>$e->getMessage()];
         }
     }

@@ -1419,9 +1419,19 @@
             contextBadge.classList.remove('is-active');
           }
         }
-        speakWelcome();
         input?.focus();
       };
+
+      // شروع صدا مستقیماً از تعامل کاربر انجام می‌شود تا مرورگر آن را autoplay حساب نکند.
+      openers.forEach(btn => {
+        btn.addEventListener('pointerdown', () => {
+          if (!backdrop.classList.contains('is-open')) speakWelcome();
+        }, {passive:true});
+        btn.addEventListener('keydown', e => {
+          if ((e.key === 'Enter' || e.key === ' ') && !backdrop.classList.contains('is-open')) speakWelcome();
+        });
+      });
+
       const closeAdvisor = () => {
         setAdvisorVisualState('');
         window.speechSynthesis?.cancel();

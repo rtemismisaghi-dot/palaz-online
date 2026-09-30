@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Schema;
 
 final class StoreCatalog
 {
@@ -35,7 +36,13 @@ final class StoreCatalog
 
     private static function productQuery()
     {
-        return Product::query()->with(['category', 'media', 'pricingRule']);
+        $relations = ['category', 'pricingRule'];
+
+        if (Schema::hasTable('product_media')) {
+            $relations[] = 'media';
+        }
+
+        return Product::query()->with($relations);
     }
 
     public static function products(): array
@@ -103,7 +110,7 @@ final class StoreCatalog
             'unit' => $product->unit,
             'tone' => $product->tone,
             'description' => $product->description,
-            'image' => optional($product->media->first())->path,
+            'image' => Schema::hasTable('product_media') ? optional($product->media->first())->path : null,
             'attributes' => $product->attributes ?? [],
             'calculation_type' => $product->pricingRule?->calculation_type,
         ];

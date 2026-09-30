@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Schema;
 
 class Product extends Model
 {
@@ -28,6 +29,7 @@ class Product extends Model
             if (
                 app()->environment('local')
                 && request()->routeIs('dev.import-carpet-catalog')
+                && Schema::hasTable('product_media')
                 && ($product->attributes['stock_type'] ?? null) === 'roll'
                 && ! $product->media()->exists()
             ) {

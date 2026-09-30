@@ -213,15 +213,13 @@ final class PalazCatalogImageResolver
 
     private static function extractProductPageImageFromHtml(string $html): ?string
     {
-        // Prefer the page's own og:image; never scan arbitrary URLs on the page.
-        if (preg_match('/<meta\\b[^>]*(?:property|name)=["']og:image["'][^>]*content=["']([^"']+)["']/iu', $html, $m)
-            || preg_match('/<meta\\b[^>]*content=["']([^"']+)["'][^>]*(?:property|name)=["']og:image["']/iu', $html, $m)) {
+        if (preg_match('/<meta\b[^>]*(?:property|name)=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']/iu', $html, $m)
+            || preg_match('/<meta\b[^>]*content=["\']([^"\']+)["\'][^>]*(?:property|name)=["\']og:image["\']/iu', $html, $m)) {
             $url = self::normalizeUrl(html_entity_decode(trim($m[1])));
             if ($url && self::isLikelyProductImage($url)) return $url;
         }
 
-        // Fallback only to explicit gallery image attributes.
-        if (preg_match_all('/<(?:img|source)\\b[^>]*(?:data-src|data-lazy-src|data-original|data-image|src)=["']([^"']+)["']/iu', $html, $matches)) {
+        if (preg_match_all('/<(?:img|source)\b[^>]*(?:data-src|data-lazy-src|data-original|data-image|src)=["\']([^"\']+)["\']/iu', $html, $matches)) {
             foreach ($matches[1] as $raw) {
                 $url = self::normalizeUrl(html_entity_decode(trim($raw)));
                 if ($url && self::isLikelyProductImage($url)) return $url;
@@ -230,6 +228,7 @@ final class PalazCatalogImageResolver
 
         return null;
     }
+
 
     private static function extractProductUrlsForCode(string $html, string $code): array
     {

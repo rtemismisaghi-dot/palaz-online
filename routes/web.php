@@ -35,5 +35,5 @@ Route::prefix('admin')->name('admin.')->middleware('staff:admin')->group(functio
     Route::resource('products', ProductController::class)->except(['show']);
 });
 
-Route::view('/sales', 'staff.sales')->name('sales.dashboard')->middleware('staff:sales');
-Route::view('/installation', 'staff.installation')->name('installation.dashboard')->middleware('staff:installation');
+Route::get('/sales', [DashboardController::class, 'sales'])->name('sales.dashboard')->middleware('staff:sales');
+Route::get('/installation', [DashboardController::class, 'installation'])->name('installation.dashboard')->middleware('staff:installation');

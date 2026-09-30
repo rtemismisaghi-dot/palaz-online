@@ -46,10 +46,14 @@ final class PalazCatalogImageResolver
 
             for ($page = 1; $page <= 15; $page++) {
                 $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
+
                 $requests[] = $pool->as('page'.$page)
-                    ->timeout(2)
+                    ->timeout(3)
                     ->connectTimeout(1)
-                    ->withHeaders(['User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0'])
+                    ->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                        'Accept' => 'text/html,application/xhtml+xml',
+                    ])
                     ->get($url);
             }
 
@@ -70,39 +74,53 @@ final class PalazCatalogImageResolver
     {
         $escapedCode = preg_quote($code, '/');
 
-        if (!preg_match('/.{0,2200}' . $escapedCode . '.{0,2200}/isu', $html, $match)) {
+        if (!preg_match('/.{0,8000}' . $escapedCode . '.{0,8000}/isu', $html, $match)) {
             return null;
         }
 
         $block = $match[0];
+        $candidates = [];
 
+        // First inspect actual <img> attributes around the product-code card.
         if (preg_match_all(
-            '/(?:src|data-src|data-lazy-src|data-original|href)\s*=\s*["\']([^"\']+)["\']/iu',
+            '/<(?:img|source)\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original)\s*=\s*["\']([^"\']+)["\'][^>]*>/iu',
             $block,
             $images
         )) {
-            foreach ($images[1] as $image) {
-                $url = self::normalizeUrl(html_entity_decode(trim($image)));
-                if ($url && self::isImageUrl($url)) return $url;
+            foreach ($images[1] as $raw) {
+                foreach (preg_split('/\s*,\s*/', html_entity_decode($raw)) as $part) {
+                    $url = trim((string) preg_replace('/\s+\d+[wx](?=\s|$)/i', '', $part));
+                    $url = self::normalizeUrl($url);
+
+                    if ($url && self::isLikelyProductImage($url)) {
+                        $candidates[] = $url;
+                    }
+                }
             }
         }
 
-        if (preg_match(
-            '/https?:\/\/[^"\'\s<>]+\.(?:jpg|jpeg|png|webp)(?:\?[^"\'\s<>]*)?/iu',
+        // Some templates place image URLs in JSON/data attributes rather than <img>.
+        if (preg_match_all(
+            '/(?:image|thumbnail|src|url|medium|large)["\']?\s*[:=]\s*["\']([^"\']+)["\']/iu',
             $block,
-            $m
+            $embedded
         )) {
-            return html_entity_decode($m[0]);
+            foreach ($embedded[1] as $raw) {
+                $url = self::normalizeUrl(html_entity_decode(trim($raw)));
+                if ($url && self::isLikelyProductImage($url)) {
+                    $candidates[] = $url;
+                }
+            }
         }
 
-        return null;
+        return $candidates[0] ?? null;
     }
 
     private static function searchIndexedImage(string $name, string $code): ?string
     {
         try {
             $query = rawurlencode('site:palazonline.com ' . $code . ' ' . $name);
-            $response = Http::timeout(2)->connectTimeout(1)
+            $response = Http::timeout(3)->connectTimeout(1)
                 ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
                 ->get('https://www.bing.com/images/search?q=' . $query);
 
@@ -126,15 +144,35 @@ final class PalazCatalogImageResolver
 
     private static function normalizeUrl(string $url): ?string
     {
-        if ($url === '') return null;
+        $url = trim(html_entity_decode($url));
+
+        if ($url === '' || str_starts_with($url, 'data:')) return null;
+
+        $url = str_replace(['\\/', '\\u002F'], '/', $url);
+
         if (str_starts_with($url, '//')) return 'https:' . $url;
         if (str_starts_with($url, '/')) return 'https://palazonline.com' . $url;
         if (preg_match('/^https?:\/\//i', $url)) return $url;
+
         return null;
     }
 
-    private static function isImageUrl(string $url): bool
+    private static function isLikelyProductImage(string $url): bool
     {
-        return (bool) preg_match('/\.(?:jpg|jpeg|png|webp)(?:\?|$)/iu', $url);
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host)) {
+            return false;
+        }
+
+        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+
+        if (preg_match('/(?:logo|icon|avatar|favicon|banner|loading|placeholder)/i', $path)) {
+            return false;
+        }
+
+        return str_contains($path, '/wp-content/uploads/')
+            || preg_match('/\.(?:jpg|jpeg|png|webp|avif)$/i', $path)
+            || str_contains($path, '/uploads/');
     }
 }

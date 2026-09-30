@@ -47,45 +47,27 @@ final class PalazCatalogImageResolver
 
     public static function debugCode(string $code): array
     {
-        $result = ['code' => $code, 'pages' => [], 'urls' => []];
+        $url = 'https://palazonline.com/product/%D9%85%D9%88%DA%A9%D8%AA-%D9%84%D9%88%D9%BE-%D9%BE%D8%A7%D9%84%D8%A7%D8%B2-%D8%A2%D9%84%D8%A8%D9%88%D9%85-%D8%B4%D8%A8%D9%86%D9%85-%DA%A9%D8%AF-' . rawurlencode($code);
 
-        foreach (range(1, 15) as $page) {
-            $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
-            try {
-                $response = Http::timeout(5)->connectTimeout(2)->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
-                    'Accept' => 'text/html,application/xhtml+xml',
-                ])->get($url);
-                $body = $response->body();
-                $urls = self::extractProductUrlsForCode($body, $code);
-                $image = self::extractImageForCode($body, $code);
-                $result['pages'][] = ['page'=>$page,'status'=>$response->status(),'has_code'=>stripos($body,$code)!==false,'urls'=>$urls,'image'=>$image];
-                foreach ($urls as $u) {
-                    $result['urls'][$u] = true;
-                    try {
-                        $productResponse = Http::timeout(5)->connectTimeout(2)->withHeaders([
-                            'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
-                            'Accept' => 'text/html,application/xhtml+xml',
-                        ])->get($u);
-                        $productBody = $productResponse->body();
-                        $result['product_pages'][] = [
-                            'url'=>$u,
-                            'status'=>$productResponse->status(),
-                            'length'=>strlen($productBody),
-                            'has_code'=>stripos($productBody,$code)!==false,
-                            'image'=>self::extractProductPageImage($u),
-                        ];
-                    } catch (\Throwable $e) {
-                        $result['product_pages'][] = ['url'=>$u,'error'=>$e->getMessage()];
-                    }
-                }
-            } catch (\Throwable $e) {
-                $result['pages'][] = ['page'=>$page,'error'=>$e->getMessage()];
-            }
+        try {
+            $response = Http::timeout(8)->connectTimeout(3)->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                'Accept' => 'text/html,application/xhtml+xml',
+            ])->get($url);
+
+            $body = $response->body();
+
+            return [
+                'code' => $code,
+                'url' => $url,
+                'status' => $response->status(),
+                'length' => strlen($body),
+                'has_code' => stripos($body, $code) !== false,
+                'image' => self::extractProductPageImage($url),
+            ];
+        } catch (Throwable $e) {
+            return ['code'=>$code,'url'=>$url,'error'=>$e->getMessage()];
         }
-
-        $result['urls'] = array_keys($result['urls']);
-        return $result;
     }
 
     private static function searchCatalogPages(string $code): ?string

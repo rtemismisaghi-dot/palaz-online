@@ -15,4 +15,13 @@ class DashboardController extends Controller
             'categories'=>Category::count(),'products'=>Product::count(),'orders'=>Order::count(),'services'=>ServiceRequest::count()
         ]]);
     }
+    public function sales()
+    {
+        return view('admin.dashboard', ['stats' => [], 'staffArea' => 'sales']);
+    }
+
+    public function installation()
+    {
+        return view('admin.dashboard', ['stats' => [], 'staffArea' => 'installation']);
+    }
 }

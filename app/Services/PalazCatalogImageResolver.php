@@ -116,7 +116,7 @@ final class PalazCatalogImageResolver
                 }
 
                 if ($candidates) return array_key_first($candidates);
-            } catch (\\Throwable) {
+            } catch (\Throwable) {
                 continue;
             }
         }

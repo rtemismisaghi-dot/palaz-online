@@ -17,8 +17,7 @@
         .advisor{height:100dvh;min-height:100svh;display:flex;flex-direction:column;max-width:680px;margin:auto;background:var(--paper);position:relative;overflow:hidden}
         .top{padding:calc(12px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee9e5;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);z-index:5}
         .brand{display:flex;align-items:center;gap:10px}
-        .brand img{width:48px;height:48px;border-radius:14px;object-fit:cover;animation:float 3s ease-in-out infinite}
-        .brand strong{display:block;font-size:14px}.brand small{display:flex;gap:5px;align-items:center;color:#8b8d91;font-size:9px;margin-top:4px}
+                .brand strong{display:block;font-size:14px}.brand small{display:flex;gap:5px;align-items:center;color:#8b8d91;font-size:9px;margin-top:4px}
         .dot{width:6px;height:6px;border-radius:50%;background:#35a36a}
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
         .stage{padding:14px 16px 4px;display:flex;flex-direction:column;align-items:center}
@@ -66,7 +65,7 @@
 <body>
 <div class="advisor" id="advisor">
     <header class="top">
-        <div class="brand"><img src="{{ $character }}" alt="مشاور هوشمند پالاز"><div><strong>مشاور هوشمند پالاز</strong><small><i class="dot"></i> آماده گفتگو</small></div></div>
+        <div class="brand"><div><strong>مشاور هوشمند پالاز</strong><small><i class="dot"></i> آماده گفتگو</small></div></div>
         <button class="close" type="button" onclick="history.length>1?history.back():location.href='{{ route('home') }}'" aria-label="بازگشت">×</button>
     </header>
     <section class="stage" id="stage">

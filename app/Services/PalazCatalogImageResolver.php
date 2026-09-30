@@ -47,7 +47,7 @@ final class PalazCatalogImageResolver
             for ($page = 1; $page <= 15; $page++) {
                 $url = 'https://palazonline.com/category/موکت' . ($page > 1 ? '?page=' . $page : '');
 
-                $requests[] = $pool->as('page'.$page)
+                $requests[] = $pool->as('page' . $page)
                     ->timeout(3)
                     ->connectTimeout(1)
                     ->withHeaders([
@@ -61,13 +61,105 @@ final class PalazCatalogImageResolver
         });
 
         foreach ($responses as $response) {
-            if ($response->successful()) {
-                $image = self::extractImageForCode($response->body(), $code);
-                if ($image) return $image;
+            if (!$response->successful()) {
+                continue;
+            }
+
+            $productUrl = self::extractProductUrlForCode($response->body(), $code);
+
+            if ($productUrl) {
+                $image = self::extractProductPageImage($productUrl);
+                if ($image) {
+                    return $image;
+                }
+            }
+
+            $image = self::extractImageForCode($response->body(), $code);
+            if ($image) {
+                return $image;
             }
         }
 
         return null;
+    }
+
+    private static function extractProductUrlForCode(string $html, string $code): ?string
+    {
+        $escapedCode = preg_quote($code, '/');
+
+        if (!preg_match(
+            '/<a\\b[^>]+href=["\\\']([^"\\\']+)["\\\'][^>]*>.*?' . $escapedCode . '.*?<\\/a>/isu',
+            $html,
+            $match
+        )) {
+            return null;
+        }
+
+        return self::normalizeUrl(html_entity_decode($match[1]));
+    }
+
+    private static function extractProductPageImage(string $productUrl): ?string
+    {
+        try {
+            $response = Http::timeout(3)
+                ->connectTimeout(1)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                    'Accept' => 'text/html,application/xhtml+xml',
+                ])
+                ->get($productUrl);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $html = $response->body();
+            $candidates = [];
+
+            // Product pages expose the real source image through the product gallery
+            // and often also through og:image.
+            if (preg_match_all(
+                '/<meta\\b[^>]*(?:property|name)=["\\\']og:image["\\\'][^>]*content=["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
+                $html,
+                $meta
+            )) {
+                foreach ($meta[1] as $raw) {
+                    $url = self::normalizeUrl(html_entity_decode($raw));
+                    if ($url && self::isLikelyProductImage($url)) {
+                        $candidates[] = $url;
+                    }
+                }
+            }
+
+            if (preg_match_all(
+                '/<(?:img|source)\\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original)\\s*=\\s*["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
+                $html,
+                $images
+            )) {
+                foreach ($images[1] as $raw) {
+                    foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
+                        $url = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
+                        $url = self::normalizeUrl($url);
+
+                        if ($url && self::isLikelyProductImage($url)) {
+                            $candidates[] = $url;
+                        }
+                    }
+                }
+            }
+
+            // Ignore site chrome and keep storage/products assets first.
+            foreach ($candidates as $url) {
+                $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+                if (str_contains($path, '/storage/products/')) {
+                    return $url;
+                }
+            }
+
+            return $candidates[0] ?? null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private static function extractImageForCode(string $html, string $code): ?string
@@ -81,15 +173,14 @@ final class PalazCatalogImageResolver
         $block = $match[0];
         $candidates = [];
 
-        // First inspect actual <img> attributes around the product-code card.
         if (preg_match_all(
-            '/<(?:img|source)\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original)\s*=\s*["\']([^"\']+)["\'][^>]*>/iu',
+            '/<(?:img|source)\\b[^>]*(?:src|srcset|data-src|data-srcset|data-lazy-src|data-original)\\s*=\\s*["\\\']([^"\\\']+)["\\\'][^>]*>/iu',
             $block,
             $images
         )) {
             foreach ($images[1] as $raw) {
-                foreach (preg_split('/\s*,\s*/', html_entity_decode($raw)) as $part) {
-                    $url = trim((string) preg_replace('/\s+\d+[wx](?=\s|$)/i', '', $part));
+                foreach (preg_split('/\\s*,\\s*/', html_entity_decode($raw)) as $part) {
+                    $url = trim((string) preg_replace('/\\s+\\d+[wx](?=\\s|$)/i', '', $part));
                     $url = self::normalizeUrl($url);
 
                     if ($url && self::isLikelyProductImage($url)) {
@@ -99,9 +190,8 @@ final class PalazCatalogImageResolver
             }
         }
 
-        // Some templates place image URLs in JSON/data attributes rather than <img>.
         if (preg_match_all(
-            '/(?:image|thumbnail|src|url|medium|large)["\']?\s*[:=]\s*["\']([^"\']+)["\']/iu',
+            '/(?:image|thumbnail|src|url|medium|large)["\']?\\s*[:=]\\s*["\']([^"\']+)["\']/iu',
             $block,
             $embedded
         )) {
@@ -152,7 +242,7 @@ final class PalazCatalogImageResolver
 
         if (str_starts_with($url, '//')) return 'https:' . $url;
         if (str_starts_with($url, '/')) return 'https://palazonline.com' . $url;
-        if (preg_match('/^https?:\/\//i', $url)) return $url;
+        if (preg_match('/^https?:\\/\\//i', $url)) return $url;
 
         return null;
     }
@@ -161,7 +251,7 @@ final class PalazCatalogImageResolver
     {
         $host = parse_url($url, PHP_URL_HOST);
 
-        if (!$host || !preg_match('/(^|\.)palazonline\.com$/i', $host)) {
+        if (!$host || !preg_match('/(^|\\.)palazonline\\.com$/i', $host)) {
             return false;
         }
 
@@ -172,7 +262,8 @@ final class PalazCatalogImageResolver
         }
 
         return str_contains($path, '/wp-content/uploads/')
-            || preg_match('/\.(?:jpg|jpeg|png|webp|avif)$/i', $path)
+            || str_contains($path, '/storage/products/')
+            || preg_match('/\\.(?:jpg|jpeg|png|webp|avif)$/i', $path)
             || str_contains($path, '/uploads/');
     }
 }

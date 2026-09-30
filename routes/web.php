@@ -93,6 +93,29 @@ Route::get('/dev/import-carpet-catalog', function () {
 
     return redirect()->route('shop', ['category' => 'carpet']);
 })->name('dev.import-carpet-catalog');
+
+Route::get('/dev/import-carpet-images', function () {
+    abort_unless(app()->environment('local'), 404);
+    abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
+
+    $products = \App\Models\Product::query()
+        ->where('is_active', true)
+        ->where('attributes->stock_type', 'roll')
+        ->get();
+
+    $found = 0;
+    foreach ($products as $product) {
+        if (\App\Services\PalazCatalogImageResolver::resolve($product)) {
+            $found++;
+        }
+    }
+
+    return response()->json([
+        'total' => $products->count(),
+        'images_found' => $found,
+        'message' => 'Carpet product images imported.',
+    ]);
+})->name('dev.import-carpet-images');
 Route::get('/product/{id}', [StoreController::class, 'product'])->name('product');
 Route::get('/visualizer/products', [StoreController::class, 'visualizerProducts'])->name('visualizer.products');
 Route::get('/services', [StoreController::class, 'services'])->name('services');

@@ -94,6 +94,83 @@ Route::get('/dev/import-carpet-catalog', function () {
     return redirect()->route('shop', ['category' => 'carpet']);
 })->name('dev.import-carpet-catalog');
 
+Route::get('/dev/sync-carpet-catalog', function () {
+    abort_unless(app()->environment('local'), 404);
+    abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
+
+    $path = base_path('docs/palaz-catalog-extraction-batch-2026-09-27.json');
+    abort_unless(is_file($path), 404);
+
+    $catalog = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+    $items = collect($catalog['products'] ?? [])
+        ->where('category', 'موکت')
+        ->filter(fn ($item) => filled($item['code'] ?? null));
+
+    $category = \App\Models\Category::updateOrCreate(
+        ['slug' => 'carpet'],
+        ['name' => 'موکت', 'eyebrow' => 'کالکشن موکت پالاز', 'tone' => 'موکت', 'is_active' => true, 'sort_order' => 10]
+    );
+
+    $synced = 0;
+    $imagesLinked = 0;
+
+    foreach ($items as $item) {
+        $code = trim((string) $item['code']);
+        $product = \App\Models\Product::updateOrCreate(
+            ['slug' => 'carpet-'.$code],
+            [
+                'category_id' => $category->id,
+                'name' => trim((string) ($item['product_name'] ?? 'موکت پالاز')),
+                'description' => filled($item['album'] ?? null) ? 'آلبوم '.trim((string)$item['album']).' | کد '.$code : 'کد '.$code,
+                'price' => isset($item['final_unit_price']) ? (float)$item['final_unit_price'] : null,
+                'unit' => 'متر مربع',
+                'tone' => 'موکت',
+                'attributes' => [
+                    'code' => $code,
+                    'album' => trim((string)($item['album'] ?? '')),
+                    'base_unit_price' => $item['base_unit_price'] ?? null,
+                    'final_unit_price' => $item['final_unit_price'] ?? null,
+                    'vat_percent' => $item['vat_percent'] ?? null,
+                    'catalog_source' => $item['source_url'] ?? null,
+                    'stock_type' => 'roll',
+                    'roll_width' => 3,
+                    'roll_lengths' => range(1, 15),
+                ],
+                'is_active' => true,
+                'is_featured' => false,
+            ]
+        );
+
+        \App\Models\ProductPricingRule::updateOrCreate(
+            ['product_id' => $product->id],
+            [
+                'calculation_type' => 'roll',
+                'unit' => 'm²',
+                'waste_percent' => 0,
+                'parameters' => ['width'=>3,'lengths'=>range(1,15),'inventory_unit'=>'roll','sale_unit'=>'m²'],
+                'is_active' => true,
+            ]
+        );
+
+        $image = \App\Models\ProductMedia::where('product_id', $product->id)->orderBy('sort_order')->first();
+        if (!$image) {
+            $sourceImage = \App\Services\PalazCatalogImageResolver::resolve($product);
+            if ($sourceImage) $imagesLinked++;
+        } else {
+            $imagesLinked++;
+        }
+
+        $synced++;
+    }
+
+    return response()->json([
+        'catalog_carpet_products' => $items->count(),
+        'synced' => $synced,
+        'images_linked' => $imagesLinked,
+        'message' => 'Carpet catalog synchronized.',
+    ]);
+})->name('dev.sync-carpet-catalog');
+
 Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');

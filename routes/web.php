@@ -105,6 +105,20 @@ Route::get('/dev/migrate-product-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
 
+    // Keep the local migration endpoint self-healing if the storage migration
+    // has not yet been applied to the developer database.
+    if (!Schema::hasColumn('product_media', 'disk')) {
+        Schema::table('product_media', function (\Illuminate\Database\Schema\Blueprint $table) {
+            $table->string('disk', 32)->default('public')->after('product_id');
+        });
+    }
+
+    if (!Schema::hasColumn('product_media', 'source_url')) {
+        Schema::table('product_media', function (\Illuminate\Database\Schema\Blueprint $table) {
+            $table->text('source_url')->nullable()->after('path');
+        });
+    }
+
     return response()->json(
         \App\Services\PalazCatalogImageResolver::migrateRemoteMediaBatch(
             max(1, min(20, (int) request()->integer('limit', 20)))

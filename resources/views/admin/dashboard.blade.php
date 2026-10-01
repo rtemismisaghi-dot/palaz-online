@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', $staffArea === 'sales' ? 'پنل فروش' : ($staffArea === 'installation' ? 'پنل نصب' : 'داشبورد مدیریت'))
+@section('title', ($staffArea ?? 'admin') === 'sales' ? 'پنل فروش' : (($staffArea ?? 'admin') === 'installation' ? 'پنل نصب' : 'داشبورد مدیریت'))
 @section('content')
 @if(($staffArea ?? 'admin') === 'sales')
 <div class="card p-4"><h1 class="h3 fw-bold">پنل فروش</h1><p class="text-secondary mb-0">دسترسی اختصاصی تیم فروش پالاز.</p></div>

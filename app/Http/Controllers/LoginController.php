@@ -27,8 +27,11 @@ class LoginController extends Controller
 
         if ($admin) return view('auth.login', ['adminMobile' => $mobile]);
 
-        // Customers use mobile + password. New customers are created on first login.
-        return view('auth.login', ['customerMobile' => $mobile]);
+        $customer = CustomerUser::firstOrCreate(['mobile' => $mobile]);
+        $request->session()->regenerate();
+        $request->session()->put(['customer_user_id' => $customer->id, 'customer_mobile' => $customer->mobile]);
+        return redirect()->intended(route('checkout'));
+
         $request->session()->put('login_otp_hash', Hash::make($otp));
         $request->session()->put('login_otp_mobile', $mobile);
         $request->session()->put('login_otp_expires', now()->addSeconds((int) env('ADMIN_OTP_EXPIRE', 120))->timestamp);

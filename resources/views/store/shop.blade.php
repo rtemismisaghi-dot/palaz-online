@@ -96,26 +96,11 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
               <small>{{ $product['attributes']['album'] ?? $activeLabel }}</small>
               <h3>{{ $product['name'] }}</h3>
               @if(!empty($product['attributes']['code']))<div class="card-unit">کد محصول: {{ $product['attributes']['code'] }}</div>@endif
-              <div class="card-sub"><span>{{ $product['unit'] }}</span><span>{{ $product['calculation_type'] === 'roll' ? 'انتخاب طاقه' : 'فروش آنلاین' }}</span></div>
+              <div class="card-sub"><span>{{ $product['unit'] }}</span><span>{{ $product['calculation_type'] === 'roll' ? 'محاسبه بر اساس طاقه' : 'فروش آنلاین' }}</span></div>
               <div class="card-price">{{ $product['price'] !== null ? number_format((float)$product['price']).' تومان' : 'استعلام قیمت' }}</div>
               <div class="card-actions">
-                <a href="{{ route('product',$product['id']) }}">مشخصات</a>
-              </div>
-              <form method="post" action="{{ route('cart.add',$product['id']) }}">
-                @csrf
-                <div class="buy-options">
-                  <input class="qty" type="number" name="quantity" min="1" value="1" aria-label="تعداد">
-                  @if($product['calculation_type'] === 'roll')
-                    <select class="roll-select" name="roll_length" aria-label="انتخاب طول طاقه">
-                      @foreach(range(1,15) as $length)
-                        <option value="{{ $length }}">طاقه ۳ × {{ $length }} متر</option>
-                      @endforeach
-                    </select>
-                  @endif
-                  <button type="submit" class="buy">افزودن</button>
-                </div>
-              </form>
-            </div>
+                <a href="{{ route('product',$product['id']) }}" style="flex:1">خرید / مشاهده محصول</a>
+              </div>            </div>
           </article>
         @empty
           <div class="empty-state">محصولی پیدا نشد.</div>

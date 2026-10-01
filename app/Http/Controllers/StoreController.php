@@ -133,6 +133,15 @@ class StoreController extends Controller
         return redirect()->route('cart')->with('success', 'محصول به سبد خرید اضافه شد.');
     }
 
+    public function removeFromCart(Request $request, string $id)
+    {
+        $cart = $request->session()->get('cart', []);
+        $cart = array_values(array_filter($cart, fn ($item) => ($item['id'] ?? null) !== $id));
+        $request->session()->put('cart', $cart);
+
+        return redirect()->route('cart')->with('success', 'محصول از سبد خرید حذف شد.');
+    }
+
     public function checkout(Request $request)
     {
         $items = $this->cartItems($request);

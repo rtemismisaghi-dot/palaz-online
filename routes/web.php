@@ -26,6 +26,10 @@ Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+
+    Route::middleware(\\App\\Http\\Middleware\\AdminAuth::class)->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);
@@ -35,4 +39,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('agent/chat', [AgentController::class, 'chat'])->name('agent.chat');
     Route::post('agent/confirm', [AgentController::class, 'confirm'])->name('agent.confirm');
     Route::post('agent/cancel', [AgentController::class, 'cancel'])->name('agent.cancel');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    });
 });

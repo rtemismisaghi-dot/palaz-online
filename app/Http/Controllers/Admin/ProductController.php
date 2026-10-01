@@ -21,7 +21,8 @@ class ProductController extends Controller
         if ($search = trim((string) $request->input('q'))) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('slug', 'ilike', "%{$search}%");
+                    ->orWhere('slug', 'ilike', "%{$search}%")
+                    ->orWhereRaw("(attributes->>'code') ILIKE ?", ["%{$search}%"]);
             });
         }
 

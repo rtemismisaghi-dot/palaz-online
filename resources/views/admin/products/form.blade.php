@@ -49,7 +49,7 @@
                                     @endunless
                                     <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('فقط همین تصویر حذف می‌شود؛ خود محصول باقی می‌ماند. ادامه می‌دهید؟');">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">فقط حذف تصویر</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">🗑 فقط حذف تصویر — محصول حذف نمی‌شود</button>
                                     </form>
                                 </div>
                             </div>

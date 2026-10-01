@@ -181,10 +181,15 @@ class StoreController extends Controller
                 $quantity = max(1, (int) $item['quantity']);
                 $unitPrice = $product->price;
                 $lineTotal = $unitPrice !== null ? $unitPrice * $quantity : null;
+                $rollLength = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $productName = $product->name;
+                if ($rollLength !== null) {
+                    $productName .= ' — طاقه عرض ۳ × طول ' . $rollLength . ' متر';
+                }
 
                 $order->items()->create([
                     'product_id' => $product->id,
-                    'product_name' => $product->name,
+                    'product_name' => $productName,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'line_total' => $lineTotal,

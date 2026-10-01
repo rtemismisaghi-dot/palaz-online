@@ -179,9 +179,13 @@ class StoreController extends Controller
             foreach ($items as $item) {
                 $product = \App\Models\Product::where('slug', $item['id'])->where('is_active', true)->firstOrFail();
                 $quantity = max(1, (int) $item['quantity']);
-                $unitPrice = $product->price;
-                $lineTotal = $unitPrice !== null ? $unitPrice * $quantity : null;
+                $basePrice = $product->price;
                 $rollLength = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $unitPrice = $basePrice;
+                if ($rollLength !== null && $basePrice !== null) {
+                    $unitPrice = $basePrice * 3 * $rollLength;
+                }
+                $lineTotal = $unitPrice !== null ? $unitPrice * $quantity : null;
                 $productName = $product->name;
                 if ($rollLength !== null) {
                     $productName .= ' — طاقه عرض ۳ × طول ' . $rollLength . ' متر';

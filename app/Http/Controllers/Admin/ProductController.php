@@ -97,7 +97,9 @@ class ProductController extends Controller
     public function deleteMedia(Product $product, ProductMedia $media)
     {
         abort_unless($media->product_id === $product->id, 404);
-        $wasCover = $media->is_cover; Storage::disk('public')->delete($media->path); $media->delete();
+        $wasCover = $media->is_cover; if ($media->disk && Storage::disk($media->disk)->exists($media->path)) {
+            Storage::disk($media->disk)->delete($media->path);
+        } $media->delete();
         if ($wasCover) $product->media()->orderBy('sort_order')->orderBy('id')->first()?->update(['is_cover'=>true]);
         return back()->with('success','عکس حذف شد.');
     }

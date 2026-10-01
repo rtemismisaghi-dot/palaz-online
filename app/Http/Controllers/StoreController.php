@@ -150,7 +150,14 @@ class StoreController extends Controller
             return redirect()->route('shop')->with('error', 'برای ادامه، ابتدا محصولی به سبد خرید اضافه کنید.');
         }
 
-        return view('store.checkout', ['items' => $items]);
+        $itemsTotal = $items->every(fn ($item) => $this->cartItemTotal($item) !== null)
+            ? $items->sum(fn ($item) => $this->cartItemTotal($item))
+            : null;
+
+        return view('store.checkout', [
+            'items' => $items,
+            'itemsTotal' => $itemsTotal,
+        ]);
     }
 
     public function placeOrder(Request $request)

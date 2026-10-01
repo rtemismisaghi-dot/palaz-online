@@ -32,6 +32,9 @@
         <div class="col-md-5 form-check form-switch mx-2"><input class="form-check-input" type="checkbox" name="is_featured" value="1" {{ old('is_featured',$product->is_featured ?? false) ? 'checked' : '' }}><label class="form-check-label">محصول منتخب</label></div>
     </div>
 
+    <div class="mt-4 d-flex gap-2"><button class="btn btn-palaz">ذخیره محصول و قیمت‌گذاری</button><a class="btn btn-light" href="{{ route('admin.products.index') }}">انصراف</a></div>
+</form>
+
     @if($product->exists)
     <div class="col-12 mt-4">
         <div class="border rounded-3 p-3">
@@ -69,8 +72,7 @@
     </div>
     @endif
 
-    <div class="mt-4 d-flex gap-2"><button class="btn btn-palaz">ذخیره محصول و قیمت‌گذاری</button><a class="btn btn-light" href="{{ route('admin.products.index') }}">انصراف</a></div>
-</form>
+>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const type = document.querySelector('[name="calculation_type"]');

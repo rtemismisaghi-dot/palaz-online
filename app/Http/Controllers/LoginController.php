@@ -68,7 +68,16 @@ class LoginController extends Controller
         $mobile = preg_replace('/\\D+/', '', $data['mobile']);
         $customer = CustomerUser::where('mobile', $mobile)->first();
 
-        if (!$customer || !$customer->password || !Hash::check($data['password'], $customer->password)) {
+        if (!$customer && app()->environment('local')) {
+            $customer = CustomerUser::create([
+                'mobile' => $mobile,
+                'password' => Hash::make($data['password']),
+            ]);
+        } elseif ($customer && !$customer->password && app()->environment('local')) {
+            $customer->forceFill(['password' => Hash::make($data['password'])])->save();
+        }
+
+        if (!$customer || !Hash::check($data['password'], $customer->password)) {
             return back()->withErrors(['password' => 'شماره موبایل یا رمز عبور صحیح نیست.'])->withInput();
         }
 

@@ -110,9 +110,27 @@ final class StoreCatalog
             'unit' => $product->unit,
             'tone' => $product->tone,
             'description' => $product->description,
-            'image' => Schema::hasTable('product_media') ? optional($product->media->first())->path : null,
+            'image' => self::productImageUrl($product),
             'attributes' => $product->attributes ?? [],
             'calculation_type' => $product->pricingRule?->calculation_type,
         ];
+    }
+    private static function productImageUrl(Product $product): ?string
+    {
+        if (! Schema::hasTable('product_media')) {
+            return null;
+        }
+
+        $media = $product->media->first();
+        if (! $media || ! $media->path) {
+            return null;
+        }
+
+        $path = (string) $media->path;
+        if (preg_match('/^https?:\\/\\//i', $path)) {
+            return $path;
+        }
+
+        return route('media.public', ['path' => $path]);
     }
 }

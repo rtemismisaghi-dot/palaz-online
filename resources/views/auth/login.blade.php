@@ -20,12 +20,6 @@ button.submit{width:100%;border:0;background:#9f1820;color:#fff;padding:14px;bor
 <label>رمز عبور</label><input name="password" type="password" minlength="6" autocomplete="current-password" required>
 <button class="submit">ورود</button>
 </form>
-@elseif(!empty($customerMobile))
-<form method="post" action="{{ route('login.customer') }}">@csrf
-<label>شماره موبایل</label><input name="mobile" type="tel" inputmode="numeric" autocomplete="tel" value="{{ old('mobile', $customerMobile) }}" required>
-<label>رمز عبور</label><input name="password" type="password" minlength="6" autocomplete="current-password" required>
-<button class="submit">ورود به حساب</button>
-</form>
 @elseif(!empty($otpSent))
 <form method="post" action="{{ route('login.verify') }}">@csrf
 <input type="hidden" name="mobile" value="{{ $mobile }}">

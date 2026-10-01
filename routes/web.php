@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
@@ -100,6 +101,15 @@ Route::get('/dev/debug-carpet-image/{code}', function (string $code) {
     abort_unless(app()->environment('local'), 404);
     return response()->json(\App\Services\PalazCatalogImageResolver::debugCode($code));
 });
+
+Route::get('/media/{path}', function (string $path) {
+    $disk = Storage::disk('public');
+    abort_unless($disk->exists($path), 404);
+
+    return response()->file($disk->path($path), [
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('media.public');
 
 Route::get('/dev/migrate-product-images', function () {
     abort_unless(app()->environment('local'), 404);

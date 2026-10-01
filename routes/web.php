@@ -6,7 +6,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\AgentController;\nuse App\Http\Controllers\Admin\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');

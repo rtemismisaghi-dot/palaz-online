@@ -124,8 +124,12 @@ class ProductController extends Controller
         return back()->with('success','عکس اصلی محصول تغییر کرد.');
     }
 
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
+        $request->validate([
+            'delete_confirmation' => ['required', 'in:DELETE'],
+        ]);
+
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'محصول حذف شد.');

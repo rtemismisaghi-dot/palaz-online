@@ -35,6 +35,45 @@ final class PalazCatalogImageResolver
         }
     }
 
+    public static function migrateRemoteMediaBatch(int $limit = 200): array
+    {
+        $media = ProductMedia::query()
+            ->where('path', 'like', 'http%')
+            ->with('product')
+            ->orderBy('id')
+            ->limit($limit)
+            ->get();
+
+        $migrated = 0;
+        $failed = 0;
+
+        foreach ($media as $item) {
+            $sourceUrl = $item->path;
+            $product = $item->product;
+
+            if (!$product) {
+                $failed++;
+                continue;
+            }
+
+            $code = trim((string) ($product->attributes['code'] ?? $product->slug));
+            $storedPath = self::downloadAndStore($product, $sourceUrl, $code);
+
+            if ($storedPath) {
+                $migrated++;
+            } else {
+                $failed++;
+            }
+        }
+
+        return [
+            'processed_now' => $media->count(),
+            'migrated_now' => $migrated,
+            'failed_now' => $failed,
+            'remaining' => ProductMedia::query()->where('path', 'like', 'http%')->count(),
+        ];
+    }
+
     public static function resolveStrictBatch(iterable $products): array
     {
         $productsByCode = [];

@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ورود | PALAZ ONLINE</title>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ورود | پالاز آنلاین</title>
 <style>
 body{margin:0;background:#f7f4f1;font-family:Tahoma,Arial,sans-serif;color:#292321;min-height:100vh;display:grid;place-items:center}
 .box{width:min(460px,calc(100% - 32px));background:#fff;border-radius:26px;box-shadow:0 20px 70px #0001;padding:30px}
@@ -10,11 +12,25 @@ button.submit{width:100%;border:0;background:#9f1820;color:#fff;padding:14px;bor
 .error{background:#fff1f1;color:#9f1820;border-radius:12px;padding:10px 12px;font-size:12px;margin-top:14px}
 </style></head><body><main class="box">
 <div class="logo"><span class="mark">P</span><span>PALAZ ONLINE<br><small style="font-size:11px;color:#877d77;font-weight:500">ورود به حساب</small></span></div>
-<h2>ورود</h2><p class="hint">با شماره موبایل و رمز عبور وارد شوید.</p>
+<h2>ورود</h2><p class="hint">شماره موبایل خود را وارد کنید.</p>
 @if($errors->any())<div class="error">{{ $errors->first() }}</div>@endif
-<form method="post" action="{{ route('login.staff') }}">@csrf
-<label>شماره موبایل</label><input name="phone" type="tel" inputmode="numeric" autocomplete="username" value="{{ old('phone') }}" placeholder="09xxxxxxxxx" required>
-<label>رمز عبور</label><input name="password" type="password" autocomplete="current-password" required>
+@if(!empty($adminMobile))
+<form method="post" action="{{ route('login.admin') }}">@csrf
+<input type="hidden" name="mobile" value="{{ $adminMobile }}">
+<label>رمز عبور</label><input name="password" type="password" minlength="8" autocomplete="current-password" required>
 <button class="submit">ورود</button>
-</form><a class="back" href="{{ route('home') }}">بازگشت به سایت</a>
+</form>
+@elseif(!empty($otpSent))
+<form method="post" action="{{ route('login.verify') }}">@csrf
+<input type="hidden" name="mobile" value="{{ $mobile }}">
+<label>کد پیامک‌شده</label><input name="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required>
+<button class="submit">ورود</button>
+</form>
+@else
+<form method="post" action="{{ route('login.submit') }}">@csrf
+<label>شماره موبایل</label><input name="mobile" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" required>
+<button class="submit">ادامه</button>
+</form>
+@endif
+<a class="back" href="{{ route('home') }}">بازگشت به سایت</a>
 </main></body></html>

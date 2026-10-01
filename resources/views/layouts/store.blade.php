@@ -18,6 +18,9 @@
 .palaz-ai-msg .palaz-ai-avatar{display:none!important}
 .palaz-ai-speak{display:none!important}
 </style>
+<style>
+.header-action-form{margin:0;padding:0}.header-action-form .header-action{font:inherit;border:0;background:transparent;padding:0;cursor:pointer}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){

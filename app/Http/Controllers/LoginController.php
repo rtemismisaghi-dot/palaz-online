@@ -60,7 +60,7 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $mobile = preg_replace('/\\D+/', '', $data['mobile']);
+        $mobile = preg_replace('/\D+/', '', $data['mobile']);
         $customer = CustomerUser::where('mobile', $mobile)->first();
 
         if (!$customer) {

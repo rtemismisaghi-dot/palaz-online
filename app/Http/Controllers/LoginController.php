@@ -60,24 +60,10 @@ class LoginController extends Controller
     {
         $data = $request->validate([
             'mobile' => ['required', 'string', 'max:30'],
-            'password' => ['required', 'string'],
         ]);
 
-        $mobile = preg_replace('/\D+/', '', $data['mobile']);
-        $customer = CustomerUser::where('mobile', $mobile)->first();
-
-        if (!$customer) {
-            $customer = CustomerUser::create([
-                'mobile' => $mobile,
-                'password' => Hash::make($data['password']),
-            ]);
-        } elseif (!$customer->password) {
-            $customer->forceFill(['password' => Hash::make($data['password'])])->save();
-        }
-
-        if (!$customer || !Hash::check($data['password'], $customer->password)) {
-            return back()->withErrors(['password' => 'شماره موبایل یا رمز عبور صحیح نیست.'])->withInput();
-        }
+        $mobile = preg_replace('/\\D+/', '', $data['mobile']);
+        $customer = CustomerUser::firstOrCreate(['mobile' => $mobile]);
 
         $request->session()->regenerate();
         $request->session()->put(['customer_user_id' => $customer->id, 'customer_mobile' => $customer->mobile]);

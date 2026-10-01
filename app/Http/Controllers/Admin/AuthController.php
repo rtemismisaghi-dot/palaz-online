@@ -24,7 +24,7 @@ class AuthController extends Controller
         $mobile = preg_replace('/\D+/', '', $credentials['mobile']);
         $admin = AdminUser::where('mobile', $mobile)->first();
 
-        if (!$admin && !AdminUser::exists() && app()->environment('local')) {
+        if (!$admin && !AdminUser::exists() && app()->environment('local') && $request->routeIs('admin.login.submit')) {
             $admin = AdminUser::create([
                 'name' => 'مدیر پالاز',
                 'mobile' => $mobile,

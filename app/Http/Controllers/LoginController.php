@@ -20,8 +20,6 @@ class LoginController extends Controller
         $data = $request->validate(['mobile' => ['required', 'string', 'max:30']]);
         $mobile = preg_replace('/\D+/', '', $data['mobile']);
         $admin = AdminUser::where('mobile', $mobile)->first();
-        $customer = CustomerUser::where('mobile', $mobile)->first();
-
         // Local test account until the real SMS provider is connected.
         if (!$admin && $mobile === '09209075332') {
             return view('auth.login', ['adminMobile' => $mobile]);
@@ -29,11 +27,8 @@ class LoginController extends Controller
 
         if ($admin) return view('auth.login', ['adminMobile' => $mobile]);
 
-        if ($customer) {
-            return view('auth.login', ['customerMobile' => $mobile]);
-        }
-
-        $otp = (string) random_int(100000, 999999);
+        // Customers use mobile + password. New customers are created on first login.
+        return view('auth.login', ['customerMobile' => $mobile]);
         $request->session()->put('login_otp_hash', Hash::make($otp));
         $request->session()->put('login_otp_mobile', $mobile);
         $request->session()->put('login_otp_expires', now()->addSeconds((int) env('ADMIN_OTP_EXPIRE', 120))->timestamp);

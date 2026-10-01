@@ -1,9 +1,9 @@
 <?php
 
-namespace App\\Models;
+namespace App\Models;
 
-use Illuminate\\Foundation\\Auth\\User as Authenticatable;
-use Illuminate\\Notifications\\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class AdminUser extends Authenticatable
 {
@@ -11,7 +11,7 @@ class AdminUser extends Authenticatable
 
     protected $table = 'admin_users';
 
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['name', 'mobile', 'password'];
 
     protected $hidden = ['password'];
 

@@ -35,7 +35,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
 .store-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
 .store-card{display:block;position:relative;border:1px solid #ebe5e0;border-radius:16px;overflow:hidden;background:#fff;transition:.18s}.store-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px #241f1d10}
 .card-image{display:block;width:100%;height:190px;background:#f0ebe7;position:relative;overflow:hidden}.card-image img{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}.code-badge{position:absolute;top:10px;right:10px;background:#fffdfbcc;border-radius:8px;padding:5px 8px;font-size:11px;font-weight:800}
-.card-body{padding:12px}.card-body small{color:#756d68}.card-body h3{font-size:14px;margin:5px 0;font-weight:900}.card-price{font-weight:900;margin-top:8px}.card-unit{font-size:11px;color:#756d68}.card-actions{display:flex;gap:6px;margin-top:10px}.card-actions a,.card-actions button{flex:1;border:1px solid #e1d8d2;background:#fff;border-radius:9px;padding:9px 7px;text-align:center;text-decoration:none;color:#241f1d;font-size:12px;cursor:pointer}.card-actions .buy{background:#9f1820;color:#fff;border-color:#9f1820}.card-actions form{flex:1;display:flex}.card-actions form button{width:100%}.card-sub{display:flex;justify-content:space-between;gap:8px;margin-top:6px}.card-sub span{font-size:11px;color:#756d68}
+.card-body{padding:12px}.card-body small{color:#756d68}.card-body h3{font-size:14px;margin:5px 0;font-weight:900}.card-price{font-weight:900;margin-top:8px}.card-unit{font-size:11px;color:#756d68}.buy-options{display:flex;gap:7px;margin-top:10px}.buy-options .qty{width:70px;border:1px solid #ddd4ce;border-radius:9px;padding:8px;text-align:center}.buy-options .roll-select{flex:1;border:1px solid #ddd4ce;border-radius:9px;padding:8px;background:#fff}.buy-options .buy{flex:1;border:1px solid #9f1820;background:#9f1820;color:#fff;border-radius:9px;padding:9px 7px;cursor:pointer}.card-actions{display:flex;gap:6px;margin-top:8px}.card-actions a,.card-actions button{flex:1;border:1px solid #e1d8d2;background:#fff;border-radius:9px;padding:9px 7px;text-align:center;text-decoration:none;color:#241f1d;font-size:12px;cursor:pointer}.card-actions .buy{background:#9f1820;color:#fff;border-color:#9f1820}.card-actions form{flex:1;display:flex}.card-actions form button{width:100%}.card-sub{display:flex;justify-content:space-between;gap:8px;margin-top:6px}.card-sub span{font-size:11px;color:#756d68}
 .empty-state{padding:60px;text-align:center;color:#756d68}
 @media(max-width:1050px){.store-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.store-layout{grid-template-columns:210px minmax(0,1fr)}}
 @media(max-width:760px){.store-shop{padding:16px 0 45px}.store-hero{align-items:start}.store-hero h1{font-size:25px}.store-cart{padding:10px 13px}.store-layout{display:block}.store-filters{position:static;margin-bottom:12px}.store-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card-image{height:145px}.store-content{padding:12px}.model-rail{margin-bottom:2px}}
@@ -96,12 +96,25 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
               <small>{{ $product['attributes']['album'] ?? $activeLabel }}</small>
               <h3>{{ $product['name'] }}</h3>
               @if(!empty($product['attributes']['code']))<div class="card-unit">کد محصول: {{ $product['attributes']['code'] }}</div>@endif
-              <div class="card-sub"><span>{{ $product['unit'] }}</span><span>{{ $product['calculation_type'] === 'roll' ? 'محاسبه بر اساس طاقه' : 'فروش آنلاین' }}</span></div>
+              <div class="card-sub"><span>{{ $product['unit'] }}</span><span>{{ $product['calculation_type'] === 'roll' ? 'انتخاب طاقه' : 'فروش آنلاین' }}</span></div>
               <div class="card-price">{{ $product['price'] !== null ? number_format((float)$product['price']).' تومان' : 'استعلام قیمت' }}</div>
               <div class="card-actions">
                 <a href="{{ route('product',$product['id']) }}">مشخصات</a>
-                <form method="post" action="{{ route('cart.add',$product['id']) }}">@csrf<button type="submit" class="buy">افزودن به سبد</button></form>
               </div>
+              <form method="post" action="{{ route('cart.add',$product['id']) }}">
+                @csrf
+                <div class="buy-options">
+                  <input class="qty" type="number" name="quantity" min="1" value="1" aria-label="تعداد">
+                  @if($product['calculation_type'] === 'roll')
+                    <select class="roll-select" name="roll_length" aria-label="انتخاب طول طاقه">
+                      @foreach(range(1,15) as $length)
+                        <option value="{{ $length }}">طاقه ۳ × {{ $length }} متر</option>
+                      @endforeach
+                    </select>
+                  @endif
+                  <button type="submit" class="buy">افزودن</button>
+                </div>
+              </form>
             </div>
           </article>
         @empty

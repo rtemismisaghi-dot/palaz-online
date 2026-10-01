@@ -144,6 +144,10 @@ class StoreController extends Controller
 
     public function checkout(Request $request)
     {
+        if (!$request->session()->has('customer_user_id')) {
+            return redirect()->guest(route('login'));
+        }
+
         $items = $this->cartItems($request);
 
         if ($items->isEmpty()) {
@@ -162,6 +166,10 @@ class StoreController extends Controller
 
     public function placeOrder(Request $request)
     {
+        if (!$request->session()->has('customer_user_id')) {
+            return redirect()->guest(route('login'));
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:30'],

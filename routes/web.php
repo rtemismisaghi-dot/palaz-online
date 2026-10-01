@@ -97,6 +97,90 @@ Route::get('/dev/import-carpet-catalog', function () {
     return redirect()->route('shop', ['category' => 'carpet']);
 })->name('dev.import-carpet-catalog');
 
+Route::get('/dev/restore-carpet/{code}', function (string $code) {
+    abort_unless(app()->environment('local'), 404);
+
+    $code = trim($code);
+    abort_unless($code !== '', 422);
+
+    $path = base_path('docs/palaz-catalog-extraction-batch-2026-09-27.json');
+    abort_unless(is_file($path), 404, 'Catalog source file not found.');
+
+    $catalog = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+    $item = collect($catalog['products'] ?? [])
+        ->first(fn ($item) => trim((string) ($item['code'] ?? '')) === $code);
+
+    abort_unless($item, 404, 'Catalog product code not found.');
+
+    $category = \App\Models\Category::updateOrCreate(
+        ['slug' => 'carpet'],
+        [
+            'name' => 'موکت',
+            'eyebrow' => 'کالکشن موکت پالاز',
+            'tone' => 'موکت',
+            'is_active' => true,
+            'sort_order' => 10,
+        ]
+    );
+
+    $product = \App\Models\Product::updateOrCreate(
+        ['slug' => 'carpet-' . $code],
+        [
+            'category_id' => $category->id,
+            'name' => trim((string) ($item['product_name'] ?? 'موکت پالاز')),
+            'description' => filled($item['album'] ?? null)
+                ? 'آلبوم ' . trim((string) $item['album']) . ' | کد ' . $code
+                : 'کد ' . $code,
+            'price' => isset($item['final_unit_price']) ? (float) $item['final_unit_price'] : null,
+            'unit' => 'متر مربع',
+            'tone' => 'موکت',
+            'attributes' => [
+                'code' => $code,
+                'album' => trim((string) ($item['album'] ?? '')),
+                'base_unit_price' => $item['base_unit_price'] ?? null,
+                'final_unit_price' => $item['final_unit_price'] ?? null,
+                'vat_percent' => $item['vat_percent'] ?? null,
+                'catalog_source' => $item['source_url'] ?? null,
+                'stock_type' => 'roll',
+                'roll_width' => 3,
+                'roll_lengths' => range(1, 15),
+                'image_import_attempted' => false,
+            ],
+            'is_active' => true,
+            'is_featured' => false,
+        ]
+    );
+
+    \App\Models\ProductPricingRule::updateOrCreate(
+        ['product_id' => $product->id],
+        [
+            'calculation_type' => 'roll',
+            'unit' => 'm²',
+            'waste_percent' => 0,
+            'parameters' => [
+                'width' => 3,
+                'lengths' => range(1, 15),
+                'inventory_unit' => 'roll',
+                'sale_unit' => 'm²',
+            ],
+            'is_active' => true,
+        ]
+    );
+
+    $image = \App\Services\PalazCatalogImageResolver::resolve($product->fresh());
+
+    return response()->json([
+        'restored' => true,
+        'product_id' => $product->id,
+        'code' => $code,
+        'name' => $product->name,
+        'image' => $image,
+        'message' => $image
+            ? 'Product and image restored.'
+            : 'Product restored; image was not found automatically.',
+    ]);
+})->name('dev.restore-carpet');
+
 Route::get('/dev/debug-carpet-image/{code}', function (string $code) {
     abort_unless(app()->environment('local'), 404);
     return response()->json(\App\Services\PalazCatalogImageResolver::debugCode($code));

@@ -3,10 +3,12 @@
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\AgentController;\nuse App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\AgentController;
+use App\Http\Controllers\Admin\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
@@ -25,20 +27,25 @@ Route::post('/services/request', [StoreController::class, 'serviceRequest'])->na
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');
 
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
+Route::post('/login/verify', [LoginController::class, 'verify'])->name('login.verify');
+Route::post('/login/admin', [AuthController::class, 'login'])->name('login.admin');
+
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
-    Route::middleware(\\App\\Http\\Middleware\\AdminAuth::class)->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('categories', CategoryController::class)->except(['show']);
-    Route::resource('products', ProductController::class)->except(['show']);
-    Route::post('products/{product}/media', [ProductController::class, 'uploadMedia'])->name('products.media.store');
-    Route::delete('products/{product}/media/{media}', [ProductController::class, 'deleteMedia'])->name('products.media.destroy');
-    Route::post('products/{product}/media/{media}/cover', [ProductController::class, 'setCover'])->name('products.media.cover');
-    Route::post('agent/chat', [AgentController::class, 'chat'])->name('agent.chat');
-    Route::post('agent/confirm', [AgentController::class, 'confirm'])->name('agent.confirm');
-    Route::post('agent/cancel', [AgentController::class, 'cancel'])->name('agent.cancel');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::middleware(\App\Http\Middleware\AdminAuth::class)->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::resource('products', ProductController::class)->except(['show']);
+        Route::post('products/{product}/media', [ProductController::class, 'uploadMedia'])->name('products.media.store');
+        Route::delete('products/{product}/media/{media}', [ProductController::class, 'deleteMedia'])->name('products.media.destroy');
+        Route::post('products/{product}/media/{media}/cover', [ProductController::class, 'setCover'])->name('products.media.cover');
+        Route::post('agent/chat', [AgentController::class, 'chat'])->name('agent.chat');
+        Route::post('agent/confirm', [AgentController::class, 'confirm'])->name('agent.confirm');
+        Route::post('agent/cancel', [AgentController::class, 'cancel'])->name('agent.cancel');
+        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });
 });

@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded',function(){
 @if(session()->has('customer_user_id'))
 <form method="POST" action="{{ route('logout') }}" class="header-action-form">@csrf<button type="submit" class="header-action"><span class="action-icon">♙</span><span>خروج از حساب</span></button></form>
 @else
-<a href="{{ route('login') }}" class="header-action"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
+<a href="/login" class="header-action" aria-label="ورود به حساب کاربری"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
 @endif
 <a href="{{ route('home') }}#favorite" class="header-action favorite"><span class="action-icon">♡</span><span>علاقه‌مندی‌ها</span></a>
 <a href="{{ route('cart') }}" class="header-action cart"><span class="action-icon">🛒</span><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>

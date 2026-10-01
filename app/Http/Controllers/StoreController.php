@@ -162,7 +162,7 @@ class StoreController extends Controller
             'address' => ['required', 'string', 'max:500'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'service' => ['nullable', 'in:none,measurement,installation,design'],
-            'payment' => ['required', 'in:pending,offline'],
+            'payment' => ['required', 'in:offline'],
         ]);
 
         $items = $this->cartItems($request);
@@ -181,8 +181,8 @@ class StoreController extends Controller
                 'service' => $data['service'] ?? 'none',
                 'payment_status' => $data['payment'],
                 'status' => 'received',
-                'subtotal' => 0,
-                'total' => 0,
+                'subtotal' => $items->sum(fn ($item) => $this->cartItemTotal($item)),
+                'total' => $items->sum(fn ($item) => $this->cartItemTotal($item)),
             ]);
 
             foreach ($items as $item) {
@@ -603,6 +603,17 @@ class StoreController extends Controller
             })
             ->filter()
             ->values();
+    }
+
+    private function cartItemTotal(array $item): ?float
+    {
+        if (($item['price'] ?? null) === null) return null;
+        $quantity = max(1, (int) ($item['quantity'] ?? 1));
+        $price = (float) $item['price'];
+        if (($item['calculation_type'] ?? null) === 'roll' && !empty($item['roll_length'])) {
+            $price *= 3 * max(1, min(15, (int) $item['roll_length']));
+        }
+        return $price * $quantity;
     }
 
     private function trackingCode(string $prefix, int $length): string

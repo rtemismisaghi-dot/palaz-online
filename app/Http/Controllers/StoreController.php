@@ -52,12 +52,26 @@ class StoreController extends Controller
         return response()->json(['category' => $category, 'products' => $products]);
     }
 
-    public function product(string $id)
+    public function product(Request $request, string $id)
     {
-        $product = StoreCatalog::find($id);
-        abort_unless($product, 404);
+        $directProduct = StoreCatalog::find($id);
 
-        return view('store.product', ['product' => $product]);
+        if ($directProduct) {
+            $product = $directProduct;
+            $variants = $product['model'] ? StoreCatalog::modelProducts($product['model']) : [$product];
+        } else {
+            $variants = StoreCatalog::modelProducts($id);
+            abort_unless($variants !== [], 404);
+
+            $selectedCode = $request->string('code')->toString();
+            $product = StoreCatalog::findModelVariant($id, $selectedCode) ?? $variants[0];
+        }
+
+        return view('store.product', [
+            'product' => $product,
+            'variants' => $variants,
+            'model' => $product['model'] ?? null,
+        ]);
     }
 
     public function services()
@@ -76,6 +90,7 @@ class StoreController extends Controller
                 }
 
                 $product['quantity'] = max(1, (int) ($item['quantity'] ?? 1));
+                $product['roll_length'] = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
                 return $product;
             })
             ->filter()
@@ -89,12 +104,20 @@ class StoreController extends Controller
         abort_unless(StoreCatalog::find($id), 404);
 
         $quantity = max(1, (int) $request->input('quantity', 1));
+        $product = StoreCatalog::find($id);
+        $rollLength = null;
+        if (($product['calculation_type'] ?? null) === 'roll') {
+            $rollLength = max(1, min(15, (int) $request->input('roll_length', 3)));
+        }
         $cart = $request->session()->get('cart', []);
         $found = false;
 
         foreach ($cart as &$item) {
             if (($item['id'] ?? null) === $id) {
                 $item['quantity'] = ($item['quantity'] ?? 1) + $quantity;
+                if ($rollLength !== null) {
+                    $item['roll_length'] = $rollLength;
+                }
                 $found = true;
                 break;
             }
@@ -102,7 +125,7 @@ class StoreController extends Controller
         unset($item);
 
         if (!$found) {
-            $cart[] = ['id' => $id, 'quantity' => $quantity];
+            $cart[] = ['id' => $id, 'quantity' => $quantity, 'roll_length' => $rollLength];
         }
 
         $request->session()->put('cart', $cart);
@@ -557,6 +580,7 @@ class StoreController extends Controller
                 }
 
                 $product['quantity'] = max(1, (int) ($item['quantity'] ?? 1));
+                $product['roll_length'] = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
                 return $product;
             })
             ->filter()

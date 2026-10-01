@@ -21,6 +21,11 @@ class LoginController extends Controller
         $mobile = preg_replace('/\D+/', '', $data['mobile']);
         $admin = AdminUser::where('mobile', $mobile)->first();
 
+        // Local test account until the real SMS provider is connected.
+        if (!$admin && $mobile === '09209075332') {
+            return view('auth.login', ['adminMobile' => $mobile]);
+        }
+
         if ($admin) return view('auth.login', ['adminMobile' => $mobile]);
 
         $otp = (string) random_int(100000, 999999);

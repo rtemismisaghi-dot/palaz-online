@@ -6,6 +6,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AgentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
@@ -31,4 +32,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('products/{product}/media', [ProductController::class, 'uploadMedia'])->name('products.media.store');
     Route::delete('products/{product}/media/{media}', [ProductController::class, 'deleteMedia'])->name('products.media.destroy');
     Route::post('products/{product}/media/{media}/cover', [ProductController::class, 'setCover'])->name('products.media.cover');
+    Route::post('agent/chat', [AgentController::class, 'chat'])->name('agent.chat');
+    Route::post('agent/confirm', [AgentController::class, 'confirm'])->name('agent.confirm');
+    Route::post('agent/cancel', [AgentController::class, 'cancel'])->name('agent.cancel');
 });

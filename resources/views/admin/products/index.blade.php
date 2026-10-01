@@ -45,8 +45,9 @@
                     <td>{{ $product->is_active ? 'فعال' : 'غیرفعال' }}</td>
                     <td class="text-nowrap">
                         <a class="me-2" href="{{ route('admin.products.edit',$product) }}">ویرایش</a>
-                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="return confirm('هشدار: این عمل کل محصول، اطلاعات قیمت‌گذاری و موجودی آن را حذف می‌کند. فقط برای حذف کامل محصول ادامه دهید.');">
+                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="const code=prompt('برای حذف کامل محصول، عبارت DELETE را دقیق وارد کنید:'); if(code !== 'DELETE'){ alert('حذف لغو شد.'); return false; } return confirm('حذف کامل و غیرقابل بازگشت محصول «{{ addslashes($product->name) }}» و اطلاعات آن انجام شود؟');">
                             @csrf @method('DELETE')
+                            <input type="hidden" name="delete_confirmation" value="">
                             <button type="submit" class="btn btn-sm btn-outline-danger">حذف کامل محصول</button>
                         </form>
                     </td>

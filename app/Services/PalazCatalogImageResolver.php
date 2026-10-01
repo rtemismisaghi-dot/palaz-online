@@ -507,7 +507,7 @@ final class PalazCatalogImageResolver
             );
 
             return $path;
-        } catch (\\Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }

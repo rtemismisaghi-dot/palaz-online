@@ -35,6 +35,8 @@ final class PalazCatalogImageResolver
         }
     }
 
+    private static ?string $lastDownloadError = null;
+
     public static function migrateRemoteMediaBatch(int $limit = 20): array
     {
         $media = ProductMedia::query()
@@ -46,6 +48,7 @@ final class PalazCatalogImageResolver
 
         $migrated = 0;
         $failed = 0;
+        $errors = [];
 
         foreach ($media as $item) {
             $sourceUrl = $item->path;
@@ -53,6 +56,7 @@ final class PalazCatalogImageResolver
 
             if (!$product) {
                 $failed++;
+                $errors[] = ['media_id' => $item->id, 'error' => 'product_not_found'];
                 continue;
             }
 
@@ -63,6 +67,13 @@ final class PalazCatalogImageResolver
                 $migrated++;
             } else {
                 $failed++;
+                $errors[] = [
+                    'media_id' => $item->id,
+                    'product_id' => $product->id,
+                    'code' => $code,
+                    'url' => $sourceUrl,
+                    'error' => self::$lastDownloadError ?? 'download_failed',
+                ];
             }
         }
 
@@ -71,6 +82,7 @@ final class PalazCatalogImageResolver
             'migrated_now' => $migrated,
             'failed_now' => $failed,
             'remaining' => ProductMedia::query()->where('path', 'like', 'http%')->count(),
+            'errors' => array_slice($errors, 0, 5),
         ];
     }
 
@@ -444,6 +456,8 @@ final class PalazCatalogImageResolver
 
     private static function downloadAndStore(Product $product, string $sourceUrl, string $code): ?string
     {
+        self::$lastDownloadError = null;
+
         try {
             $disk = 'public';
             $existing = $product->media()
@@ -455,21 +469,32 @@ final class PalazCatalogImageResolver
                 return $existing->path;
             }
 
-            $response = Http::retry(2, 300)
+            $response = Http::retry(2, 500, null, false)
                 ->timeout(30)
                 ->connectTimeout(10)
                 ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36',
                     'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
                     'Referer' => 'https://palazonline.com/',
                     'Accept-Language' => 'fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Cache-Control' => 'no-cache',
                 ])
                 ->get($sourceUrl);
 
-            if (!$response->successful()) return null;
+            if (!$response->successful()) {
+                self::$lastDownloadError = 'http_' . $response->status();
+                return null;
+            }
 
             $body = $response->body();
-            if ($body === '' || strlen($body) > 12 * 1024 * 1024) return null;
+            if ($body === '') {
+                self::$lastDownloadError = 'empty_body';
+                return null;
+            }
+            if (strlen($body) > 12 * 1024 * 1024) {
+                self::$lastDownloadError = 'too_large';
+                return null;
+            }
 
             $contentType = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
             $extension = match ($contentType) {
@@ -479,6 +504,11 @@ final class PalazCatalogImageResolver
                 'image/avif' => 'avif',
                 default => null,
             };
+
+            if (!$extension && preg_match('/^text\\/html|application\\/json/i', $contentType)) {
+                self::$lastDownloadError = 'non_image_content_type:' . $contentType;
+                return null;
+            }
 
             if (!$extension) {
                 $urlPath = strtolower((string) parse_url($sourceUrl, PHP_URL_PATH));
@@ -509,7 +539,8 @@ final class PalazCatalogImageResolver
             );
 
             return $path;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            self::$lastDownloadError = get_class($e) . ': ' . $e->getMessage();
             return null;
         }
     }

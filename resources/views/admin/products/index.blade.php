@@ -53,7 +53,7 @@
             <tbody>
             @forelse($products as $product)
                 <tr>
-                    <td>{{ $product->name }}<small class="d-block text-secondary">{{ $product->slug }}</small></td>
+                    <td>{{ $product->name }}<small class="d-block text-secondary">{{ $product->slug }}</small>@if(data_get($product->attributes, 'code'))<small class="d-block text-secondary">کد: {{ data_get($product->attributes, 'code') }}</small>@endif</td>
                     <td>{{ $product->category?->name }}</td>
                     <td>{{ $product->price !== null ? number_format($product->price) : 'تماس' }}<small class="d-block text-secondary">{{ $product->unit }}</small></td>
                     <td>{{ $product->pricingRule?->calculation_type ?? 'ثبت نشده' }} @if($product->pricingRule) · {{ $product->pricingRule->waste_percent }}٪ @endif</td>

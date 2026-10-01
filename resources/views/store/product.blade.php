@@ -58,7 +58,7 @@
         </div>
       @endif
 
-      <form method="POST" action="{{ route('cart.add',$product['id']) }}" class="product-buy-form">
+      <form method="POST" action="{{ route('cart.add',$product['id']) }}" class="product-buy-form" style="margin-top:28px">
         @csrf
         @if($isRoll)
           <div class="roll-buy-grid">

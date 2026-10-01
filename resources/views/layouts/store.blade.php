@@ -93,7 +93,11 @@ document.addEventListener('DOMContentLoaded',function(){
 <a href="{{ route('home') }}" class="brand-real" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-logo.png') }}?v=20260926" alt="" class="brand-logo"><span class="brand-wordmark"><strong>PALAZ</strong><small>ONLINE</small></span></a>
 <form class="search search-real" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته یا برند..." aria-label="جستجو"><button type="submit">⌕</button></form>
 <div class="header-actions">
+@if(session()->has('customer_user_id'))
+<form method="POST" action="{{ route('logout') }}" class="header-action-form">@csrf<button type="submit" class="header-action"><span class="action-icon">♙</span><span>خروج از حساب</span></button></form>
+@else
 <a href="{{ route('login') }}" class="header-action"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
+@endif
 <a href="{{ route('home') }}#favorite" class="header-action favorite"><span class="action-icon">♡</span><span>علاقه‌مندی‌ها</span></a>
 <a href="{{ route('cart') }}" class="header-action cart"><span class="action-icon">🛒</span><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
 </div>

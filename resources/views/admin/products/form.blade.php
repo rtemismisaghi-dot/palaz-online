@@ -43,6 +43,70 @@
         <div class="col-md-6 form-check form-switch mx-2"><input class="form-check-input" type="checkbox" name="is_active" value="1" {{ old('is_active',$product->exists ? $product->is_active : true) ? 'checked' : '' }}><label class="form-check-label">فعال در فروشگاه</label></div>
         <div class="col-md-5 form-check form-switch mx-2"><input class="form-check-input" type="checkbox" name="is_featured" value="1" {{ old('is_featured',$product->is_featured ?? false) ? 'checked' : '' }}><label class="form-check-label">محصول منتخب</label></div>
     </div>
+
+    @if($product->exists)
+    <div class="col-12 mt-4">
+        <div class="border rounded-3 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-1">تصاویر محصول</h5>
+                    <div class="small text-secondary">تصویر اصلی در فروشگاه نمایش داده می‌شود. می‌توانید عکس جدید اضافه، عکس اصلی را عوض یا عکس قبلی را حذف کنید.</div>
+                </div>
+            </div>
+
+            @if($product->media->count())
+                <div class="row g-3 mb-4">
+                    @foreach($product->media->sortBy('sort_order') as $media)
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="border rounded-3 p-2 h-100">
+                                <div class="ratio ratio-1x1 bg-light rounded overflow-hidden mb-2">
+                                    <img src="{{ Storage::disk('public')->url($media->path) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 h-100 object-fit-cover">
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                    @if($media->is_cover)
+                                        <span class="badge text-bg-dark">تصویر اصلی</span>
+                                    @else
+                                        <span class="badge text-bg-light">تصویر محصول</span>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-2">
+                                    @unless($media->is_cover)
+                                        <form method="post" action="{{ route('admin.products.media.cover', [$product, $media]) }}" class="flex-grow-1">
+                                            @csrf
+                                            <button class="btn btn-sm btn-outline-primary w-100">اصلی کردن</button>
+                                        </form>
+                                    @endunless
+                                    <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('این عکس حذف شود؟');">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger">حذف</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="alert alert-light border">هنوز تصویری برای این محصول ثبت نشده است.</div>
+            @endif
+
+            <form method="post" action="{{ route('admin.products.media.store', $product) }}" enctype="multipart/form-data" class="row g-2 align-items-end">
+                @csrf
+                <div class="col-md-7">
+                    <label class="form-label">افزودن تصویر جدید</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">عنوان تصویر</label>
+                    <input type="text" name="alt" class="form-control" value="{{ $product->name }}" maxlength="180">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-palaz w-100">افزودن عکس</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
     <div class="mt-4 d-flex gap-2"><button class="btn btn-palaz">ذخیره محصول و قیمت‌گذاری</button><a class="btn btn-light" href="{{ route('admin.products.index') }}">انصراف</a></div>
 </form>
 <script>

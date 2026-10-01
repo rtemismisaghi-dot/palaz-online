@@ -91,16 +91,28 @@ class ProductController extends Controller
     {
         $data = $request->validate(['image' => ['required','image','mimes:jpeg,jpg,png,webp','max:8192'],'alt' => ['nullable','string','max:180']]);
         $path = $data['image']->store('products', 'public');
-        $product->media()->create(['path'=>$path,'alt'=>$data['alt'] ?? $product->name,'sort_order'=>((int)$product->media()->max('sort_order'))+1,'is_cover'=>!$product->media()->exists()]);
+        $product->media()->create([
+            'disk' => 'public',
+            'path' => $path,
+            'source_url' => null,
+            'alt' => $data['alt'] ?? $product->name,
+            'sort_order' => ((int) $product->media()->max('sort_order')) + 1,
+            'is_cover' => ! $product->media()->exists(),
+        ]);
         return back()->with('success','عکس محصول اضافه شد.');
     }
 
     public function deleteMedia(Product $product, ProductMedia $media)
     {
         abort_unless($media->product_id === $product->id, 404);
-        $wasCover = $media->is_cover; if ($media->disk && Storage::disk($media->disk)->exists($media->path)) {
-            Storage::disk($media->disk)->delete($media->path);
-        } $media->delete();
+        $wasCover = $media->is_cover;
+        $disk = $media->disk ?: 'public';
+
+        if ($media->path && Storage::disk($disk)->exists($media->path)) {
+            Storage::disk($disk)->delete($media->path);
+        }
+
+        $media->delete();
         if ($wasCover) $product->media()->orderBy('sort_order')->orderBy('id')->first()?->update(['is_cover'=>true]);
         return back()->with('success','عکس حذف شد.');
     }

@@ -20,6 +20,7 @@ class LoginController extends Controller
         $data = $request->validate(['mobile' => ['required', 'string', 'max:30']]);
         $mobile = preg_replace('/\D+/', '', $data['mobile']);
         $admin = AdminUser::where('mobile', $mobile)->first();
+        $customer = CustomerUser::where('mobile', $mobile)->first();
 
         // Local test account until the real SMS provider is connected.
         if (!$admin && $mobile === '09209075332') {
@@ -27,6 +28,10 @@ class LoginController extends Controller
         }
 
         if ($admin) return view('auth.login', ['adminMobile' => $mobile]);
+
+        if ($customer) {
+            return view('auth.login', ['customerMobile' => $mobile]);
+        }
 
         $otp = (string) random_int(100000, 999999);
         $request->session()->put('login_otp_hash', Hash::make($otp));
@@ -51,6 +56,26 @@ class LoginController extends Controller
         }
 
         return view('auth.login', ['otpSent' => true, 'mobile' => $mobile]);
+    }
+
+    public function customerLogin(Request $request)
+    {
+        $data = $request->validate([
+            'mobile' => ['required', 'string', 'max:30'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $mobile = preg_replace('/\\D+/', '', $data['mobile']);
+        $customer = CustomerUser::where('mobile', $mobile)->first();
+
+        if (!$customer || !$customer->password || !Hash::check($data['password'], $customer->password)) {
+            return back()->withErrors(['password' => 'شماره موبایل یا رمز عبور صحیح نیست.'])->withInput();
+        }
+
+        $request->session()->regenerate();
+        $request->session()->put(['customer_user_id' => $customer->id, 'customer_mobile' => $customer->mobile]);
+
+        return redirect()->intended(route('checkout'));
     }
 
     public function verify(Request $request)

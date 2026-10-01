@@ -183,7 +183,26 @@ Route::get('/dev/restore-carpet/{code}', function (string $code) {
 
 Route::get('/dev/debug-carpet-image/{code}', function (string $code) {
     abort_unless(app()->environment('local'), 404);
-    return response()->json(\App\Services\PalazCatalogImageResolver::debugCode($code));
+
+    $code = trim($code);
+    $product = \App\Models\Product::query()
+        ->where('slug', 'carpet-' . $code)
+        ->orWhereRaw("(attributes->>'code') ILIKE ?", [$code])
+        ->withCount('media')
+        ->first();
+
+    return response()->json([
+        'app_env' => app()->environment(),
+        'database' => config('database.default'),
+        'database_name' => config('database.connections.' . config('database.default') . '.database'),
+        'database_host' => config('database.connections.' . config('database.default') . '.host'),
+        'code' => $code,
+        'product_exists' => (bool) $product,
+        'product_id' => $product?->id,
+        'product_name' => $product?->name,
+        'media_count' => $product?->media_count,
+        'media' => $product?->media()->get(['id','disk','path','source_url','is_cover','sort_order'])->toArray() ?? [],
+    ]);
 });
 
 Route::get('/media/{path}', function (string $path) {

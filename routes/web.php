@@ -101,6 +101,17 @@ Route::get('/dev/debug-carpet-image/{code}', function (string $code) {
     return response()->json(\App\Services\PalazCatalogImageResolver::debugCode($code));
 });
 
+Route::get('/dev/migrate-product-images', function () {
+    abort_unless(app()->environment('local'), 404);
+    abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');
+
+    return response()->json(
+        \App\Services\PalazCatalogImageResolver::migrateRemoteMediaBatch(
+            max(1, min(200, (int) request()->integer('limit', 200)))
+        )
+    );
+})->name('dev.migrate-product-images');
+
 Route::get('/dev/import-carpet-images', function () {
     abort_unless(app()->environment('local'), 404);
     abort_unless(Schema::hasTable('product_media'), 503, 'product_media migration is required.');

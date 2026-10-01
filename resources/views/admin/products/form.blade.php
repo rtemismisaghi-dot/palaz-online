@@ -3,7 +3,7 @@
 @section('content')
 <h1 class="mb-4">{{ $product->exists ? 'ویرایش محصول' : 'محصول جدید' }}</h1>
 
-<form method="post" action="{{ $product->exists ? route('admin.products.update',$product) : route('admin.products.store') }}" class="card p-4">
+<form method="post" enctype="multipart/form-data" action="{{ $product->exists ? route('admin.products.update',$product) : route('admin.products.store') }}" class="card p-4">
     @csrf @if($product->exists) @method('PUT') @endif
     <div class="row g-3">
         <div class="col-md-6"><label class="form-label">نام محصول / مدل</label><input name="name" class="form-control" value="{{ old('name',$product->name) }}" required></div>
@@ -21,4 +21,42 @@
     </div>
     <div class="mt-4 d-flex gap-2"><button class="btn btn-palaz">ذخیره محصول و قیمت‌گذاری</button><a class="btn btn-light" href="{{ route('admin.products.index') }}">انصراف</a></div>
 </form>
+
+@if($product->exists)
+<div class="card p-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><h2 class="h5 mb-1">تصاویر محصول</h2><small class="text-secondary">عکس اشتباه را حذف یا عکس صحیح را به‌عنوان عکس اصلی انتخاب کن.</small></div>
+    </div>
+    <div class="row g-3 mb-4">
+        @forelse($product->media as $media)
+            <div class="col-6 col-md-3">
+                <div class="border rounded-4 p-2 h-100">
+                    <img src="{{ asset('storage/'.$media->path) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 rounded-3" style="height:180px;object-fit:cover">
+                    @if($media->is_cover)<span class="badge bg-dark mt-2">عکس اصلی</span>@endif
+                    <div class="d-flex gap-2 mt-2">
+                        @unless($media->is_cover)
+                        <form method="post" action="{{ route('admin.products.media.cover', [$product,$media]) }}">
+                            @csrf <button class="btn btn-sm btn-outline-dark">عکس اصلی</button>
+                        </form>
+                        @endunless
+                        <form method="post" action="{{ route('admin.products.media.destroy', [$product,$media]) }}" onsubmit="return confirm('این عکس حذف شود؟')">
+                            @csrf @method('DELETE') <button class="btn btn-sm btn-outline-danger">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12 text-secondary">هنوز عکسی برای این محصول ثبت نشده.</div>
+        @endforelse
+    </div>
+    <form method="post" action="{{ route('admin.products.media.store', $product) }}" enctype="multipart/form-data" class="row g-2 align-items-end">
+        @csrf
+        <div class="col-md-7"><label class="form-label">افزودن عکس جدید</label><input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp" required></div>
+        <div class="col-md-4"><label class="form-label">متن جایگزین</label><input name="alt" class="form-control" value="{{ $product->name }}"></div>
+        <div class="col-md-1"><button class="btn btn-palaz w-100">افزودن</button></div>
+    </form>
+</div>
+@endif
+
 @endsection
+

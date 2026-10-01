@@ -107,7 +107,7 @@ Route::get('/dev/migrate-product-images', function () {
 
     return response()->json(
         \App\Services\PalazCatalogImageResolver::migrateRemoteMediaBatch(
-            max(1, min(200, (int) request()->integer('limit', 200)))
+            max(1, min(20, (int) request()->integer('limit', 20)))
         )
     );
 })->name('dev.migrate-product-images');

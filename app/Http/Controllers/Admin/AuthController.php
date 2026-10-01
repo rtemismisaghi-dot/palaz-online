@@ -18,7 +18,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'mobile' => ['required', 'string', 'max:30'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:6'],
         ]);
 
         $mobile = preg_replace('/\D+/', '', $credentials['mobile']);

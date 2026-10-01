@@ -76,9 +76,9 @@
                                             <button class="btn btn-sm btn-outline-primary w-100">اصلی کردن</button>
                                         </form>
                                     @endunless
-                                    <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('این عکس حذف شود؟');">
+                                    <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('فقط همین تصویر حذف می‌شود؛ محصول حذف نخواهد شد. ادامه می‌دهید؟');">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">حذف</button>
+                                        <button class="btn btn-sm btn-outline-danger">حذف تصویر</button>
                                     </form>
                                 </div>
                             </div>

@@ -16,23 +16,11 @@
         <div class="col-md-3"><label class="form-label">پرت / ضریب اضافه ٪</label><input type="number" min="0" max="100" step=".01" name="waste_percent" class="form-control" value="{{ old('waste_percent',$rule->waste_percent ?? 0) }}"></div>
         <div class="col-12 mt-2" id="rollInventorySection">
             <div class="border rounded-3 p-3 bg-light">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                        <strong>موجودی روزانه طاقه موکت</strong>
-                        <div class="small text-secondary">عرض ثابت ۳ متر؛ تعداد طاقه برای طول‌های ۱ تا ۱۵ متر را هر روز از همین بخش به‌روزرسانی کنید.</div>
-                    </div>
-                    <span class="badge text-bg-dark">۳ × ۱ تا ۳ × ۱۵</span>
-                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2"><div><strong>موجودی روزانه طاقه موکت</strong><div class="small text-secondary">عرض ثابت ۳ متر؛ تعداد طاقه برای طول‌های ۱ تا ۱۵ متر را هر روز از همین بخش به‌روزرسانی کنید.</div></div><span class="badge text-bg-dark">۳ × ۱ تا ۳ × ۱۵</span></div>
                 <div class="row g-2">
                     @foreach(range(1, 15) as $length)
-                        @php
-                            $roll = $product->inventoryRolls->first(fn($item) => (int) $item->width === 3 && (int) $item->length === $length);
-                            $qty = old("roll_stock.$length", $roll?->quantity ?? 0);
-                        @endphp
-                        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                            <label class="form-label small mb-1">طاقه ۳ × {{ $length }} متر</label>
-                            <input type="number" min="0" max="100000" step="1" name="roll_stock[{{ $length }}]" class="form-control" value="{{ $qty }}">
-                        </div>
+                        @php $roll = $product->inventoryRolls->first(fn($item) => (int) $item->width === 3 && (int) $item->length === $length); $qty = old("roll_stock.$length", $roll?->quantity ?? 0); @endphp
+                        <div class="col-6 col-md-4 col-lg-3 col-xl-2"><label class="form-label small mb-1">طاقه ۳ × {{ $length }} متر</label><input type="number" min="0" max="100000" step="1" name="roll_stock[{{ $length }}]" class="form-control" value="{{ $qty }}"></div>
                     @endforeach
                 </div>
                 <div class="small text-secondary mt-2">موجودی به‌صورت «تعداد طاقه» ثبت می‌شود؛ متراژ کل از روی همین مقادیر محاسبه خواهد شد.</div>
@@ -47,38 +35,21 @@
     @if($product->exists)
     <div class="col-12 mt-4">
         <div class="border rounded-3 p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h5 class="mb-1">تصاویر محصول</h5>
-                    <div class="small text-secondary">تصویر اصلی در فروشگاه نمایش داده می‌شود. می‌توانید عکس جدید اضافه، عکس اصلی را عوض یا عکس قبلی را حذف کنید.</div>
-                </div>
-            </div>
-
+            <div class="d-flex justify-content-between align-items-center mb-3"><div><h5 class="mb-1">تصاویر محصول</h5><div class="small text-secondary">تصویر اصلی در فروشگاه نمایش داده می‌شود. می‌توانید عکس جدید اضافه، عکس اصلی را عوض یا فقط همان تصویر را حذف کنید.</div></div></div>
             @if($product->media->count())
                 <div class="row g-3 mb-4">
                     @foreach($product->media->sortBy('sort_order') as $media)
                         <div class="col-6 col-md-4 col-lg-3">
                             <div class="border rounded-3 p-2 h-100">
-                                <div class="ratio ratio-1x1 bg-light rounded overflow-hidden mb-2">
-                                    <img src="{{ preg_match('/^https?:\\/\\//i', $media->path) ? $media->path : route('media.public', ['path' => $media->path]) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 h-100 object-fit-cover">
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                                    @if($media->is_cover)
-                                        <span class="badge text-bg-dark">تصویر اصلی</span>
-                                    @else
-                                        <span class="badge text-bg-light">تصویر محصول</span>
-                                    @endif
-                                </div>
+                                <div class="ratio ratio-1x1 bg-light rounded overflow-hidden mb-2"><img src="{{ preg_match('/^https?:\\/\\//i', $media->path) ? $media->path : route('media.public', ['path' => $media->path]) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 h-100 object-fit-cover"></div>
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">@if($media->is_cover)<span class="badge text-bg-dark">تصویر اصلی</span>@else<span class="badge text-bg-light">تصویر محصول</span>@endif</div>
                                 <div class="d-flex gap-2">
                                     @unless($media->is_cover)
-                                        <form method="post" action="{{ route('admin.products.media.cover', [$product, $media]) }}" class="flex-grow-1">
-                                            @csrf
-                                            <button class="btn btn-sm btn-outline-primary w-100">اصلی کردن</button>
-                                        </form>
+                                        <form method="post" action="{{ route('admin.products.media.cover', [$product, $media]) }}" class="flex-grow-1">@csrf<button class="btn btn-sm btn-outline-primary w-100">اصلی کردن</button></form>
                                     @endunless
-                                    <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('فقط همین تصویر حذف می‌شود؛ محصول حذف نخواهد شد. ادامه می‌دهید؟');">
+                                    <form method="post" action="{{ route('admin.products.media.destroy', [$product, $media]) }}" onsubmit="return confirm('فقط همین تصویر حذف می‌شود؛ خود محصول باقی می‌ماند. ادامه می‌دهید؟');">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">حذف تصویر</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">فقط حذف تصویر</button>
                                     </form>
                                 </div>
                             </div>
@@ -88,20 +59,11 @@
             @else
                 <div class="alert alert-light border">هنوز تصویری برای این محصول ثبت نشده است.</div>
             @endif
-
             <form method="post" action="{{ route('admin.products.media.store', $product) }}" enctype="multipart/form-data" class="row g-2 align-items-end">
                 @csrf
-                <div class="col-md-7">
-                    <label class="form-label">افزودن تصویر جدید</label>
-                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp" required>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">عنوان تصویر</label>
-                    <input type="text" name="alt" class="form-control" value="{{ $product->name }}" maxlength="180">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-palaz w-100">افزودن عکس</button>
-                </div>
+                <div class="col-md-7"><label class="form-label">افزودن تصویر جدید</label><input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp" required></div>
+                <div class="col-md-3"><label class="form-label">عنوان تصویر</label><input type="text" name="alt" class="form-control" value="{{ $product->name }}" maxlength="180"></div>
+                <div class="col-md-2"><button class="btn btn-palaz w-100">افزودن عکس</button></div>
             </form>
         </div>
     </div>

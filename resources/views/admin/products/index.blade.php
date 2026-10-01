@@ -11,38 +11,11 @@
 
 <form class="card p-3 mb-3" method="get">
     <div class="row g-2 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">جستجو</label>
-            <input name="q" class="form-control" value="{{ request('q') }}" placeholder="نام یا کد محصول">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">دسته</label>
-            <select name="category_id" class="form-select">
-                <option value="">همه</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">وضعیت</label>
-            <select name="status" class="form-select">
-                <option value="">همه</option>
-                <option value="active" @selected(request('status') === 'active')>فعال</option>
-                <option value="inactive" @selected(request('status') === 'inactive')>غیرفعال</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">مرتب‌سازی</label>
-            <select name="sort" class="form-select">
-                <option value="id">جدیدترین</option>
-                <option value="name" @selected(request('sort') === 'name')>نام</option>
-                <option value="price" @selected(request('sort') === 'price')>قیمت</option>
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-outline-dark w-100">اعمال</button>
-        </div>
+        <div class="col-md-4"><label class="form-label">جستجو</label><input name="q" class="form-control" value="{{ request('q') }}" placeholder="نام یا کد محصول"></div>
+        <div class="col-md-3"><label class="form-label">دسته</label><select name="category_id" class="form-select"><option value="">همه</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>@endforeach</select></div>
+        <div class="col-md-2"><label class="form-label">وضعیت</label><select name="status" class="form-select"><option value="">همه</option><option value="active" @selected(request('status') === 'active')>فعال</option><option value="inactive" @selected(request('status') === 'inactive')>غیرفعال</option></select></div>
+        <div class="col-md-2"><label class="form-label">مرتب‌سازی</label><select name="sort" class="form-select"><option value="id">جدیدترین</option><option value="name" @selected(request('sort') === 'name')>نام</option><option value="price" @selected(request('sort') === 'price')>قیمت</option></select></div>
+        <div class="col-md-1"><button class="btn btn-outline-dark w-100">اعمال</button></div>
     </div>
 </form>
 
@@ -72,9 +45,9 @@
                     <td>{{ $product->is_active ? 'فعال' : 'غیرفعال' }}</td>
                     <td class="text-nowrap">
                         <a class="me-2" href="{{ route('admin.products.edit',$product) }}">ویرایش</a>
-                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="return confirm('این محصول حذف شود؟')">
+                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="return confirm('هشدار: این عمل کل محصول، اطلاعات قیمت‌گذاری و موجودی آن را حذف می‌کند. فقط برای حذف کامل محصول ادامه دهید.');">
                             @csrf @method('DELETE')
-                            <button class="btn btn-link text-danger p-0">حذف</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">حذف کامل محصول</button>
                         </form>
                     </td>
                 </tr>

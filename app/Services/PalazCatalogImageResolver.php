@@ -35,7 +35,7 @@ final class PalazCatalogImageResolver
         }
     }
 
-    public static function migrateRemoteMediaBatch(int $limit = 200): array
+    public static function migrateRemoteMediaBatch(int $limit = 20): array
     {
         $media = ProductMedia::query()
             ->where('path', 'like', 'http%')

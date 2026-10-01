@@ -72,7 +72,6 @@
     </div>
     @endif
 
->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const type = document.querySelector('[name="calculation_type"]');

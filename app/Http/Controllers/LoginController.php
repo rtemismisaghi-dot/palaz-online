@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AdminUser;
+use App\Models\CustomerUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
@@ -69,8 +70,18 @@ class LoginController extends Controller
 
         $request->session()->forget(['login_otp_hash', 'login_otp_mobile', 'login_otp_expires']);
         $request->session()->regenerate();
-        $request->session()->put('customer_mobile', $mobile);
+        $customer = CustomerUser::firstOrCreate(['mobile' => $mobile]);
+        $request->session()->put('customer_user_id', $customer->id);
+        $request->session()->put('customer_mobile', $customer->mobile);
 
         return redirect()->intended(route('home'));
+    }
+
+    public function logout(Request $request)
+    {
+        $request->session()->forget(['customer_user_id', 'customer_mobile']);
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home');
     }
 }

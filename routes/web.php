@@ -298,6 +298,7 @@ Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace']
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');
 Route::post('/login/verify', [LoginController::class, 'verify'])->name('login.verify');
+Route::post('/login/customer', [LoginController::class, 'customerLogin'])->name('login.customer');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/login/admin', [AuthController::class, 'login'])->name('login.admin');
 

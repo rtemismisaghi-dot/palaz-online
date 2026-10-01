@@ -91,7 +91,19 @@
           </div>
         @endif
         <div class="price-buy-row">
-          <div class="detail-buy-price">{{ $product['price'] !== null ? number_format((float)$product['price']).' تومان / '.$product['unit'] : 'استعلام قیمت' }}</div>
+          <div class="detail-buy-price">
+            @if($product['price'] !== null)
+              @if($isRoll)
+                <small>قیمت هر مترمربع</small>
+                <strong>{{ number_format((float)$product['price']) }} تومان</strong>
+                <span class="roll-total-price">قیمت هر طاقه: <b data-roll-price>{{ number_format((float)$product['price'] * 3 * 3) }}</b> تومان</span>
+              @else
+                <strong>{{ number_format((float)$product['price']) }} تومان / {{ $product['unit'] }}</strong>
+              @endif
+            @else
+              <strong>استعلام قیمت</strong>
+            @endif
+          </div>
           <button class="btn btn-primary buy-btn" type="submit">افزودن به سبد خرید <span>←</span></button>
         </div>
       </form>
@@ -127,7 +139,23 @@
 .variant-strip{display:flex;gap:8px;overflow:auto;margin-top:10px;padding-bottom:4px}.variant-thumb{position:relative;min-width:70px;height:70px;border:2px solid #e6ddd7;border-radius:10px;overflow:hidden;background:#f5f0ec;text-decoration:none;color:#241f1d}.variant-thumb.selected{border-color:#9f1820}.variant-thumb img{width:100%;height:100%;object-fit:cover}.variant-thumb b{position:absolute;left:4px;bottom:4px;background:#fffdfddd;padding:2px 5px;border-radius:5px;font-size:10px}
 .selected-code{display:inline-flex;margin:2px 0 10px;padding:7px 11px;background:#f4efeb;border-radius:9px;font-size:13px}.selected-code strong{margin-right:5px}
 .option-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.option-title span{font-size:11px;color:#7b716b}.code-list{display:flex;flex-wrap:wrap;gap:8px}.code-chip{display:flex;align-items:center;gap:7px;border:1px solid #ded5cf;border-radius:10px;padding:5px 9px;background:#fff;text-decoration:none;color:#241f1d;font-weight:800;font-size:12px}.code-chip.selected{border-color:#9f1820;background:#fff5f5}.code-chip-image{width:30px;height:30px;border-radius:7px;overflow:hidden;background:#eee6e1}.code-chip-image img{width:100%;height:100%;object-fit:cover}
-.roll-buy-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-bottom:12px;align-items:end}.roll-buy-grid .quantity,.roll-buy-grid .roll-length{min-width:0}.roll-buy-grid label,.quantity>label,.roll-length label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.quantity-control{display:flex;align-items:center;border:1px solid #ddd4ce;border-radius:10px;overflow:hidden;height:44px}.quantity-control button{width:38px;height:100%;border:0;background:#f5f0ec;font-size:20px}.quantity-control input{width:55px;height:100%;border:0;text-align:center;outline:0}.roll-length select{width:100%;height:44px;border:1px solid #ddd4ce;border-radius:10px;padding:0 10px;background:#fff}.price-buy-row{display:flex;align-items:center;gap:10px}.detail-buy-price{font-weight:900;flex:1}.price-buy-row .buy-btn{min-width:220px}.roll-note{font-size:12px;color:#756d68;background:#f8f4f1;border-radius:10px;padding:9px 11px;margin:10px 0 14px}
+.roll-buy-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-bottom:12px;align-items:end}.roll-buy-grid .quantity,.roll-buy-grid .roll-length{min-width:0}.roll-buy-grid label,.quantity>label,.roll-length label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.quantity-control{display:flex;align-items:center;border:1px solid #ddd4ce;border-radius:10px;overflow:hidden;height:44px}.quantity-control button{width:38px;height:100%;border:0;background:#f5f0ec;font-size:20px}.quantity-control input{width:55px;height:100%;border:0;text-align:center;outline:0}.roll-length select{width:100%;height:44px;border:1px solid #ddd4ce;border-radius:10px;padding:0 10px;background:#fff}.price-buy-row{display:flex;align-items:center;gap:10px}.detail-buy-price{font-weight:900;flex:1;display:flex;flex-direction:column;gap:3px}.detail-buy-price small{font-size:11px;color:#756d68;font-weight:700}.detail-buy-price strong{font-size:18px}.roll-total-price{font-size:12px;color:#756d68}.roll-total-price b{font-size:15px;color:#241f1d}.price-buy-row .buy-btn{min-width:220px}.roll-note{font-size:12px;color:#756d68;background:#f8f4f1;border-radius:10px;padding:9px 11px;margin:10px 0 14px}
 @media(max-width:600px){.roll-buy-grid{grid-template-columns:1fr}.price-buy-row{flex-direction:column;align-items:stretch}.price-buy-row .buy-btn{width:100%}}
 </style>
+@if($isRoll && $product['price'] !== null)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const select = document.getElementById('roll_length');
+  const price = {{ (float) $product['price'] }};
+  const total = document.querySelector('[data-roll-price]');
+  if (!select || !total) return;
+  const updateRollPrice = () => {
+    const length = Math.max(1, Math.min(15, Number(select.value) || 3));
+    total.textContent = new Intl.NumberFormat('fa-IR').format(price * 3 * length);
+  };
+  select.addEventListener('change', updateRollPrice);
+  updateRollPrice();
+});
+</script>
+@endif
 @endsection

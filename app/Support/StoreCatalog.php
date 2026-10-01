@@ -65,6 +65,33 @@ final class StoreCatalog
         return $product ? self::mapProduct($product) : null;
     }
 
+    public static function modelProducts(string $album): array
+    {
+        return self::mapProducts(
+            self::productQuery()
+                ->where('is_active', true)
+                ->where('attributes->album', $album)
+                ->orderBy('id')
+                ->get()
+        );
+    }
+
+    public static function findModelVariant(string $album, ?string $code = null): ?array
+    {
+        $query = self::productQuery()
+            ->where('is_active', true)
+            ->where('attributes->album', $album)
+            ->orderBy('id');
+
+        if ($code !== null && $code !== '') {
+            $query->where('attributes->code', $code);
+        }
+
+        $product = $query->first();
+
+        return $product ? self::mapProduct($product) : null;
+    }
+
     public static function byCategory(?string $category): array
     {
         $query = self::productQuery()
@@ -113,6 +140,8 @@ final class StoreCatalog
             'image' => self::productImageUrl($product),
             'attributes' => $product->attributes ?? [],
             'calculation_type' => $product->pricingRule?->calculation_type,
+            'model' => $product->attributes['album'] ?? null,
+            'code' => $product->attributes['code'] ?? null,
         ];
     }
     private static function productImageUrl(Product $product): ?string

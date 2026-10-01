@@ -49,10 +49,11 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table align-middle mb-0">
-            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>وضعیت</th><th></th></tr></thead>
+            <thead><tr><th>تصویر</th><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>وضعیت</th><th></th></tr></thead>
             <tbody>
             @forelse($products as $product)
                 <tr>
+                    <td style="width:80px">@if($product->media->firstWhere('is_cover', true) ?? $product->media->first())<img src="{{ asset('storage/'.(($product->media->firstWhere('is_cover', true) ?? $product->media->first())->path)) }}" class="rounded-3" style="width:64px;height:64px;object-fit:cover">@else<span class="text-secondary small">بدون عکس</span>@endif</td>
                     <td>{{ $product->name }}<small class="d-block text-secondary">{{ $product->slug }}</small></td>
                     <td>{{ $product->category?->name }}</td>
                     <td>{{ $product->price !== null ? number_format($product->price) : 'تماس' }}<small class="d-block text-secondary">{{ $product->unit }}</small></td>
@@ -67,7 +68,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center py-5">محصولی پیدا نشد.</td></tr>
+                <tr><td colspan="7" class="text-center py-5">محصولی پیدا نشد.</td></tr>
             @endforelse
             </tbody>
         </table>

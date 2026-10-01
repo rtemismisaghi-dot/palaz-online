@@ -456,11 +456,13 @@ final class PalazCatalogImageResolver
             }
 
             $response = Http::retry(2, 300)
-                ->timeout(15)
-                ->connectTimeout(5)
+                ->timeout(30)
+                ->connectTimeout(10)
                 ->withHeaders([
                     'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
                     'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                    'Referer' => 'https://palazonline.com/',
+                    'Accept-Language' => 'fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7',
                 ])
                 ->get($sourceUrl);
 

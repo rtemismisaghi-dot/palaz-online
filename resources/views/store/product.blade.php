@@ -74,7 +74,8 @@
               <label for="roll_length">انتخاب طاقه</label>
               <select id="roll_length" name="roll_length">
                 @foreach(range(1,15) as $length)
-                  <option value="{{ $length }}" {{ $length === 3 ? 'selected' : '' }}>عرض {{ $length === 3 ? '۳' : $length }} × طول {{ $length }} متر</option>
+                  @php($faLength = strtr((string)$length, ['0'=>'۰','1'=>'۱','2'=>'۲','3'=>'۳','4'=>'۴','5'=>'۵','6'=>'۶','7'=>'۷','8'=>'۸','9'=>'۹']))
+                  <option value="{{ $length }}" {{ $length === 3 ? 'selected' : '' }}>عرض ۳ × طول {{ $faLength }} متر</option>
                 @endforeach
               </select>
             </div>

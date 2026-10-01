@@ -14,7 +14,7 @@ button.submit{width:100%;border:0;background:#9f1820;color:#fff;padding:14px;bor
 <div class="logo"><span class="mark">P</span><span>PALAZ ONLINE<br><small style="font-size:11px;color:#877d77;font-weight:500">ورود به حساب</small></span></div>
 <h2>ورود</h2><p class="hint">شماره موبایل خود را وارد کنید.</p>
 @if($errors->any())<div class="error">{{ $errors->first() }}</div>@endif
-@if(!empty($adminMobile))
+@if(false && !empty($adminMobile))
 <form method="post" action="{{ route('login.admin') }}">@csrf
 <input type="hidden" name="mobile" value="{{ $adminMobile }}">
 <label>رمز عبور</label><input name="password" type="password" minlength="6" autocomplete="current-password" required>

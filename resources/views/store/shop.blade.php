@@ -81,12 +81,13 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
         @endforeach
       </div>
 
-      <div class="result-head"><strong id="resultCount">{{ count($products) }} محصول</strong><span>مدل یا کد را پیدا کنید و مستقیماً به سبد اضافه کنید.</span></div>
+      <div class="result-head"><strong id="resultCount">{{ count($products) }} محصول</strong><span>مدل یا کد را پیدا کنید و وارد صفحه مدل شوید و رنگ، کد و مشخصات خرید را همان‌جا انتخاب کنید.</span></div>
 
       <div class="store-grid" id="productGrid">
         @forelse($products as $index=>$product)
+          @php $productModel = $product['model'] ?: $product['id']; @endphp
           <article class="store-card product-item" data-model="{{ md5($product['attributes']['album'] ?? $product['name']) }}" data-name="{{ e($product['name']) }}" data-price="{{ (float)($product['price'] ?? 0) }}" data-id="{{ $product['id'] }}">
-            <a href="{{ route('product',$product['id']) }}" class="card-image">
+            <a href="{{ route('product', ['id' => $productModel, 'code' => $product['code'] ?? null]) }}" class="card-image">
               @if(!empty($product['image']))
                 <img src="{{ str_starts_with($product['image'],'http') ? $product['image'] : asset($product['image']) }}" alt="{{ $product['name'] }}" loading="lazy">
               @endif
@@ -99,7 +100,7 @@ $activeLabel=$categoryLabels[$category] ?? 'همه محصولات';
               <div class="card-sub"><span>{{ $product['unit'] }}</span><span>{{ $product['calculation_type'] === 'roll' ? 'محاسبه بر اساس طاقه' : 'فروش آنلاین' }}</span></div>
               <div class="card-price">{{ $product['price'] !== null ? number_format((float)$product['price']).' تومان' : 'استعلام قیمت' }}</div>
               <div class="card-actions">
-                <a href="{{ route('product',$product['id']) }}" style="flex:1">خرید / مشاهده محصول</a>
+                <a href="{{ route('product', ['id' => $productModel, 'code' => $product['code'] ?? null]) }}" style="flex:1">خرید / مشاهده محصول</a>
               </div>            </div>
           </article>
         @empty

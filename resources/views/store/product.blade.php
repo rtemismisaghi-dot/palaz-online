@@ -58,12 +58,6 @@
         </div>
       @endif
 
-      <div class="detail-box">
-        <div><small>واحد فروش</small><strong>{{ $product['unit'] }}</strong></div>
-        <div><small>نوع محصول</small><strong>{{ $product['category'] }}</strong></div>
-        @if($product['code'])<div><small>کد</small><strong>{{ $product['code'] }}</strong></div>@endif
-      </div>
-
       <form method="POST" action="{{ route('cart.add',$product['id']) }}" class="product-buy-form">
         @csrf
         @if($isRoll)

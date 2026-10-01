@@ -17,7 +17,7 @@ button.submit{width:100%;border:0;background:#9f1820;color:#fff;padding:14px;bor
 @if(!empty($adminMobile))
 <form method="post" action="{{ route('login.admin') }}">@csrf
 <input type="hidden" name="mobile" value="{{ $adminMobile }}">
-<label>رمز عبور</label><input name="password" type="password" minlength="8" autocomplete="current-password" required>
+<label>رمز عبور</label><input name="password" type="password" minlength="6" autocomplete="current-password" required>
 <button class="submit">ورود</button>
 </form>
 @elseif(!empty($otpSent))

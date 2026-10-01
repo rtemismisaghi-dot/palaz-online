@@ -14,7 +14,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard', ['stats' => [
+        $products = Product::with('media')->latest('id')->limit(8)->get();
+
+        return view('admin.dashboard', ['products' => $products, 'stats' => [
             'categories' => Category::count(),
             'products' => Product::count(),
             'orders' => Order::count(),

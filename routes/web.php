@@ -171,6 +171,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/management', [DashboardController::class, 'management'])->name('management');
     Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);
+    Route::post('/products/{product}/media', [ProductController::class, 'uploadMedia'])->name('products.media.store');
+    Route::delete('/products/{product}/media/{media}', [ProductController::class, 'deleteMedia'])->name('products.media.destroy');
+    Route::post('/products/{product}/media/{media}/cover', [ProductController::class, 'setCover'])->name('products.media.cover');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     });
 });

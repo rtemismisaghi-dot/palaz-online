@@ -84,6 +84,29 @@ class ProductController extends Controller
         return $this->save($request, $product);
     }
 
+    public function uploadMedia(Request $request, Product $product)
+    {
+        $data = $request->validate(['image' => ['required','image','mimes:jpeg,jpg,png,webp','max:8192'],'alt' => ['nullable','string','max:180']]);
+        $path = $data['image']->store('products', 'public');
+        $product->media()->create(['path'=>$path,'alt'=>$data['alt'] ?? $product->name,'sort_order'=>((int)$product->media()->max('sort_order'))+1,'is_cover'=>!$product->media()->exists()]);
+        return back()->with('success','عکس محصول اضافه شد.');
+    }
+
+    public function deleteMedia(Product $product, ProductMedia $media)
+    {
+        abort_unless($media->product_id === $product->id, 404);
+        $wasCover = $media->is_cover; Storage::disk('public')->delete($media->path); $media->delete();
+        if ($wasCover) $product->media()->orderBy('sort_order')->orderBy('id')->first()?->update(['is_cover'=>true]);
+        return back()->with('success','عکس حذف شد.');
+    }
+
+    public function setCover(Product $product, ProductMedia $media)
+    {
+        abort_unless($media->product_id === $product->id, 404);
+        DB::transaction(function() use($product,$media){$product->media()->update(['is_cover'=>false]);$media->update(['is_cover'=>true]);});
+        return back()->with('success','عکس اصلی محصول تغییر کرد.');
+    }
+
     public function destroy(Product $product)
     {
         $product->delete();

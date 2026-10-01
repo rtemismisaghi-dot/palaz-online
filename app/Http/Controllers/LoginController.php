@@ -68,12 +68,12 @@ class LoginController extends Controller
         $mobile = preg_replace('/\\D+/', '', $data['mobile']);
         $customer = CustomerUser::where('mobile', $mobile)->first();
 
-        if (!$customer && app()->environment('local')) {
+        if (!$customer) {
             $customer = CustomerUser::create([
                 'mobile' => $mobile,
                 'password' => Hash::make($data['password']),
             ]);
-        } elseif ($customer && !$customer->password && app()->environment('local')) {
+        } elseif (!$customer->password) {
             $customer->forceFill(['password' => Hash::make($data['password'])])->save();
         }
 

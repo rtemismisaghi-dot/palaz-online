@@ -60,7 +60,7 @@
                         <div class="col-6 col-md-4 col-lg-3">
                             <div class="border rounded-3 p-2 h-100">
                                 <div class="ratio ratio-1x1 bg-light rounded overflow-hidden mb-2">
-                                    <img src="{{ Storage::disk('public')->url($media->path) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 h-100 object-fit-cover">
+                                    <img src="{{ preg_match('/^https?:\\/\\//i', $media->path) ? $media->path : Storage::disk($media->disk ?: 'public')->url($media->path) }}" alt="{{ $media->alt ?: $product->name }}" class="w-100 h-100 object-fit-cover">
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
                                     @if($media->is_cover)

@@ -288,6 +288,7 @@ Route::get('/calculate/{id}', [CalculatorController::class, 'show'])->name('calc
 Route::post('/calculate/{id}', [CalculatorController::class, 'calculate'])->name('calculator.calculate');
 Route::get('/cart', [StoreController::class, 'cart'])->name('cart');
 Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/remove/{id}', [StoreController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');

@@ -7,6 +7,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class CustomerUser extends Authenticatable
 {
     protected $table = 'customer_users';
-    protected $fillable = ['mobile'];
+    protected $fillable = ['mobile', 'password'];
     protected $hidden = ['remember_token'];
 }

@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductMedia;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 final class PalazCatalogImageResolver
 {
@@ -25,16 +26,10 @@ final class PalazCatalogImageResolver
 
             if (!$image) return null;
 
-            ProductMedia::updateOrCreate(
-                ['product_id' => $product->id, 'sort_order' => 0],
-                [
-                    'path' => $image,
-                    'alt' => $name . ' - کد ' . $code,
-                    'is_cover' => true,
-                ]
-            );
+            $storedPath = self::downloadAndStore($product, $image, $code);
+            if (!$storedPath) return null;
 
-            return $image;
+            return $storedPath;
         } catch (\Throwable) {
             return null;
         }
@@ -146,15 +141,10 @@ final class PalazCatalogImageResolver
                 if (!$image) continue;
 
                 $product = $productsByCode[$matchedCode];
-                ProductMedia::updateOrCreate(
-                    ['product_id' => $product->id, 'sort_order' => 0],
-                    [
-                        'path' => $image,
-                        'alt' => $product->name . ' - کد ' . $matchedCode,
-                        'is_cover' => true,
-                    ]
-                );
-                $found[$matchedCode] = $image;
+                $storedPath = self::downloadAndStore($product, $image, $matchedCode);
+                if (!$storedPath) continue;
+
+                $found[$matchedCode] = $storedPath;
             }
         }
 
@@ -411,6 +401,76 @@ final class PalazCatalogImageResolver
     private static function searchIndexedImage(string $name, string $code): ?string
     {
         return null;
+    }
+
+    private static function downloadAndStore(Product $product, string $sourceUrl, string $code): ?string
+    {
+        try {
+            $disk = 'public';
+            $existing = $product->media()
+                ->where('sort_order', 0)
+                ->first();
+
+            if ($existing && $existing->disk === $disk && !preg_match('/^https?:\\/\\//i', $existing->path)
+                && $existing->source_url === $sourceUrl && Storage::disk($disk)->exists($existing->path)) {
+                return $existing->path;
+            }
+
+            $response = Http::retry(2, 300)
+                ->timeout(15)
+                ->connectTimeout(5)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 PalazOnlineCatalog/1.0',
+                    'Accept' => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                ])
+                ->get($sourceUrl);
+
+            if (!$response->successful()) return null;
+
+            $body = $response->body();
+            if ($body === '' || strlen($body) > 12 * 1024 * 1024) return null;
+
+            $contentType = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+            $extension = match ($contentType) {
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/webp' => 'webp',
+                'image/avif' => 'avif',
+                default => null,
+            };
+
+            if (!$extension) {
+                $urlPath = strtolower((string) parse_url($sourceUrl, PHP_URL_PATH));
+                $extension = match (true) {
+                    str_ends_with($urlPath, '.jpg'),
+                    str_ends_with($urlPath, '.jpeg') => 'jpg',
+                    str_ends_with($urlPath, '.png') => 'png',
+                    str_ends_with($urlPath, '.webp') => 'webp',
+                    str_ends_with($urlPath, '.avif') => 'avif',
+                    default => 'webp',
+                };
+            }
+
+            $safeCode = preg_replace('/[^A-Za-z0-9_-]+/', '-', $code) ?: (string) $product->id;
+            $path = 'products/catalog/' . $safeCode . '.' . $extension;
+
+            Storage::disk($disk)->put($path, $body);
+
+            $product->media()->updateOrCreate(
+                ['sort_order' => 0],
+                [
+                    'disk' => $disk,
+                    'path' => $path,
+                    'source_url' => $sourceUrl,
+                    'alt' => $product->name . ' - کد ' . $code,
+                    'is_cover' => true,
+                ]
+            );
+
+            return $path;
+        } catch (\\Throwable) {
+            return null;
+        }
     }
 
     private static function normalizeUrl(string $url): ?string

@@ -319,15 +319,32 @@ class StoreController extends Controller
 
             if ($response->successful()) {
                 $payload = $response->json();
+                $prepareUrl = $payload['prepare_url'] ?? null;
 
                 $service->update([
                     'status' => 'forwarded',
                     'external_id' => $payload['installation_id'] ?? null,
                 ]);
 
-                return $payload['prepare_url'] ?? null;
+                if (is_string($prepareUrl) && $prepareUrl !== '') {
+                    return $prepareUrl;
+                }
+
+                \Illuminate\Support\Facades\Log::error('DTZ installation handoff returned no prepare_url.', [
+                    'order_id' => $order->id,
+                    'status' => $response->status(),
+                    'response' => $payload,
+                ]);
+                $service->update(['status' => 'integration_failed']);
+                return null;
             }
 
+            \Illuminate\Support\Facades\Log::error('DTZ installation handoff failed.', [
+                'order_id' => $order->id,
+                'url' => $url,
+                'status' => $response->status(),
+                'response' => $response->json() ?: $response->body(),
+            ]);
             $service->update(['status' => 'integration_failed']);
         } catch (\Throwable $e) {
             report($e);

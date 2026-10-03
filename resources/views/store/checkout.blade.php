@@ -11,12 +11,8 @@
 <div class="checkout-block installation-details" id="installation-details" hidden>
 <span class="eyebrow">INSTALLATION / PROJECT</span>
 <h2>اطلاعات نصب</h2>
-<p class="installation-hint">این اطلاعات همراه سفارش برای ساخت یا تکمیل پروژه نصب در DTZ ارسال می‌شود.</p>
-<div class="form-two">
-<label>متراژ محل نصب (مترمربع)<input name="installation_area" value="{{ old('installation_area') }}" type="number" min="0" step="0.01" placeholder="مثلاً ۶۰"></label>
-<label>تعداد<input name="installation_quantity" value="{{ old('installation_quantity', 1) }}" type="number" min="1" step="1" placeholder="۱"></label>
-</div>
-<label>توضیحات نصب <span class="optional">اختیاری</span><textarea name="installation_description" rows="3" placeholder="مثلاً طبقه دوم، آسانسور دارد، زمان مناسب اجرا...">{{ old('installation_description') }}</textarea></label>
+<p class="installation-hint">بعد از ثبت سفارش، پروژه نصب شما مستقیماً وارد فرآیند کامل DTZ می‌شود و متراژ، فضاها و جزئیات اجرا همان‌جا تکمیل و محاسبه می‌شود.</p>
+<label>توضیحات اولیه نصب <span class="optional">اختیاری</span><textarea name="installation_description" rows="3" placeholder="مثلاً توضیح کوتاه درباره محل یا زمان مناسب اجرا...">{{ old('installation_description') }}</textarea></label>
 </div>
 <div class="checkout-block"><span class="eyebrow">04 / PAYMENT</span><h2>روش پرداخت</h2><label class="payment-choice"><input type="radio" name="payment" value="offline" checked><span><b>پرداخت پس از تأیید سفارش</b><small>درگاه بانکی در این مرحله متصل نیست.</small></span></label><button class="btn btn-primary wide" type="submit">ثبت سفارش و دریافت کد پیگیری ←</button></div>
 </form>
@@ -46,9 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
         details.hidden = !active;
         details.querySelectorAll('input, textarea').forEach((field) => {
             field.disabled = !active;
-            if (field.name === 'installation_area' || field.name === 'installation_quantity') {
-                field.required = active;
-            }
+            field.required = false;
         });
     }
 

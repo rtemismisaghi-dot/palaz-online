@@ -7,6 +7,7 @@ use App\Models\ServiceRequest;
 use App\Support\StoreCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class StoreController extends Controller
 {
@@ -74,9 +75,23 @@ class StoreController extends Controller
         ]);
     }
 
-    public function services()
+    public function services(Request $request)
     {
-        return view('store.services');
+        $selectedProduct = null;
+        $productId = $request->string('product')->toString();
+
+        if ($productId !== '') {
+            $selectedProduct = StoreCatalog::find($productId);
+
+            if (!$selectedProduct && $request->string('code')->isNotEmpty()) {
+                $selectedProduct = StoreCatalog::findModelVariant(
+                    $productId,
+                    $request->string('code')->toString()
+                );
+            }
+        }
+
+        return view('store.services', compact('selectedProduct'));
     }
 
     public function cart(Request $request)
@@ -574,6 +589,14 @@ class StoreController extends Controller
             'type' => ['required', 'in:measurement,installation,design'],
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:30'],
+            'city' => ['required', 'string', 'max:100'],
+            'address' => ['required', 'string', 'max:500'],
+            'product_id' => ['nullable', 'string', 'max:120'],
+            'product_code' => ['nullable', 'string', 'max:100'],
+            'product_title' => ['nullable', 'string', 'max:255'],
+            'product_model' => ['nullable', 'string', 'max:255'],
+            'area' => ['nullable', 'numeric', 'min:0'],
+            'quantity' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -582,15 +605,78 @@ class StoreController extends Controller
             'design' => 'dtz_tablet',
         };
 
+        $description = collect([
+            $data['product_title'] ? 'محصول: ' . $data['product_title'] : null,
+            $data['product_model'] ? 'مدل: ' . $data['product_model'] : null,
+            $data['product_code'] ? 'کد: ' . $data['product_code'] : null,
+            isset($data['area']) ? 'متراژ: ' . $data['area'] . ' مترمربع' : null,
+            isset($data['quantity']) ? 'تعداد: ' . $data['quantity'] : null,
+            'شهر: ' . $data['city'],
+            'آدرس: ' . $data['address'],
+            $data['description'] ?? null,
+        ])->filter()->implode("\n");
+
         $service = ServiceRequest::create([
             'tracking_code' => $this->trackingCode('SR-', 8),
             'type' => $data['type'],
             'name' => $data['name'],
             'phone' => $data['phone'],
-            'description' => $data['description'] ?? null,
+            'description' => $description ?: null,
             'status' => 'received',
             'target_system' => $target,
         ]);
+
+        if ($data['type'] === 'installation') {
+            $token = (string) config('services.dtz.palaz_token');
+            $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';
+
+            if ($token === '' || ! str_starts_with($url, 'http')) {
+                $service->update(['status' => 'pending_integration']);
+                return back()->withInput()->with('service_error', 'مسیر اتصال خدمات نصب هنوز تنظیم نشده است.');
+            }
+
+            try {
+                $response = Http::withToken($token)
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->post($url, [
+                        'name' => $data['name'],
+                        'phone' => $data['phone'],
+                        'city' => $data['city'],
+                        'address' => $data['address'],
+                        'product_code' => $data['product_code'] ?? null,
+                        'product_title' => $data['product_title'] ?? null,
+                        'product_model' => $data['product_model'] ?? null,
+                        'area' => $data['area'] ?? null,
+                        'quantity' => $data['quantity'] ?? null,
+                        'description' => $data['description'] ?? null,
+                        'palaz_order_id' => 'SR-' . $service->id,
+                    ]);
+
+                if ($response->successful()) {
+                    $payload = $response->json();
+                    $service->update([
+                        'status' => 'forwarded',
+                        'external_id' => $payload['installation_id'] ?? null,
+                    ]);
+
+                    return back()->with(
+                        'service_success',
+                        'درخواست نصب ثبت شد. کد پیگیری: ' . ($payload['tracking_code'] ?? $service->tracking_code)
+                    );
+                }
+
+                $service->update(['status' => 'integration_failed']);
+            } catch (\Throwable $e) {
+                report($e);
+                $service->update(['status' => 'integration_failed']);
+            }
+
+            return back()->withInput()->with(
+                'service_error',
+                'درخواست ثبت شد اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.'
+            );
+        }
 
         return back()->with('service_success', 'درخواست شما ثبت شد. کد پیگیری: ' . $service->tracking_code);
     }

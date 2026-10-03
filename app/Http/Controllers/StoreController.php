@@ -245,7 +245,13 @@ class StoreController extends Controller
         });
 
         if (($data['service'] ?? 'none') === 'installation') {
-            $this->forwardOrderInstallation($order, $data, $items);
+            $prepareUrl = $this->forwardOrderInstallation($order, $data, $items);
+
+            $request->session()->forget('cart');
+
+            if ($prepareUrl) {
+                return redirect()->away($prepareUrl);
+            }
         }
 
         $request->session()->forget('cart');
@@ -253,7 +259,7 @@ class StoreController extends Controller
         return view('store.order-success', ['order' => $order->fresh()]);
     }
 
-    private function forwardOrderInstallation(Order $order, array $data, $items): void
+    private function forwardOrderInstallation(Order $order, array $data, $items): ?string
     {
         $product = $items->first();
 
@@ -290,7 +296,7 @@ class StoreController extends Controller
 
         if ($token === '' || ! str_starts_with($url, 'http')) {
             $service->update(['status' => 'pending_integration']);
-            return;
+            return null;
         }
 
         try {
@@ -319,7 +325,7 @@ class StoreController extends Controller
                     'external_id' => $payload['installation_id'] ?? null,
                 ]);
 
-                return;
+                return $payload['prepare_url'] ?? null;
             }
 
             $service->update(['status' => 'integration_failed']);
@@ -327,6 +333,48 @@ class StoreController extends Controller
             report($e);
             $service->update(['status' => 'integration_failed']);
         }
+
+        return null;
+    }
+
+
+    public function installationComplete(Request $request)
+    {
+        $data = $request->validate([
+            'order_id' => ['required', 'string', 'max:120'],
+            'installation_id' => ['required', 'integer'],
+            'tracking_code' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $orderId = $data['order_id'];
+        $orderNumber = str_starts_with($orderId, 'PO-') ? (int) substr($orderId, 3) : 0;
+        abort_unless($orderNumber > 0, 404);
+
+        $order = Order::with('items')->findOrFail($orderNumber);
+        abort_unless($order->service === 'installation', 404);
+
+        $token = (string) config('services.dtz.palaz_token');
+        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations/' . (int) $data['installation_id'] . '/quote';
+        abort_unless($token !== '' && str_starts_with($url, 'http'), 503);
+
+        $response = Http::withToken($token)->acceptJson()->timeout(15)->get($url);
+        abort_unless($response->successful(), 502);
+        $quote = $response->json();
+        abort_unless(($quote['success'] ?? false) && (int) ($quote['installation_id'] ?? 0) === (int) $data['installation_id'], 502);
+        abort_unless(($quote['external_reference'] ?? null) === $orderId, 409);
+
+        $installationAmount = (float) ($quote['total_amount'] ?? 0);
+        $productsTotal = (float) $order->items->sum(fn ($item) => (float) ($item->line_total ?? 0));
+        $order->update([
+            'total' => $productsTotal + $installationAmount,
+            'status' => 'received',
+        ]);
+
+        return view('store.order-success', [
+            'order' => $order->fresh('items'),
+            'installationAmount' => $installationAmount,
+            'installationTrackingCode' => $quote['tracking_code'] ?? $data['tracking_code'] ?? null,
+        ]);
     }
 
     public function advisorChat(Request $request)

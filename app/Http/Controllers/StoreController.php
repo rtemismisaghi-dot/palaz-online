@@ -327,6 +327,14 @@ class StoreController extends Controller
                 ]);
 
                 if (is_string($prepareUrl) && $prepareUrl !== '') {
+                    // Keep DTZ's signed path/query, but navigate through the configured DTZ host.
+                    $dtzBaseUrl = rtrim((string) config('services.dtz.url'), '/');
+                    $parsed = parse_url($prepareUrl);
+                    if ($dtzBaseUrl !== '' && is_array($parsed) && !empty($parsed['path'])) {
+                        $prepareUrl = $dtzBaseUrl . $parsed['path']
+                            . (!empty($parsed['query']) ? '?' . $parsed['query'] : '')
+                            . (!empty($parsed['fragment']) ? '#' . $parsed['fragment'] : '');
+                    }
                     return $prepareUrl;
                 }
 

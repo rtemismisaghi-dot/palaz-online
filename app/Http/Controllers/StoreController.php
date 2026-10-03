@@ -257,8 +257,6 @@ class StoreController extends Controller
     {
         $product = $items->first();
 
-        $product = $items->first();
-
         $productSummary = $items->map(function (array $item) {
             return collect([
                 $item['name'] ?? null,

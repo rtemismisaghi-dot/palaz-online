@@ -184,8 +184,18 @@ class StoreController extends Controller
             'address' => ['required', 'string', 'max:500'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'service' => ['nullable', 'in:none,measurement,installation,design'],
+            'installation_area' => ['nullable', 'numeric', 'min:0'],
+            'installation_quantity' => ['nullable', 'numeric', 'min:0'],
+            'installation_description' => ['nullable', 'string', 'max:1000'],
             'payment' => ['required', 'in:offline'],
         ]);
+
+        if (($data['service'] ?? 'none') === 'installation') {
+            $data = array_merge($data, $request->validate([
+                'installation_area' => ['required', 'numeric', 'min:0'],
+                'installation_quantity' => ['required', 'numeric', 'min:1'],
+            ]));
+        }
 
         $items = $this->cartItems($request);
         if ($items->isEmpty()) {
@@ -234,9 +244,77 @@ class StoreController extends Controller
             return $order->load('items');
         });
 
+        if (($data['service'] ?? 'none') === 'installation') {
+            $this->forwardOrderInstallation($order, $data, $items);
+        }
+
         $request->session()->forget('cart');
 
-        return view('store.order-success', ['order' => $order]);
+        return view('store.order-success', ['order' => $order->fresh()]);
+    }
+
+    private function forwardOrderInstallation(Order $order, array $data, $items): void
+    {
+        $product = $items->first();
+
+        $description = trim((string) ($data['installation_description'] ?? ''));
+        if ($description === '') {
+            $description = null;
+        }
+
+        $service = ServiceRequest::create([
+            'order_id' => $order->id,
+            'tracking_code' => $this->trackingCode('SR-', 8),
+            'type' => 'installation',
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'description' => $description,
+            'status' => 'received',
+            'target_system' => 'dtz',
+        ]);
+
+        $token = (string) config('services.dtz.palaz_token');
+        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';
+
+        if ($token === '' || ! str_starts_with($url, 'http')) {
+            $service->update(['status' => 'pending_integration']);
+            return;
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(15)
+                ->post($url, [
+                    'name' => $data['name'],
+                    'phone' => $data['phone'],
+                    'city' => $data['city'],
+                    'address' => $data['address'],
+                    'product_code' => $product['code'] ?? null,
+                    'product_title' => $product['name'] ?? null,
+                    'product_model' => $product['model'] ?? null,
+                    'area' => $data['installation_area'],
+                    'quantity' => $data['installation_quantity'],
+                    'description' => $description,
+                    'palaz_order_id' => 'PO-' . $order->id,
+                ]);
+
+            if ($response->successful()) {
+                $payload = $response->json();
+
+                $service->update([
+                    'status' => 'forwarded',
+                    'external_id' => $payload['installation_id'] ?? null,
+                ]);
+
+                return;
+            }
+
+            $service->update(['status' => 'integration_failed']);
+        } catch (\Throwable $e) {
+            report($e);
+            $service->update(['status' => 'integration_failed']);
+        }
     }
 
     public function advisorChat(Request $request)

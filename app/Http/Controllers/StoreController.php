@@ -257,10 +257,24 @@ class StoreController extends Controller
     {
         $product = $items->first();
 
-        $description = trim((string) ($data['installation_description'] ?? ''));
-        if ($description === '') {
-            $description = null;
-        }
+        $product = $items->first();
+
+        $productSummary = $items->map(function (array $item) {
+            return collect([
+                $item['name'] ?? null,
+                !empty($item['code']) ? 'کد: ' . $item['code'] : null,
+                !empty($item['model']) ? 'مدل: ' . $item['model'] : null,
+                isset($item['quantity']) ? 'تعداد: ' . $item['quantity'] : null,
+            ])->filter()->implode(' | ');
+        })->filter()->implode("\n");
+
+        $installationDescription = trim((string) ($data['installation_description'] ?? ''));
+        $description = collect([
+            $productSummary ? 'محصولات سفارش:' . "\n" . $productSummary : null,
+            $installationDescription ? 'توضیحات نصب: ' . $installationDescription : null,
+        ])->filter()->implode("\n");
+
+        $description = $description !== '' ? $description : null;
 
         $service = ServiceRequest::create([
             'order_id' => $order->id,

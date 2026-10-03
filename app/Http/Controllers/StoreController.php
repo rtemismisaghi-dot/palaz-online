@@ -8,6 +8,7 @@ use App\Support\StoreCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 
 class StoreController extends Controller
 {
@@ -273,8 +274,7 @@ class StoreController extends Controller
 
         $description = $description !== '' ? $description : null;
 
-        $service = ServiceRequest::create([
-            'order_id' => $order->id,
+        $serviceData = [
             'tracking_code' => $this->trackingCode('SR-', 8),
             'type' => 'installation',
             'name' => $data['name'],
@@ -282,7 +282,14 @@ class StoreController extends Controller
             'description' => $description,
             'status' => 'received',
             'target_system' => 'dtz',
-        ]);
+        ];
+
+        // Allow older local databases to complete checkout before the order_id migration is run.
+        if (Schema::hasColumn('service_requests', 'order_id')) {
+            $serviceData['order_id'] = $order->id;
+        }
+
+        $service = ServiceRequest::create($serviceData);
 
         $token = (string) config('services.dtz.palaz_token');
         $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';

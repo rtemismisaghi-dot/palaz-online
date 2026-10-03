@@ -190,13 +190,6 @@ class StoreController extends Controller
             'payment' => ['required', 'in:offline'],
         ]);
 
-        if (($data['service'] ?? 'none') === 'installation') {
-            $data = array_merge($data, $request->validate([
-                'installation_area' => ['required', 'numeric', 'min:0'],
-                'installation_quantity' => ['required', 'numeric', 'min:1'],
-            ]));
-        }
-
         $items = $this->cartItems($request);
         if ($items->isEmpty()) {
             return redirect()->route('shop')->with('error', 'سبد خرید شما خالی است.');
@@ -311,8 +304,8 @@ class StoreController extends Controller
                     'product_code' => $product['code'] ?? null,
                     'product_title' => $product['name'] ?? null,
                     'product_model' => $product['model'] ?? null,
-                    'area' => $data['installation_area'],
-                    'quantity' => $data['installation_quantity'],
+                    'area' => null,
+                    'quantity' => null,
                     'description' => $description,
                     'palaz_order_id' => 'PO-' . $order->id,
                 ]);

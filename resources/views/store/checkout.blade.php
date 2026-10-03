@@ -8,6 +8,16 @@
 <div class="checkout-block"><span class="eyebrow">01 / CUSTOMER</span><h2>اطلاعات مشتری</h2><div class="form-two"><label>نام و نام خانوادگی<input name="name" value="{{ old('name') }}" required></label><label>شماره تماس<input name="phone" value="{{ old('phone') }}" required inputmode="tel"></label></div></div>
 <div class="checkout-block"><span class="eyebrow">02 / DELIVERY</span><h2>آدرس تحویل</h2><div class="form-two"><label>شهر<input name="city" value="{{ old('city') }}" required></label><label>کد پستی<input name="postal_code" value="{{ old('postal_code') }}" inputmode="numeric"></label></div><label>آدرس کامل<textarea name="address" rows="4" required>{{ old('address') }}</textarea></label></div>
 <div class="checkout-block"><span class="eyebrow">03 / SERVICES</span><h2>خدمات پروژه</h2><div class="checkout-options"><label><input type="radio" name="service" value="none" {{ old('service','none') === 'none' ? 'checked' : '' }}><span><b>بدون خدمات</b><small>فقط خرید محصول</small></span></label><label><input type="radio" name="service" value="measurement" {{ old('service') === 'measurement' ? 'checked' : '' }}><span><b>اندازه‌گیری</b><small>درخواست برای ادامه فرآیند</small></span></label><label><input type="radio" name="service" value="installation" {{ old('service') === 'installation' ? 'checked' : '' }}><span><b>نصب</b><small>درخواست نصب و اجرا</small></span></label><label><input type="radio" name="service" value="design" {{ old('service') === 'design' ? 'checked' : '' }}><span><b>طراحی و محاسبه</b><small>ادامه از مسیر طراحی پالاز</small></span></label></div></div>
+<div class="checkout-block installation-details" id="installation-details" hidden>
+<span class="eyebrow">INSTALLATION / PROJECT</span>
+<h2>اطلاعات نصب</h2>
+<p class="installation-hint">این اطلاعات همراه سفارش برای ساخت یا تکمیل پروژه نصب در DTZ ارسال می‌شود.</p>
+<div class="form-two">
+<label>متراژ محل نصب (مترمربع)<input name="installation_area" value="{{ old('installation_area') }}" type="number" min="0" step="0.01" placeholder="مثلاً ۶۰"></label>
+<label>تعداد<input name="installation_quantity" value="{{ old('installation_quantity', 1) }}" type="number" min="1" step="1" placeholder="۱"></label>
+</div>
+<label>توضیحات نصب <span class="optional">اختیاری</span><textarea name="installation_description" rows="3" placeholder="مثلاً طبقه دوم، آسانسور دارد، زمان مناسب اجرا...">{{ old('installation_description') }}</textarea></label>
+</div>
 <div class="checkout-block"><span class="eyebrow">04 / PAYMENT</span><h2>روش پرداخت</h2><label class="payment-choice"><input type="radio" name="payment" value="offline" checked><span><b>پرداخت پس از تأیید سفارش</b><small>درگاه بانکی در این مرحله متصل نیست.</small></span></label><button class="btn btn-primary wide" type="submit">ثبت سفارش و دریافت کد پیگیری ←</button></div>
 </form>
 <aside class="checkout-summary"><span class="eyebrow">YOUR ORDER</span><h2>جزئیات سفارش</h2>
@@ -25,7 +35,28 @@
 <div class="summary-line total"><span>مبلغ نهایی</span><b>{{ $itemsTotal !== null ? number_format($itemsTotal) . ' تومان' : 'استعلام قیمت' }}</b></div>
 <a href="{{ route('cart') }}">← بازگشت به سبد خرید</a></aside>
 </div></section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const details = document.getElementById('installation-details');
+    const radios = document.querySelectorAll('input[name="service"]');
+
+    function syncInstallationFields() {
+        const selected = document.querySelector('input[name="service"]:checked')?.value;
+        const active = selected === 'installation';
+        details.hidden = !active;
+        details.querySelectorAll('input, textarea').forEach((field) => {
+            field.disabled = !active;
+            if (field.name === 'installation_area' || field.name === 'installation_quantity') {
+                field.required = active;
+            }
+        });
+    }
+
+    radios.forEach((radio) => radio.addEventListener('change', syncInstallationFields));
+    syncInstallationFields();
+});
+</script>
 <style>
-.checkout-item{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee7e2}.checkout-item-image{width:64px;height:64px;border-radius:10px;background-size:cover;background-position:center}.checkout-item-info{display:flex;flex-direction:column;gap:3px;min-width:0}.checkout-item-info b{font-size:13px}.checkout-item-info small{font-size:11px;color:#756d68}.checkout-item-price{font-size:12px;font-weight:900;white-space:nowrap}.summary-line{display:flex;justify-content:space-between;gap:12px;margin-top:12px}.summary-line.total{padding-top:12px;border-top:1px solid #ddd4ce;font-size:15px}.summary-line.total b{font-size:17px}.checkout-summary>a{display:inline-block;margin-top:16px}@media(max-width:700px){.checkout-item{grid-template-columns:56px 1fr}.checkout-item-image{width:56px;height:56px}.checkout-item-price{grid-column:2}.checkout-item-info{grid-column:2}}
+.installation-details{margin-top:16px;border:1px solid #eadfd8;background:#fcfaf8}.installation-hint{color:#756d68;font-size:12px;line-height:1.8;margin:0 0 16px}.optional{font-size:10px;color:#958b85;font-weight:600}.checkout-item{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee7e2}.checkout-item-image{width:64px;height:64px;border-radius:10px;background-size:cover;background-position:center}.checkout-item-info{display:flex;flex-direction:column;gap:3px;min-width:0}.checkout-item-info b{font-size:13px}.checkout-item-info small{font-size:11px;color:#756d68}.checkout-item-price{font-size:12px;font-weight:900;white-space:nowrap}.summary-line{display:flex;justify-content:space-between;gap:12px;margin-top:12px}.summary-line.total{padding-top:12px;border-top:1px solid #ddd4ce;font-size:15px}.summary-line.total b{font-size:17px}.checkout-summary>a{display:inline-block;margin-top:16px}@media(max-width:700px){.checkout-item{grid-template-columns:56px 1fr}.checkout-item-image{width:56px;height:56px}.checkout-item-price{grid-column:2}.checkout-item-info{grid-column:2}}
 </style>
 @endsection

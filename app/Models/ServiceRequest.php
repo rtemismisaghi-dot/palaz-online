@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceRequest extends Model
 {
-    protected $fillable = ['tracking_code','type','name','phone','description','status','target_system','external_id'];
+    protected $fillable = ['order_id','tracking_code','type','name','phone','description','status','target_system','external_id'];
 }

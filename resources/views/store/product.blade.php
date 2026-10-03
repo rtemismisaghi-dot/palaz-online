@@ -108,9 +108,9 @@
       @endif
 
       <div class="project-options">
-        <div><span>⌖</span><a href="{{ route('services',['type'=>'measurement']) }}"><b>نیاز به اندازه‌گیری؟</b><small>درخواست را به DTZ بفرستید ←</small></a></div>
-        <div><span>◇</span><a href="{{ route('services',['type'=>'design']) }}"><b>نیاز به محاسبه یا طراحی؟</b><small>شروع پروژه در DTZ Tablet ←</small></a></div>
-        <div><span>⌂</span><a href="{{ route('services',['type'=>'installation']) }}"><b>نیاز به نصب دارید؟</b><small>درخواست خدمات نصب ←</small></a></div>
+        <div><span>⌖</span><a href="{{ route('services', ['type'=>'measurement', 'product'=>$product['id'], 'code'=>$product['code'] ?? null]) }}"><b>نیاز به اندازه‌گیری؟</b><small>درخواست را به DTZ بفرستید ←</small></a></div>
+        <div><span>◇</span><a href="{{ route('services', ['type'=>'design', 'product'=>$product['id'], 'code'=>$product['code'] ?? null]) }}"><b>نیاز به محاسبه یا طراحی؟</b><small>شروع پروژه در DTZ Tablet ←</small></a></div>
+        <div><span>⌂</span><a href="{{ route('services', ['type'=>'installation', 'product'=>$product['id'], 'code'=>$product['code'] ?? null]) }}"><b>نیاز به نصب دارید؟</b><small>درخواست خدمات نصب ←</small></a></div>
       </div>
     </div>
   </div>

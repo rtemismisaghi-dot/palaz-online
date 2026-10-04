@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CustomerInstallationController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\LoginController;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Storage;
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
 Route::get('/account', [AccountController::class, 'index'])->name('account');
+Route::get('/account/installations/{order}/prepare', [CustomerInstallationController::class, 'prepare'])->name('account.installation');
+Route::post('/account/installations/{order}/complete', [CustomerInstallationController::class, 'complete'])->name('account.installation.complete');
 
 Route::get('/dev/import-carpet-catalog', function () {
     abort_unless(app()->environment('local'), 404);

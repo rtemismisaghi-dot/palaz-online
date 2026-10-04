@@ -6,19 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductPricingRule;
+use App\Models\ProductMedia;
+use App\Models\ProductInventoryRoll;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'pricingRule']);
+        $query = Product::with(['category', 'pricingRule', 'inventoryRolls']);
 
         if ($search = trim((string) $request->input('q'))) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('slug', 'ilike', "%{$search}%");
+                    ->orWhere('slug', 'ilike', "%{$search}%")
+                    ->orWhereRaw("(attributes->>'code') ILIKE ?", ["%{$search}%"]);
             });
         }
 
@@ -83,8 +87,49 @@ class ProductController extends Controller
         return $this->save($request, $product);
     }
 
-    public function destroy(Product $product)
+    public function uploadMedia(Request $request, Product $product)
     {
+        $data = $request->validate(['image' => ['required','image','mimes:jpeg,jpg,png,webp','max:8192'],'alt' => ['nullable','string','max:180']]);
+        $path = $data['image']->store('products', 'public');
+        $product->media()->create([
+            'disk' => 'public',
+            'path' => $path,
+            'source_url' => null,
+            'alt' => $data['alt'] ?? $product->name,
+            'sort_order' => ((int) $product->media()->max('sort_order')) + 1,
+            'is_cover' => ! $product->media()->exists(),
+        ]);
+        return back()->with('success','عکس محصول اضافه شد.');
+    }
+
+    public function deleteMedia(Product $product, ProductMedia $media)
+    {
+        abort_unless($media->product_id === $product->id, 404);
+        $wasCover = $media->is_cover;
+        $disk = $media->disk ?: 'public';
+
+        if ($media->path && Storage::disk($disk)->exists($media->path)) {
+            Storage::disk($disk)->delete($media->path);
+        }
+
+        $media->delete();
+        if ($wasCover) $product->media()->orderBy('sort_order')->orderBy('id')->first()?->update(['is_cover'=>true]);
+        return back()->with('success','عکس حذف شد.');
+    }
+
+    public function setCover(Product $product, ProductMedia $media)
+    {
+        abort_unless($media->product_id === $product->id, 404);
+        DB::transaction(function() use($product,$media){$product->media()->update(['is_cover'=>false]);$media->update(['is_cover'=>true]);});
+        return back()->with('success','عکس اصلی محصول تغییر کرد.');
+    }
+
+    public function destroy(Request $request, Product $product)
+    {
+        $request->validate([
+            'delete_confirmation' => ['required', 'in:DELETE'],
+        ]);
+
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'محصول حذف شد.');
@@ -104,6 +149,8 @@ class ProductController extends Controller
             'calculation_type' => 'required|in:fixed,area,roll,quantity',
             'calculation_unit' => 'required|string|max:40',
             'waste_percent' => 'nullable|numeric|min:0|max:100',
+            'roll_stock' => 'nullable|array',
+            'roll_stock.*' => 'nullable|integer|min:0|max:100000',
         ]);
 
         $attributes = null;
@@ -125,6 +172,15 @@ class ProductController extends Controller
                 'is_featured' => $request->boolean('is_featured'),
             ]);
             $product->save();
+
+            if (($data['calculation_type'] ?? null) === 'roll') {
+                foreach (range(1, 15) as $length) {
+                    ProductInventoryRoll::updateOrCreate(
+                        ['product_id' => $product->id, 'width' => 3, 'length' => $length],
+                        ['quantity' => (int) ($data['roll_stock'][$length] ?? 0)]
+                    );
+                }
+            }
 
             ProductPricingRule::updateOrCreate(
                 ['product_id' => $product->id],

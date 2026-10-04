@@ -9,7 +9,7 @@ class ProductMedia extends Model
 {
     protected $table = 'product_media';
 
-    protected $fillable = ['product_id', 'path', 'alt', 'sort_order', 'is_cover'];
+    protected $fillable = ['product_id', 'disk', 'path', 'source_url', 'alt', 'sort_order', 'is_cover'];
 
     protected $casts = [
         'is_cover' => 'boolean',

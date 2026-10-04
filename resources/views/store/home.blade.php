@@ -1129,6 +1129,15 @@
             <button class="palaz-advisor-send" type="submit" aria-label="ارسال پیام">↑</button>
           </form>
           <div class="palaz-advisor-note">مشاور پالاز می‌تواند درباره انتخاب، مقایسه، محاسبه و اجرای محصول راهنمایی کند.</div>
+          <style>
+          /* Mobile advisor: keep the main character, remove duplicate message avatar and replay/extra consultation control */
+          @media (max-width:700px){
+            #palaz-advisor-panel .palaz-advisor-message .palaz-advisor-avatar,
+            #palaz-advisor-panel .palaz-advisor-message .palaz-advisor-avatar img{display:none!important}
+            #palaz-advisor-panel .palaz-advisor-message{gap:0!important}
+            #palaz-advisor-panel .palaz-advisor-voice-replay{display:none!important}
+          }
+          </style>
         </section>
       </div>
     </div>
@@ -1273,7 +1282,46 @@
         if (!voices.length) return null;
         return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
           || voices.find(v => /^fa/i.test(v.lang))
+          || voices.find(v => /persian|farsi/i.test(v.name))
           || null;
+      };
+
+      const speakText = (text) => {
+        if (!text || !('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return false;
+        const synth = window.speechSynthesis;
+        synth.cancel();
+        synth.resume();
+
+        const utterance = new SpeechSynthesisUtterance(String(text));
+        const voice = getPersianVoice();
+        if (voice) {
+          utterance.voice = voice;
+          utterance.lang = voice.lang || 'fa-IR';
+        } else {
+          utterance.lang = 'fa-IR';
+        }
+        utterance.rate = .92;
+        utterance.pitch = 1.05;
+        utterance.volume = 1;
+
+        utterance.onstart = () => {
+          setAdvisorVisualState('answering');
+          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
+          voiceReplay?.classList.add('is-speaking');
+        };
+        utterance.onend = () => {
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+          voiceReplay?.classList.remove('is-speaking');
+        };
+        utterance.onerror = () => {
+          setAdvisorVisualState('');
+          voiceReplay?.classList.remove('is-speaking');
+          if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ دوباره تلاش کنید.';
+        };
+
+        synth.speak(utterance);
+        return true;
       };
 
       const setAdvisorVisualState = state => {
@@ -1371,9 +1419,19 @@
             contextBadge.classList.remove('is-active');
           }
         }
-        speakWelcome();
         input?.focus();
       };
+
+      // شروع صدا مستقیماً از تعامل کاربر انجام می‌شود تا مرورگر آن را autoplay حساب نکند.
+      openers.forEach(btn => {
+        btn.addEventListener('pointerdown', () => {
+          if (!backdrop.classList.contains('is-open')) speakWelcome();
+        }, {passive:true});
+        btn.addEventListener('keydown', e => {
+          if ((e.key === 'Enter' || e.key === ' ') && !backdrop.classList.contains('is-open')) speakWelcome();
+        });
+      });
+
       const closeAdvisor = () => {
         setAdvisorVisualState('');
         window.speechSynthesis?.cancel();
@@ -1459,6 +1517,7 @@
           const data = await response.json();
           if (!response.ok || !data.reply) throw new Error('advisor_failed');
           addMessage(data.reply, 'assistant', data.actions || []);
+          speakText(data.reply);
           setAdvisorVisualState('answering');
           window.setTimeout(() => setAdvisorVisualState(''), 900);
         } catch (error) {
@@ -1492,20 +1551,49 @@
         const recognition = new SpeechRecognition();
         recognition.lang = 'fa-IR';
         recognition.interimResults = false;
+        recognition.continuous = false;
         recognition.maxAlternatives = 1;
-        mic.classList.add('is-listening');
-        setAdvisorVisualState('listening');
-        recognition.start();
-        recognition.onresult = e => {
-          input.value = e.results[0][0].transcript;
-          input.focus();
+
+        recognition.onstart = () => {
+          mic.classList.add('is-listening');
+          setAdvisorVisualState('listening');
+          if (voiceStatus) voiceStatus.textContent = 'دارم گوش می‌دهم... صحبت کنید';
         };
-        recognition.onerror = () => { mic.classList.remove('is-listening'); setAdvisorVisualState(''); };
+
+        recognition.onresult = e => {
+          const transcript = e.results?.[0]?.[0]?.transcript?.trim() || '';
+          if (transcript) {
+            input.value = transcript;
+            input.focus();
+            if (voiceStatus) voiceStatus.textContent = 'پیام شما دریافت شد';
+          }
+        };
+
+        recognition.onerror = e => {
+          mic.classList.remove('is-listening');
+          setAdvisorVisualState('');
+          const messages = {
+            'not-allowed':'اجازه دسترسی به میکروفن داده نشد.',
+            'service-not-allowed':'سرویس تشخیص صدا در این مرورگر در دسترس نیست.',
+            'no-speech':'صدایی دریافت نشد؛ دوباره امتحان کنید.',
+            'audio-capture':'میکروفن پیدا نشد یا در اختیار برنامه دیگری است.'
+          };
+          if (voiceStatus) voiceStatus.textContent = messages[e.error] || 'خطا در دریافت صدا؛ دوباره امتحان کنید.';
+        };
+
         recognition.onend = () => {
           mic.classList.remove('is-listening');
           if (input?.value?.trim()) setAdvisorVisualState('thinking');
           else setAdvisorVisualState('');
         };
+
+        try {
+          recognition.start();
+        } catch (error) {
+          mic.classList.remove('is-listening');
+          setAdvisorVisualState('');
+          if (voiceStatus) voiceStatus.textContent = 'شروع میکروفن ناموفق بود؛ دوباره بزنید.';
+        }
       });
     })();
   </script>

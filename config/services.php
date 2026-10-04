@@ -4,12 +4,11 @@ return [
     'postmark' => ['token' => env('POSTMARK_TOKEN')],
     'resend' => ['key' => env('RESEND_KEY')],
     'ses' => ['key' => env('AWS_ACCESS_KEY_ID'), 'secret' => env('AWS_SECRET_ACCESS_KEY'), 'region' => env('AWS_DEFAULT_REGION', 'us-east-1')],
-    'dtz' => [
-        'url' => env('DTZ_URL'),
-        'integration_token' => env('DTZ_INTEGRATION_TOKEN'),
-    ],
-
     'slack' => ['notifications' => ['bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'), 'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL')]],
     'openai' => ['key' => env('OPENAI_API_KEY'), 'model' => env('OPENAI_CHAT_MODEL', 'gpt-5.6-luna')],
+    'dtz' => [
+        'url' => env('DTZ_URL'),
+        'palaz_token' => env('DTZ_PALAZ_TOKEN'),
+    ],
     'openrouter' => ['key' => env('OPENROUTER_API_KEY'), 'model' => env('OPENROUTER_MODEL', 'openrouter/free'), 'vision_model' => env('OPENROUTER_VISION_MODEL', env('OPENROUTER_MODEL', 'openrouter/free'))],
 ];

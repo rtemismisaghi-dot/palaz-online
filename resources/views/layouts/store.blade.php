@@ -6,6 +6,7 @@
 <title>@yield('title','PALAZ ONLINE')</title>
 @vite(['resources/css/app.css','resources/js/app.js'])
 <style id="palaz-header-rotator">
+.header-action-form{margin:0;padding:0}.header-action-form .header-action{font:inherit;border:0;background:transparent;padding:0;cursor:pointer}
 @media (min-width:701px){
 .site-header.header-variant-1 .main-nav{background:transparent}
 .site-header.header-variant-2 .main-nav{background:rgba(255,255,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -17,6 +18,8 @@
 /* Palaz AI desktop cleanup: keep main advisor avatar, remove extra message avatars and secondary speak button */
 .palaz-ai-msg .palaz-ai-avatar{display:none!important}
 .palaz-ai-speak{display:none!important}
+/* Final cleanup: keep only main advisor avatar; hide duplicate message avatar and secondary controls */
+.palaz-ai-msg .palaz-ai-avatar,.palaz-ai-msg .avatar,.palaz-ai-msg img.avatar,.palaz-ai-msg .speak,.palaz-ai-msg .speak-btn,.palaz-ai-msg .voice-btn,.palaz-ai-msg .consultation-btn,.palaz-ai-msg .advisor-btn,.palaz-ai-panel .palaz-ai-speak{display:none!important}
 </style>
 
 <script>
@@ -93,7 +96,11 @@ document.addEventListener('DOMContentLoaded',function(){
 <a href="{{ route('home') }}" class="brand-real" aria-label="PALAZ ONLINE"><img src="{{ asset('images/palaz-logo.png') }}?v=20260926" alt="" class="brand-logo"><span class="brand-wordmark"><strong>PALAZ</strong><small>ONLINE</small></span></a>
 <form class="search search-real" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته یا برند..." aria-label="جستجو"><button type="submit">⌕</button></form>
 <div class="header-actions">
-<a href="{{ route('services') }}" class="header-action"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
+@if(session()->has('customer_user_id'))
+<form method="POST" action="{{ route('logout') }}" class="header-action-form">@csrf<button type="submit" class="header-action"><span class="action-icon">♙</span><span>خروج از حساب</span></button></form>
+@else
+<a href="/login" class="header-action" aria-label="ورود به حساب کاربری"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
+@endif
 <a href="{{ route('home') }}#favorite" class="header-action favorite"><span class="action-icon">♡</span><span>علاقه‌مندی‌ها</span></a>
 <a href="{{ route('cart') }}" class="header-action cart"><span class="action-icon">🛒</span><span>سبد خرید</span><b>{{ count(session('cart', [])) }}</b></a>
 </div>

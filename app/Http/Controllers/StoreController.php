@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\ServiceRequest;
 use App\Support\StoreCatalog;
-use App\Services\PalazDtzClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schema;
 
 class StoreController extends Controller
 {
@@ -53,17 +54,45 @@ class StoreController extends Controller
         return response()->json(['category' => $category, 'products' => $products]);
     }
 
-    public function product(string $id)
+    public function product(Request $request, string $id)
     {
-        $product = StoreCatalog::find($id);
-        abort_unless($product, 404);
+        $directProduct = StoreCatalog::find($id);
 
-        return view('store.product', ['product' => $product]);
+        if ($directProduct) {
+            $product = $directProduct;
+            $variants = $product['model'] ? StoreCatalog::modelProducts($product['model']) : [$product];
+        } else {
+            $variants = StoreCatalog::modelProducts($id);
+            abort_unless($variants !== [], 404);
+
+            $selectedCode = $request->string('code')->toString();
+            $product = StoreCatalog::findModelVariant($id, $selectedCode) ?? $variants[0];
+        }
+
+        return view('store.product', [
+            'product' => $product,
+            'variants' => $variants,
+            'model' => $product['model'] ?? null,
+        ]);
     }
 
-    public function services()
+    public function services(Request $request)
     {
-        return view('store.services');
+        $selectedProduct = null;
+        $productId = $request->string('product')->toString();
+
+        if ($productId !== '') {
+            $selectedProduct = StoreCatalog::find($productId);
+
+            if (!$selectedProduct && $request->string('code')->isNotEmpty()) {
+                $selectedProduct = StoreCatalog::findModelVariant(
+                    $productId,
+                    $request->string('code')->toString()
+                );
+            }
+        }
+
+        return view('store.services', compact('selectedProduct'));
     }
 
     public function cart(Request $request)
@@ -77,6 +106,7 @@ class StoreController extends Controller
                 }
 
                 $product['quantity'] = max(1, (int) ($item['quantity'] ?? 1));
+                $product['roll_length'] = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
                 return $product;
             })
             ->filter()
@@ -90,12 +120,20 @@ class StoreController extends Controller
         abort_unless(StoreCatalog::find($id), 404);
 
         $quantity = max(1, (int) $request->input('quantity', 1));
+        $product = StoreCatalog::find($id);
+        $rollLength = null;
+        if (($product['calculation_type'] ?? null) === 'roll') {
+            $rollLength = max(1, min(15, (int) $request->input('roll_length', 3)));
+        }
         $cart = $request->session()->get('cart', []);
         $found = false;
 
         foreach ($cart as &$item) {
             if (($item['id'] ?? null) === $id) {
                 $item['quantity'] = ($item['quantity'] ?? 1) + $quantity;
+                if ($rollLength !== null) {
+                    $item['roll_length'] = $rollLength;
+                }
                 $found = true;
                 break;
             }
@@ -103,12 +141,21 @@ class StoreController extends Controller
         unset($item);
 
         if (!$found) {
-            $cart[] = ['id' => $id, 'quantity' => $quantity];
+            $cart[] = ['id' => $id, 'quantity' => $quantity, 'roll_length' => $rollLength];
         }
 
         $request->session()->put('cart', $cart);
 
         return redirect()->route('cart')->with('success', 'محصول به سبد خرید اضافه شد.');
+    }
+
+    public function removeFromCart(Request $request, string $id)
+    {
+        $cart = $request->session()->get('cart', []);
+        $cart = array_values(array_filter($cart, fn ($item) => ($item['id'] ?? null) !== $id));
+        $request->session()->put('cart', $cart);
+
+        return redirect()->route('cart')->with('success', 'محصول از سبد خرید حذف شد.');
     }
 
     public function checkout(Request $request)
@@ -119,10 +166,33 @@ class StoreController extends Controller
             return redirect()->route('shop')->with('error', 'برای ادامه، ابتدا محصولی به سبد خرید اضافه کنید.');
         }
 
-        return view('store.checkout', ['items' => $items]);
+        $itemsTotal = $items->every(fn ($item) => $this->cartItemTotal($item) !== null)
+            ? $items->sum(fn ($item) => $this->cartItemTotal($item))
+            : null;
+
+        $installationArea = (float) $items->sum(function (array $item) {
+            if (($item['calculation_type'] ?? null) !== 'roll' || empty($item['roll_length'])) {
+                return 0;
+            }
+
+            return 3 * max(1, min(15, (int) $item['roll_length'])) * max(1, (int) ($item['quantity'] ?? 1));
+        });
+
+        $installationRollQuantity = (int) $items->sum(function (array $item) {
+            return ($item['calculation_type'] ?? null) === 'roll'
+                ? max(1, (int) ($item['quantity'] ?? 1))
+                : 0;
+        });
+
+        return view('store.checkout', [
+            'items' => $items,
+            'itemsTotal' => $itemsTotal,
+            'installationArea' => $installationArea,
+            'installationRollQuantity' => $installationRollQuantity,
+        ]);
     }
 
-    public function placeOrder(Request $request, PalazDtzClient $dtz)
+    public function placeOrder(Request $request)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -131,7 +201,10 @@ class StoreController extends Controller
             'address' => ['required', 'string', 'max:500'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'service' => ['nullable', 'in:none,measurement,installation,design'],
-            'payment' => ['required', 'in:pending,offline'],
+            'installation_area' => ['nullable', 'numeric', 'min:0'],
+            'installation_quantity' => ['nullable', 'numeric', 'min:0'],
+            'installation_description' => ['nullable', 'string', 'max:1000'],
+            'payment' => ['required', 'in:offline'],
         ]);
 
         $items = $this->cartItems($request);
@@ -150,19 +223,28 @@ class StoreController extends Controller
                 'service' => $data['service'] ?? 'none',
                 'payment_status' => $data['payment'],
                 'status' => 'received',
-                'subtotal' => 0,
-                'total' => 0,
+                'subtotal' => $items->sum(fn ($item) => $this->cartItemTotal($item)),
+                'total' => $items->sum(fn ($item) => $this->cartItemTotal($item)),
             ]);
 
             foreach ($items as $item) {
                 $product = \App\Models\Product::where('slug', $item['id'])->where('is_active', true)->firstOrFail();
                 $quantity = max(1, (int) $item['quantity']);
-                $unitPrice = $product->price;
+                $basePrice = $product->price;
+                $rollLength = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $unitPrice = $basePrice;
+                if ($rollLength !== null && $basePrice !== null) {
+                    $unitPrice = $basePrice * 3 * $rollLength;
+                }
                 $lineTotal = $unitPrice !== null ? $unitPrice * $quantity : null;
+                $productName = $product->name;
+                if ($rollLength !== null) {
+                    $productName .= ' — طاقه عرض ۳ × طول ' . $rollLength . ' متر';
+                }
 
                 $order->items()->create([
                     'product_id' => $product->id,
-                    'product_name' => $product->name,
+                    'product_name' => $productName,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'line_total' => $lineTotal,
@@ -172,34 +254,221 @@ class StoreController extends Controller
             return $order->load('items');
         });
 
-        $request->session()->forget('cart');
-
         if (($data['service'] ?? 'none') === 'installation') {
-            $productNames = $items->pluck('name')->filter()->values()->implode('، ');
-            $quantity = $items->sum(fn (array $item) => max(1, (int) ($item['quantity'] ?? 1)));
+            $prepareUrl = $this->forwardOrderInstallation($order, $data, $items);
 
-            $dtzResult = $dtz->createInstallation([
-                'name' => $order->name,
-                'phone' => $order->phone,
-                'city' => $order->city,
-                'address' => $order->address,
-                'product_title' => $productNames ?: null,
-                'quantity' => $quantity,
-                'description' => 'سفارش PALAZ ONLINE با درخواست نصب. کد سفارش: ' . $order->tracking_code,
-                'palaz_order_id' => $order->tracking_code,
-            ]);
-
-            if (($dtzResult['success'] ?? false) && ! empty($dtzResult['prepare_url'])) {
-                return redirect()->away($dtzResult['prepare_url']);
+            if ($prepareUrl) {
+                $request->session()->forget('cart');
+                return redirect()->away($prepareUrl);
             }
 
-            return view('store.order-success', [
-                'order' => $order,
-                'service_error' => $dtzResult['message'] ?? 'درخواست نصب در حال بررسی است.',
-            ]);
+            // Keep the cart so the customer can retry the installation handoff.
+            // Do not silently show a successful order page when DTZ rejected it.
+            return redirect()
+                ->route('checkout')
+                ->with('installation_error', 'سفارش ثبت شد، اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.');
         }
 
-        return view('store.order-success', ['order' => $order]);
+        $request->session()->forget('cart');
+
+        return view('store.order-success', ['order' => $order->fresh()]);
+    }
+
+    private function forwardOrderInstallation(Order $order, array $data, $items): ?string
+    {
+        $product = $items->first();
+
+        // Roll dimensions are already selected during purchase. Installation must
+        // receive the derived area and never ask the customer to re-enter rolls.
+        $rollWidth = 3;
+        $rolls = $items->filter(fn (array $item) => ($item['calculation_type'] ?? null) === 'roll')
+            ->map(function (array $item) use ($rollWidth) {
+                $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $quantity = max(1, (int) ($item['quantity'] ?? 1));
+                $area = $length !== null ? $rollWidth * $length * $quantity : 0;
+
+                return [
+                    'code' => $item['code'] ?? null,
+                    'name' => $item['name'] ?? null,
+                    'model' => $item['model'] ?? null,
+                    'width' => $rollWidth,
+                    'length' => $length,
+                    'quantity' => $quantity,
+                    'area' => $area,
+                ];
+            })->values();
+
+        $totalArea = (float) $rolls->sum('area');
+        $totalRollQuantity = (int) $rolls->sum('quantity');
+
+        $productSummary = $items->map(function (array $item) use ($rollWidth) {
+            $isRoll = ($item['calculation_type'] ?? null) === 'roll';
+            $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+            $quantity = max(1, (int) ($item['quantity'] ?? 1));
+            $area = ($isRoll && $length !== null) ? $rollWidth * $length * $quantity : null;
+
+            return collect([
+                $item['name'] ?? null,
+                !empty($item['code']) ? 'کد: ' . $item['code'] : null,
+                !empty($item['model']) ? 'مدل: ' . $item['model'] : null,
+                $isRoll && $length !== null ? 'طاقه: عرض ۳ × طول ' . $length . ' متر' : null,
+                'تعداد: ' . $quantity,
+                $area !== null ? 'متراژ: ' . $area . ' مترمربع' : null,
+            ])->filter()->implode(' | ');
+        })->filter()->implode("\n");
+
+        $installationDescription = trim((string) ($data['installation_description'] ?? ''));
+        $description = collect([
+            $productSummary ? 'محصولات سفارش:' . "\n" . $productSummary : null,
+            $totalArea > 0 ? 'متراژ کل نصب: ' . $totalArea . ' مترمربع' : null,
+            $totalRollQuantity > 0 ? 'تعداد طاقه: ' . $totalRollQuantity : null,
+            $installationDescription ? 'توضیحات نصب: ' . $installationDescription : null,
+        ])->filter()->implode("\n");
+
+        $description = $description !== '' ? $description : null;
+
+        $serviceData = [
+            'tracking_code' => $this->trackingCode('SR-', 8),
+            'type' => 'installation',
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'description' => $description,
+            'status' => 'received',
+            'target_system' => 'dtz',
+        ];
+
+        // Allow older local databases to complete checkout before the order_id migration is run.
+        if (Schema::hasColumn('service_requests', 'order_id')) {
+            $serviceData['order_id'] = $order->id;
+        }
+
+        $service = ServiceRequest::create($serviceData);
+
+        $token = (string) config('services.dtz.palaz_token');
+        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';
+
+        if ($token === '' || ! str_starts_with($url, 'http')) {
+            $service->update(['status' => 'pending_integration']);
+            return null;
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(15)
+                ->post($url, [
+                    'name' => $data['name'],
+                    'phone' => $data['phone'],
+                    'city' => $data['city'],
+                    'address' => $data['address'],
+                    'product_code' => $product['code'] ?? null,
+                    'product_title' => $product['name'] ?? null,
+                    'product_model' => $product['model'] ?? null,
+                    'area' => $totalArea > 0 ? $totalArea : null,
+                    'quantity' => $totalRollQuantity > 0 ? $totalRollQuantity : null,
+                    'rolls' => $rolls->all(),
+                    'description' => $description,
+                    'palaz_order_id' => 'PO-' . $order->id,
+                ]);
+
+            if ($response->successful()) {
+                $payload = $response->json();
+                $prepareUrl = $payload['prepare_url'] ?? null;
+
+                $service->update([
+                    'status' => 'forwarded',
+                    'external_id' => $payload['installation_id'] ?? null,
+                ]);
+
+                if (is_string($prepareUrl) && $prepareUrl !== '') {
+                    // Keep DTZ's signed path/query, but navigate through the configured DTZ host.
+                    $dtzBaseUrl = rtrim((string) config('services.dtz.url'), '/');
+                    $parsed = parse_url($prepareUrl);
+                    if ($dtzBaseUrl !== '' && is_array($parsed) && !empty($parsed['path'])) {
+                        $prepareUrl = $dtzBaseUrl . $parsed['path']
+                            . (!empty($parsed['query']) ? '?' . $parsed['query'] : '')
+                            . (!empty($parsed['fragment']) ? '#' . $parsed['fragment'] : '');
+                    }
+                    return $prepareUrl;
+                }
+
+                \Illuminate\Support\Facades\Log::error('DTZ installation handoff returned no prepare_url.', [
+                    'order_id' => $order->id,
+                    'status' => $response->status(),
+                    'response' => $payload,
+                ]);
+                $service->update(['status' => 'integration_failed']);
+                return null;
+            }
+
+            $errorPayload = $response->json();
+            $errorMessage = is_array($errorPayload)
+                ? ($errorPayload['message'] ?? json_encode($errorPayload, JSON_UNESCAPED_UNICODE))
+                : trim($response->body());
+
+            \Illuminate\Support\Facades\Log::error('DTZ installation handoff failed.', [
+                'order_id' => $order->id,
+                'url' => $url,
+                'status' => $response->status(),
+                'response' => $errorPayload ?: $response->body(),
+            ]);
+            $service->update(['status' => 'integration_failed']);
+
+            session()->flash(
+                'installation_error_detail',
+                'DTZ HTTP ' . $response->status() . ': ' . mb_substr((string) $errorMessage, 0, 300)
+            );
+        } catch (\Throwable $e) {
+            report($e);
+            $service->update(['status' => 'integration_failed']);
+
+            session()->flash(
+                'installation_error_detail',
+                'خطای اتصال به DTZ: ' . mb_substr($e->getMessage(), 0, 300)
+            );
+        }
+
+        return null;
+    }
+
+
+    public function installationComplete(Request $request)
+    {
+        $data = $request->validate([
+            'order_id' => ['required', 'string', 'max:120'],
+            'installation_id' => ['required', 'integer'],
+            'tracking_code' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $orderId = $data['order_id'];
+        $orderNumber = str_starts_with($orderId, 'PO-') ? (int) substr($orderId, 3) : 0;
+        abort_unless($orderNumber > 0, 404);
+
+        $order = Order::with('items')->findOrFail($orderNumber);
+        abort_unless($order->service === 'installation', 404);
+
+        $token = (string) config('services.dtz.palaz_token');
+        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations/' . (int) $data['installation_id'] . '/quote';
+        abort_unless($token !== '' && str_starts_with($url, 'http'), 503);
+
+        $response = Http::withToken($token)->acceptJson()->timeout(15)->get($url);
+        abort_unless($response->successful(), 502);
+        $quote = $response->json();
+        abort_unless(($quote['success'] ?? false) && (int) ($quote['installation_id'] ?? 0) === (int) $data['installation_id'], 502);
+        abort_unless(($quote['external_reference'] ?? null) === $orderId, 409);
+
+        $installationAmount = (float) ($quote['total_amount'] ?? 0);
+        $productsTotal = (float) $order->items->sum(fn ($item) => (float) ($item->line_total ?? 0));
+        $order->update([
+            'total' => $productsTotal + $installationAmount,
+            'status' => 'received',
+        ]);
+
+        return view('store.order-success', [
+            'order' => $order->fresh('items'),
+            'installationAmount' => $installationAmount,
+            'installationTrackingCode' => $quote['tracking_code'] ?? $data['tracking_code'] ?? null,
+        ]);
     }
 
     public function advisorChat(Request $request)
@@ -546,25 +815,20 @@ class StoreController extends Controller
         return 'در خدمتم. درباره انتخاب محصول، مقایسه، قیمت و محاسبه، اندازه‌گیری یا نصب سؤال کنید. اگر نام محصول یا متراژ را هم بگویید، پاسخ دقیق‌تر می‌شود.';
     }
 
-    public function installationComplete(Request $request)
-    {
-        $order = Order::where('tracking_code', (string) $request->query('order_id'))->first();
-
-        abort_unless($order, 404);
-
-        return view('store.order-success', [
-            'order' => $order,
-            'service_complete' => true,
-            'installation_tracking_code' => $request->query('tracking_code'),
-        ]);
-    }
-
     public function serviceRequest(Request $request)
     {
         $data = $request->validate([
             'type' => ['required', 'in:measurement,installation,design'],
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', 'max:30'],
+            'city' => ['required', 'string', 'max:100'],
+            'address' => ['required', 'string', 'max:500'],
+            'product_id' => ['nullable', 'string', 'max:120'],
+            'product_code' => ['nullable', 'string', 'max:100'],
+            'product_title' => ['nullable', 'string', 'max:255'],
+            'product_model' => ['nullable', 'string', 'max:255'],
+            'area' => ['nullable', 'numeric', 'min:0'],
+            'quantity' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -573,15 +837,78 @@ class StoreController extends Controller
             'design' => 'dtz_tablet',
         };
 
+        $description = collect([
+            $data['product_title'] ? 'محصول: ' . $data['product_title'] : null,
+            $data['product_model'] ? 'مدل: ' . $data['product_model'] : null,
+            $data['product_code'] ? 'کد: ' . $data['product_code'] : null,
+            isset($data['area']) ? 'متراژ: ' . $data['area'] . ' مترمربع' : null,
+            isset($data['quantity']) ? 'تعداد: ' . $data['quantity'] : null,
+            'شهر: ' . $data['city'],
+            'آدرس: ' . $data['address'],
+            $data['description'] ?? null,
+        ])->filter()->implode("\n");
+
         $service = ServiceRequest::create([
             'tracking_code' => $this->trackingCode('SR-', 8),
             'type' => $data['type'],
             'name' => $data['name'],
             'phone' => $data['phone'],
-            'description' => $data['description'] ?? null,
+            'description' => $description ?: null,
             'status' => 'received',
             'target_system' => $target,
         ]);
+
+        if ($data['type'] === 'installation') {
+            $token = (string) config('services.dtz.palaz_token');
+            $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';
+
+            if ($token === '' || ! str_starts_with($url, 'http')) {
+                $service->update(['status' => 'pending_integration']);
+                return back()->withInput()->with('service_error', 'مسیر اتصال خدمات نصب هنوز تنظیم نشده است.');
+            }
+
+            try {
+                $response = Http::withToken($token)
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->post($url, [
+                        'name' => $data['name'],
+                        'phone' => $data['phone'],
+                        'city' => $data['city'],
+                        'address' => $data['address'],
+                        'product_code' => $data['product_code'] ?? null,
+                        'product_title' => $data['product_title'] ?? null,
+                        'product_model' => $data['product_model'] ?? null,
+                        'area' => $data['area'] ?? null,
+                        'quantity' => $data['quantity'] ?? null,
+                        'description' => $data['description'] ?? null,
+                        'palaz_order_id' => 'SR-' . $service->id,
+                    ]);
+
+                if ($response->successful()) {
+                    $payload = $response->json();
+                    $service->update([
+                        'status' => 'forwarded',
+                        'external_id' => $payload['installation_id'] ?? null,
+                    ]);
+
+                    return back()->with(
+                        'service_success',
+                        'درخواست نصب ثبت شد. کد پیگیری: ' . ($payload['tracking_code'] ?? $service->tracking_code)
+                    );
+                }
+
+                $service->update(['status' => 'integration_failed']);
+            } catch (\Throwable $e) {
+                report($e);
+                $service->update(['status' => 'integration_failed']);
+            }
+
+            return back()->withInput()->with(
+                'service_error',
+                'درخواست ثبت شد اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.'
+            );
+        }
 
         return back()->with('service_success', 'درخواست شما ثبت شد. کد پیگیری: ' . $service->tracking_code);
     }
@@ -596,10 +923,22 @@ class StoreController extends Controller
                 }
 
                 $product['quantity'] = max(1, (int) ($item['quantity'] ?? 1));
+                $product['roll_length'] = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
                 return $product;
             })
             ->filter()
             ->values();
+    }
+
+    private function cartItemTotal(array $item): ?float
+    {
+        if (($item['price'] ?? null) === null) return null;
+        $quantity = max(1, (int) ($item['quantity'] ?? 1));
+        $price = (float) $item['price'];
+        if (($item['calculation_type'] ?? null) === 'roll' && !empty($item['roll_length'])) {
+            $price *= 3 * max(1, min(15, (int) $item['roll_length']));
+        }
+        return $price * $quantity;
     }
 
     private function trackingCode(string $prefix, int $length): string

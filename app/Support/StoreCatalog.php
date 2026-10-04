@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Schema;
 
 final class StoreCatalog
 {
@@ -22,7 +23,6 @@ final class StoreCatalog
             ])
             ->all();
 
-        // Keep the storefront visible even before the local category migration is run.
         if (! isset($categories['wallpaper'])) {
             $categories['wallpaper'] = [
                 'title' => 'کاغذ دیواری',
@@ -34,11 +34,21 @@ final class StoreCatalog
         return $categories;
     }
 
+    private static function productQuery()
+    {
+        $relations = ['category', 'pricingRule'];
+
+        if (Schema::hasTable('product_media')) {
+            $relations[] = 'media';
+        }
+
+        return Product::query()->with($relations);
+    }
+
     public static function products(): array
     {
         return self::mapProducts(
-            Product::query()
-                ->with('category')
+            self::productQuery()
                 ->where('is_active', true)
                 ->latest('id')
                 ->get()
@@ -47,8 +57,7 @@ final class StoreCatalog
 
     public static function find(string $id): ?array
     {
-        $product = Product::query()
-            ->with('category')
+        $product = self::productQuery()
             ->where('slug', $id)
             ->where('is_active', true)
             ->first();
@@ -56,10 +65,36 @@ final class StoreCatalog
         return $product ? self::mapProduct($product) : null;
     }
 
+    public static function modelProducts(string $album): array
+    {
+        return self::mapProducts(
+            self::productQuery()
+                ->where('is_active', true)
+                ->where('attributes->album', $album)
+                ->orderBy('id')
+                ->get()
+        );
+    }
+
+    public static function findModelVariant(string $album, ?string $code = null): ?array
+    {
+        $query = self::productQuery()
+            ->where('is_active', true)
+            ->where('attributes->album', $album)
+            ->orderBy('id');
+
+        if ($code !== null && $code !== '') {
+            $query->where('attributes->code', $code);
+        }
+
+        $product = $query->first();
+
+        return $product ? self::mapProduct($product) : null;
+    }
+
     public static function byCategory(?string $category): array
     {
-        $query = Product::query()
-            ->with('category')
+        $query = self::productQuery()
             ->where('is_active', true)
             ->when($category, fn ($q) => $q->whereHas('category', fn ($cq) => $cq->where('slug', $category)))
             ->latest('id');
@@ -72,13 +107,14 @@ final class StoreCatalog
         $query = trim((string) $query);
 
         return self::mapProducts(
-            Product::query()
-                ->with('category')
+            self::productQuery()
                 ->where('is_active', true)
                 ->when($query !== '', function ($q) use ($query) {
                     $q->where(function ($search) use ($query) {
                         $search->where('name', 'like', '%' . $query . '%')
-                            ->orWhere('description', 'like', '%' . $query . '%');
+                            ->orWhere('description', 'like', '%' . $query . '%')
+                            ->orWhere('attributes->code', 'like', '%' . $query . '%')
+                            ->orWhere('attributes->album', 'like', '%' . $query . '%');
                     });
                 })
                 ->latest('id')
@@ -101,7 +137,29 @@ final class StoreCatalog
             'unit' => $product->unit,
             'tone' => $product->tone,
             'description' => $product->description,
-            'image' => optional($product->media->first())->path,
+            'image' => self::productImageUrl($product),
+            'attributes' => $product->attributes ?? [],
+            'calculation_type' => $product->pricingRule?->calculation_type,
+            'model' => $product->attributes['album'] ?? null,
+            'code' => $product->attributes['code'] ?? null,
         ];
+    }
+    private static function productImageUrl(Product $product): ?string
+    {
+        if (! Schema::hasTable('product_media')) {
+            return null;
+        }
+
+        $media = $product->media->first();
+        if (! $media || ! $media->path) {
+            return null;
+        }
+
+        $path = (string) $media->path;
+        if (preg_match('/^https?:\\/\\//i', $path)) {
+            return $path;
+        }
+
+        return route('media.public', ['path' => $path]);
     }
 }

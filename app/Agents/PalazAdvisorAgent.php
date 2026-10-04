@@ -33,6 +33,7 @@ final class PalazAdvisorAgent
 لحن: صمیمی، حرفه‌ای، کوتاه و طبیعی؛ فروشنده اصراری نباش.
 اول نیاز مشتری را بفهم: فضا، متراژ، سبک/اولویت، بودجه و محدودیت‌ها. در هر نوبت حداکثر دو سؤال ضروری بپرس.
 فقط درباره محصول و قیمت از کاتالوگ داده‌شده استفاده کن و هرگز قیمت، موجودی یا مشخصات را حدس نزن.
+مهم: زبان خروجی همیشه فارسی باشد. حتی اگر پیام کاربر با صدا تشخیص داده شده، پاسخ را فارسی و با خط فارسی تولید کن؛ از انگلیسی استفاده نکن مگر برای نام خاص محصول، برند یا کد.
 اگر اطلاعات کافی است، 2 تا 3 گزینه را با دلیل کوتاه مقایسه کن.
 اگر کاربر در Visualizer دو محصول را مقایسه می‌کند، همان دو محصول را مبنای پاسخ قرار بده و تفاوت‌ها را فقط بر اساس اطلاعات کاتالوگ توضیح بده؛ محصولی را به‌عنوان «بهترین» یا «برنده» اعلام نکن.
 اگر کاربر درباره اندازه‌گیری، نصب، طراحی یا محاسبه پرسید، مسیر خدمات پالاز را پیشنهاد کن.
@@ -64,6 +65,31 @@ PROMPT;
 
                 $text = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
                 if ($response->successful() && $text !== '') {
+                    // بعضی مدل‌های رایگان OpenRouter ممکن است با وجود دستور سیستم، پاسخ لاتین بدهند.
+                    // اگر پاسخ عمدتاً فارسی نیست، همان سرویس را برای تبدیل قطعی به فارسی دوباره صدا می‌زنیم.
+                    if ($this->isMostlyLatin($text)) {
+                        $translation = Http::withToken($apiKey)
+                            ->acceptJson()
+                            ->withHeaders([
+                                'HTTP-Referer' => config('app.url'),
+                                'X-Title' => 'Palaz AI Advisor Persian',
+                            ])
+                            ->timeout(30)
+                            ->post('https://openrouter.ai/api/v1/chat/completions', [
+                                'model' => config('services.openrouter.model', 'openrouter/free'),
+                                'messages' => [
+                                    ['role' => 'system', 'content' => 'فقط مترجم فارسی هستی. متن زیر را به فارسی روان و طبیعی ترجمه کن. هیچ توضیح اضافه، انگلیسی یا Markdown نده. نام برند، محصول و کد را در صورت نیاز لاتین نگه دار.'],
+                                    ['role' => 'user', 'content' => $text],
+                                ],
+                                'max_tokens' => 650,
+                                'temperature' => 0.2,
+                            ]);
+                        $translated = trim((string) data_get($translation->json(), 'choices.0.message.content', ''));
+                        if ($translation->successful() && $translated !== '') {
+                            $text = $translated;
+                        }
+                    }
+
                     return ['reply' => $text, 'mode' => 'ai', 'actions' => $this->actions($message)];
                 }
             } catch (\Throwable $e) {
@@ -148,6 +174,13 @@ PROMPT;
             $parts[] = 'عکس فضای کاربر قبلاً با Vision بررسی شده و محدوده کف شناسایی شده است.';
         }
         return $parts ? "\n\nزمینه فعلی کاربر:\n".implode("\n", $parts) : '';
+    }
+
+    private function isMostlyLatin(string $text): bool
+    {
+        $letters = preg_match_all('/[A-Za-zآ-ی]/u', $text, $matches);
+        $latin = preg_match_all('/[A-Za-z]/', $text, $matches);
+        return $letters > 20 && $latin / max(1, $letters) > 0.55;
     }
 
     private function fallback(string $message): string

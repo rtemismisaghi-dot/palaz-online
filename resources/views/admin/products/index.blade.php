@@ -11,63 +11,49 @@
 
 <form class="card p-3 mb-3" method="get">
     <div class="row g-2 align-items-end">
-        <div class="col-md-4">
-            <label class="form-label">جستجو</label>
-            <input name="q" class="form-control" value="{{ request('q') }}" placeholder="نام یا کد محصول">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">دسته</label>
-            <select name="category_id" class="form-select">
-                <option value="">همه</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">وضعیت</label>
-            <select name="status" class="form-select">
-                <option value="">همه</option>
-                <option value="active" @selected(request('status') === 'active')>فعال</option>
-                <option value="inactive" @selected(request('status') === 'inactive')>غیرفعال</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">مرتب‌سازی</label>
-            <select name="sort" class="form-select">
-                <option value="id">جدیدترین</option>
-                <option value="name" @selected(request('sort') === 'name')>نام</option>
-                <option value="price" @selected(request('sort') === 'price')>قیمت</option>
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button class="btn btn-outline-dark w-100">اعمال</button>
-        </div>
+        <div class="col-md-4"><label class="form-label">جستجو</label><input name="q" class="form-control" value="{{ request('q') }}" placeholder="نام یا کد محصول"></div>
+        <div class="col-md-3"><label class="form-label">دسته</label><select name="category_id" class="form-select"><option value="">همه</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>@endforeach</select></div>
+        <div class="col-md-2"><label class="form-label">وضعیت</label><select name="status" class="form-select"><option value="">همه</option><option value="active" @selected(request('status') === 'active')>فعال</option><option value="inactive" @selected(request('status') === 'inactive')>غیرفعال</option></select></div>
+        <div class="col-md-2"><label class="form-label">مرتب‌سازی</label><select name="sort" class="form-select"><option value="id">جدیدترین</option><option value="name" @selected(request('sort') === 'name')>نام</option><option value="price" @selected(request('sort') === 'price')>قیمت</option></select></div>
+        <div class="col-md-1"><button class="btn btn-outline-dark w-100">اعمال</button></div>
     </div>
 </form>
 
 <div class="card">
     <div class="table-responsive">
         <table class="table align-middle mb-0">
-            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>وضعیت</th><th></th></tr></thead>
+            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت</th><th>محاسبه</th><th>موجودی</th><th>وضعیت</th><th></th></tr></thead>
             <tbody>
             @forelse($products as $product)
                 <tr>
-                    <td>{{ $product->name }}<small class="d-block text-secondary">{{ $product->slug }}</small></td>
+                    <td>{{ $product->name }}<small class="d-block text-secondary">{{ $product->slug }}</small>@if(data_get($product->attributes, 'code'))<small class="d-block text-secondary">کد: {{ data_get($product->attributes, 'code') }}</small>@endif</td>
                     <td>{{ $product->category?->name }}</td>
                     <td>{{ $product->price !== null ? number_format($product->price) : 'تماس' }}<small class="d-block text-secondary">{{ $product->unit }}</small></td>
                     <td>{{ $product->pricingRule?->calculation_type ?? 'ثبت نشده' }} @if($product->pricingRule) · {{ $product->pricingRule->waste_percent }}٪ @endif</td>
+                    <td>
+                        @if($product->pricingRule?->calculation_type === 'roll')
+                            @php
+                                $rollCount = $product->inventoryRolls->sum('quantity');
+                                $rollArea = $product->inventoryRolls->sum(fn($roll) => $roll->width * $roll->length * $roll->quantity);
+                            @endphp
+                            <strong>{{ number_format($rollCount) }} طاقه</strong>
+                            <small class="d-block text-secondary">{{ number_format($rollArea) }} مترمربع</small>
+                        @else
+                            <span class="text-secondary">—</span>
+                        @endif
+                    </td>
                     <td>{{ $product->is_active ? 'فعال' : 'غیرفعال' }}</td>
                     <td class="text-nowrap">
                         <a class="me-2" href="{{ route('admin.products.edit',$product) }}">ویرایش</a>
-                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="return confirm('این محصول حذف شود؟')">
+                        <form class="d-inline" method="post" action="{{ route('admin.products.destroy',$product) }}" onsubmit="const code=prompt('برای حذف کامل محصول، عبارت DELETE را دقیق وارد کنید:'); if(code !== 'DELETE'){ alert('حذف لغو شد.'); return false; } this.querySelector('[name=delete_confirmation]').value=code; return confirm('حذف کامل و غیرقابل بازگشت محصول «{{ addslashes($product->name) }}» و اطلاعات آن انجام شود؟');">
                             @csrf @method('DELETE')
-                            <button class="btn btn-link text-danger p-0">حذف</button>
+                            <input type="hidden" name="delete_confirmation" value="">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">حذف کامل محصول</button>
                         </form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="text-center py-5">محصولی پیدا نشد.</td></tr>
+                <tr><td colspan="7" class="text-center py-5">محصولی پیدا نشد.</td></tr>
             @endforelse
             </tbody>
         </table>

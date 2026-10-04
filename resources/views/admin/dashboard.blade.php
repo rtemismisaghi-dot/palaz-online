@@ -1,1 +1,13 @@
-@extends('layouts.admin') @section('content')<div class="mb-4"><h1>کنسول مدیریت</h1><p class="text-secondary">کنترل محصولات، دسته‌بندی‌ها و منطق قیمت‌گذاری.</p></div><div class="row g-3">@foreach($stats as $key=>$value)<div class="col-6 col-lg-3"><div class="card p-4"><small class="text-secondary">{{ ['categories'=>'دسته‌بندی','products'=>'محصول','orders'=>'سفارش','services'=>'درخواست خدمات'][$key] }}</small><strong class="fs-2">{{ $value }}</strong></div></div>@endforeach</div><div class="row g-3 mt-3"><div class="col-md-6"><a class="btn btn-palaz w-100 py-3" href="{{ route('admin.products.index') }}">مدیریت محصولات و قیمت‌گذاری</a></div><div class="col-md-6"><a class="btn btn-outline-dark w-100 py-3" href="{{ route('admin.categories.index') }}">مدیریت دسته‌بندی‌ها</a></div></div>@endsection
+@extends('layouts.admin')
+@section('title', ($staffArea ?? 'admin') === 'sales' ? 'پنل فروش' : (($staffArea ?? 'admin') === 'installation' ? 'پنل نصب' : 'داشبورد مدیریت'))
+@section('content')
+@if(($staffArea ?? 'admin') === 'sales')
+<div class="card p-4"><h1 class="h3 fw-bold">پنل فروش</h1><p class="text-secondary mb-0">دسترسی اختصاصی تیم فروش پالاز.</p></div>
+@elseif(($staffArea ?? 'admin') === 'installation')
+<div class="card p-4"><h1 class="h3 fw-bold">پنل نصب</h1><p class="text-secondary mb-0">دسترسی اختصاصی تیم نصب پالاز.</p></div>
+@else
+<div class="mb-4"><h1 class="h3 fw-bold mb-2">کنسول مدیریت پالاز</h1><p class="text-secondary mb-0">مرکز کنترل کاتالوگ، محصولات و قیمت‌گذاری فروشگاه.</p></div>
+<div class="row g-3">@foreach($stats as $key=>$value)<div class="col-6 col-xl-3"><div class="card stat h-100"><small>{{ ['categories'=>'دسته‌بندی‌ها','products'=>'محصولات','orders'=>'سفارش‌ها','services'=>'درخواست خدمات'][$key] }}</small><strong>{{ number_format($value) }}</strong></div></div>@endforeach</div>
+<div class="row g-3 mt-2"><div class="col-lg-8"><div class="card p-4 h-100"><h2 class="h5 fw-bold mb-2">مدیریت کاتالوگ</h2><p class="text-secondary">مدیریت محصولات واقعی پالاز، دسته‌بندی‌ها و قیمت‌گذاری.</p><div class="d-flex gap-2 flex-wrap"><a class="btn btn-palaz px-4" href="{{ route('admin.products.index') }}">مدیریت محصولات</a><a class="btn btn-light border px-4" href="{{ route('admin.categories.index') }}">دسته‌بندی‌ها</a></div></div></div></div>
+@endif
+@endsection

@@ -262,6 +262,13 @@ class StoreController extends Controller
             if ($prepareUrl) {
                 return redirect()->away($prepareUrl);
             }
+
+            // An installation order is not complete until DTZ accepts it and
+            // returns the signed preparation URL. Do not silently show a
+            // successful order page when the service handoff failed.
+            return redirect()
+                ->route('checkout')
+                ->with('installation_error', 'سفارش ثبت شد، اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.');
         }
 
         $request->session()->forget('cart');

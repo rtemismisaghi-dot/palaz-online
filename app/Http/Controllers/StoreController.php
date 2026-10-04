@@ -170,9 +170,25 @@ class StoreController extends Controller
             ? $items->sum(fn ($item) => $this->cartItemTotal($item))
             : null;
 
+        $installationArea = (float) $items->sum(function (array $item) {
+            if (($item['calculation_type'] ?? null) !== 'roll' || empty($item['roll_length'])) {
+                return 0;
+            }
+
+            return 3 * max(1, min(15, (int) $item['roll_length'])) * max(1, (int) ($item['quantity'] ?? 1));
+        });
+
+        $installationRollQuantity = (int) $items->sum(function (array $item) {
+            return ($item['calculation_type'] ?? null) === 'roll'
+                ? max(1, (int) ($item['quantity'] ?? 1))
+                : 0;
+        });
+
         return view('store.checkout', [
             'items' => $items,
             'itemsTotal' => $itemsTotal,
+            'installationArea' => $installationArea,
+            'installationRollQuantity' => $installationRollQuantity,
         ]);
     }
 

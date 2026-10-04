@@ -74,6 +74,9 @@
                 @else
                     <div class="service-list">
                         @foreach($services as $service)
+                @if($service->type === 'installation' && $service->order_id)
+                    <a class="account-service-action" href="{{ route('account.installation', ['order' => $service->order_id]) }}">ادامه مسیر نصب</a>
+                @endif
                             <article class="service-item">
                                 <div class="item-top">
                                     <strong>{{ match($service->type){'installation'=>'نصب','measurement'=>'اندازه‌گیری','design'=>'طراحی',default=>'خدمت'} }}</strong>

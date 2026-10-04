@@ -401,16 +401,31 @@ class StoreController extends Controller
                 return null;
             }
 
+            $errorPayload = $response->json();
+            $errorMessage = is_array($errorPayload)
+                ? ($errorPayload['message'] ?? json_encode($errorPayload, JSON_UNESCAPED_UNICODE))
+                : trim($response->body());
+
             \Illuminate\Support\Facades\Log::error('DTZ installation handoff failed.', [
                 'order_id' => $order->id,
                 'url' => $url,
                 'status' => $response->status(),
-                'response' => $response->json() ?: $response->body(),
+                'response' => $errorPayload ?: $response->body(),
             ]);
             $service->update(['status' => 'integration_failed']);
+
+            session()->flash(
+                'installation_error_detail',
+                'DTZ HTTP ' . $response->status() . ': ' . mb_substr((string) $errorMessage, 0, 300)
+            );
         } catch (\Throwable $e) {
             report($e);
             $service->update(['status' => 'integration_failed']);
+
+            session()->flash(
+                'installation_error_detail',
+                'خطای اتصال به DTZ: ' . mb_substr($e->getMessage(), 0, 300)
+            );
         }
 
         return null;

@@ -56,6 +56,14 @@ class CustomerInstallationController extends Controller
             'elevator' => ['required', 'in:yes,no'],
             'site_contact' => ['nullable', 'string', 'max:120'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'spaces' => ['nullable', 'array'],
+            'spaces.*.name' => ['required_with:spaces', 'string', 'max:100'],
+            'spaces.*.area' => ['nullable', 'numeric', 'min:0'],
+            'floor_type' => ['nullable', 'string', 'max:100'],
+            'floor_area' => ['nullable', 'numeric', 'min:0'],
+            'glue_needed' => ['nullable', 'in:yes,no'],
+            'side_work' => ['nullable', 'array'],
+            'special_notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $service = ServiceRequest::query()
@@ -85,6 +93,12 @@ class CustomerInstallationController extends Controller
             'elevator' => $data['elevator'],
             'site_contact' => $data['site_contact'] ?? null,
             'notes' => $data['notes'] ?? null,
+            'spaces' => $data['spaces'] ?? [],
+            'floor_type' => $data['floor_type'] ?? null,
+            'floor_area' => $data['floor_area'] ?? null,
+            'glue_needed' => $data['glue_needed'] ?? null,
+            'side_work' => $data['side_work'] ?? [],
+            'special_notes' => $data['special_notes'] ?? null,
             'purchased_area' => $purchasedArea,
             'rolls' => $payload['rolls'] ?? [],
         ];

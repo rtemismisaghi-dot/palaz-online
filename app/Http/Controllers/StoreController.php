@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\ServiceRequest;
 use App\Support\StoreCatalog;
+use App\Services\PalazDtzClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -121,7 +122,7 @@ class StoreController extends Controller
         return view('store.checkout', ['items' => $items]);
     }
 
-    public function placeOrder(Request $request)
+    public function placeOrder(Request $request, PalazDtzClient $dtz)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
@@ -172,6 +173,31 @@ class StoreController extends Controller
         });
 
         $request->session()->forget('cart');
+
+        if (($data['service'] ?? 'none') === 'installation') {
+            $productNames = $items->pluck('name')->filter()->values()->implode('، ');
+            $quantity = $items->sum(fn (array $item) => max(1, (int) ($item['quantity'] ?? 1)));
+
+            $dtzResult = $dtz->createInstallation([
+                'name' => $order->name,
+                'phone' => $order->phone,
+                'city' => $order->city,
+                'address' => $order->address,
+                'product_title' => $productNames ?: null,
+                'quantity' => $quantity,
+                'description' => 'سفارش PALAZ ONLINE با درخواست نصب. کد سفارش: ' . $order->tracking_code,
+                'palaz_order_id' => $order->tracking_code,
+            ]);
+
+            if (($dtzResult['success'] ?? false) && ! empty($dtzResult['prepare_url'])) {
+                return redirect()->away($dtzResult['prepare_url']);
+            }
+
+            return view('store.order-success', [
+                'order' => $order,
+                'service_error' => $dtzResult['message'] ?? 'درخواست نصب در حال بررسی است.',
+            ]);
+        }
 
         return view('store.order-success', ['order' => $order]);
     }
@@ -518,6 +544,19 @@ class StoreController extends Controller
         }
 
         return 'در خدمتم. درباره انتخاب محصول، مقایسه، قیمت و محاسبه، اندازه‌گیری یا نصب سؤال کنید. اگر نام محصول یا متراژ را هم بگویید، پاسخ دقیق‌تر می‌شود.';
+    }
+
+    public function installationComplete(Request $request)
+    {
+        $order = Order::where('tracking_code', (string) $request->query('order_id'))->first();
+
+        abort_unless($order, 404);
+
+        return view('store.order-success', [
+            'order' => $order,
+            'service_complete' => true,
+            'installation_tracking_code' => $request->query('tracking_code'),
+        ]);
     }
 
     public function serviceRequest(Request $request)

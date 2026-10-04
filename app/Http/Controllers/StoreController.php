@@ -546,6 +546,19 @@ class StoreController extends Controller
         return 'در خدمتم. درباره انتخاب محصول، مقایسه، قیمت و محاسبه، اندازه‌گیری یا نصب سؤال کنید. اگر نام محصول یا متراژ را هم بگویید، پاسخ دقیق‌تر می‌شود.';
     }
 
+    public function installationComplete(Request $request)
+    {
+        $order = Order::where('tracking_code', (string) $request->query('order_id'))->first();
+
+        abort_unless($order, 404);
+
+        return view('store.order-success', [
+            'order' => $order,
+            'service_complete' => true,
+            'installation_tracking_code' => $request->query('tracking_code'),
+        ]);
+    }
+
     public function serviceRequest(Request $request)
     {
         $data = $request->validate([

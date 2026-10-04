@@ -20,6 +20,7 @@ Route::get('/cart', [StoreController::class, 'cart'])->name('cart');
 Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart.add');
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
+Route::get('/checkout/installation-complete', [StoreController::class, 'installationComplete'])->name('checkout.installation-complete');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');

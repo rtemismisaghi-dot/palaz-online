@@ -258,8 +258,9 @@ class StoreController extends Controller
             $prepareUrl = $this->forwardOrderInstallation($order, $data, $items);
 
             if ($prepareUrl) {
+                // DTZ is backend only. The customer must continue inside Palaz Online.
                 $request->session()->forget('cart');
-                return redirect()->away($prepareUrl);
+                return redirect()->route('account.installation', ['order' => $order->id]);
             }
 
             // Keep the cart so the customer can retry the installation handoff.

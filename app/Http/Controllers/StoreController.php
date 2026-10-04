@@ -257,15 +257,13 @@ class StoreController extends Controller
         if (($data['service'] ?? 'none') === 'installation') {
             $prepareUrl = $this->forwardOrderInstallation($order, $data, $items);
 
-            $request->session()->forget('cart');
-
             if ($prepareUrl) {
+                $request->session()->forget('cart');
                 return redirect()->away($prepareUrl);
             }
 
-            // An installation order is not complete until DTZ accepts it and
-            // returns the signed preparation URL. Do not silently show a
-            // successful order page when the service handoff failed.
+            // Keep the cart so the customer can retry the installation handoff.
+            // Do not silently show a successful order page when DTZ rejected it.
             return redirect()
                 ->route('checkout')
                 ->with('installation_error', 'سفارش ثبت شد، اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.');

@@ -87,8 +87,14 @@ document.addEventListener('DOMContentLoaded',function(){
 .palaz-ai-mic{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;flex:0 0 38px}.palaz-ai-mic.recording{background:#a51d2d;color:#fff;animation:palazAiRecord 1s infinite}.palaz-ai-speak{border:0;background:#f5f5f5;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;flex:0 0 38px}.palaz-ai-speak.active{background:#a51d2d;color:#fff}.palaz-ai-foot input{flex:1;border:1px solid #ddd;border-radius:14px;padding:11px 13px;font-family:inherit;outline:none}
 .palaz-ai-foot button{border:0;border-radius:14px;background:#a51f32;color:#fff;padding:0 16px;font-family:inherit;cursor:pointer}
 @media(max-width:700px){.palaz-ai-trigger{right:16px;bottom:16px;width:72px;height:72px}.palaz-ai-panel{right:8px;bottom:8px;width:calc(100vw - 16px);height:min(620px,calc(100vh - 16px));border-radius:22px}.palaz-ai-panel.open~.palaz-ai-trigger{transform:scale(.9)}}
+
+/* Customer installation flow: no storefront dashboard/navigation chrome. */
+.palaz-install-page{margin:0;background:#f7f5f2;min-height:100vh}
+.palaz-install-page .install-flow{padding-top:34px}
+.palaz-install-page .install-hero{box-shadow:0 18px 45px rgba(0,0,0,.10)}
 </style></head>
-<body>
+<body class="{{ request()->routeIs('account.installation') ? 'palaz-install-page' : '' }}">
+@if(!request()->routeIs('account.installation'))
 <div class="palaz-topbar"><div class="container"><span>☎ 021-12345678</span><span>⌖ تهران، جردن، خیابان پالاز</span><b>پشتیبانی ۲۴ ساعته ◔</b></div></div>
 <header class="site-header">
 <div class="container header-main">
@@ -119,9 +125,11 @@ document.addEventListener('DOMContentLoaded',function(){
 <a href="{{ route('services') }}">خدمات</a><a href="{{ route('home') }}#journey">طراحی فضای من</a><a href="{{ route('home') }}">مجله پالاز</a><a href="{{ route('home') }}">درباره پالاز</a>
 </div></nav>
 </header>
+@endif
 @if(session('success'))<div class="flash success">{{ session('success') }}</div>@endif
 @if(session('service_success'))<div class="flash success">{{ session('service_success') }}</div>@endif
 @yield('content')
+@if(!request()->routeIs('account.installation'))
 <footer class="footer"><div class="container footer-grid">
 <div><div class="footer-brand">PALAZ <span>ONLINE</span></div><p>پالاز؛ همراه مطمئن شما در انتخاب، خرید و اجرای پوشش‌های فضای زندگی.</p><div class="footer-social">◎　◉　in　◌</div></div>
 <div><h4>فروشگاه</h4><a href="{{ route('shop',['category'=>'carpet']) }}">موکت</a><a href="{{ route('shop',['category'=>'laminate']) }}">لمینیت</a><a href="{{ route('shop',['category'=>'spc']) }}">فرش‌گونه</a><a href="{{ route('shop',['category'=>'wallpaper']) }}">کاغذدیواری</a></div>
@@ -129,4 +137,5 @@ document.addEventListener('DOMContentLoaded',function(){
 <div><h4>راهنمای مشتری</h4><a href="{{ route('cart') }}">سبد خرید</a><a href="{{ route('services') }}">پیگیری خدمات</a><a href="{{ route('home') }}">درباره پالاز</a><a href="{{ route('home') }}">تماس با ما</a></div>
 <div class="footer-news"><h4>عضویت در خبرنامه</h4><p>از جدیدترین محصولات و پیشنهادها باخبر شوید.</p><form><input placeholder="ایمیل خود را وارد کنید"><button>→</button></form></div>
 </div><div class="container footer-bottom"><span>© {{ date('Y') }} PALAZ ONLINE. All rights reserved.</span><span>طراحی و توسعه برای یک تجربه متصل</span></div></footer>
+@endif
 </body></html>

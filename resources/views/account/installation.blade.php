@@ -57,85 +57,47 @@
     @endif
 
     <div class="install-steps">
-        <div class="install-step active" data-step-label="1">۱. سفارش خریداری‌شده</div>
-        <div class="install-step" data-step-label="2">۲. محل نصب</div>
-        <div class="install-step" data-step-label="3">۳. هماهنگی اجرا</div>
-        <div class="install-step" data-step-label="4">۴. تأیید نهایی</div>
+        <div class="install-step active">۱. فضا و ابعاد</div><div class="install-step">۲. کف و چسب</div><div class="install-step">۳. کارهای جانبی</div><div class="install-step">۴. موارد خاص</div><div class="install-step">۵. محل نصب</div><div class="install-step">۶. بازبینی</div>
     </div>
 
     <form method="POST" action="{{ route('account.installation.complete', ['order' => $order->id]) }}" id="installationForm">
-        @csrf
-        <section class="install-card panel active" data-step="1">
-            <h2>۱. اطلاعات خرید</h2>
-            <div class="notice">متراژ نصب از طاقه‌های خریداری‌شده محاسبه شده و قابل تغییر نیست.</div>
-            <div class="rolls">
-                @forelse($rolls as $roll)
-                    <div class="roll">
-                        <b>{{ $roll['name'] ?? 'موکت پالاز' }}</b>
-                        <div>کد: {{ $roll['code'] ?? '—' }}</div>
-                        <div>طاقه: {{ $roll['width'] ?? 3 }} × {{ $roll['length'] ?? 0 }} متر</div>
-                        <div>تعداد: {{ $roll['quantity'] ?? 1 }}</div>
-                        <div>متراژ: {{ number_format((float)($roll['area'] ?? 0), 2) }} مترمربع</div>
-                    </div>
-                @empty
-                    <div class="notice">اطلاعات طاقه‌های خریداری‌شده در دسترس نیست.</div>
-                @endforelse
-            </div>
-            <div class="quote">
-                <span>متراژ قطعی سفارش</span>
-                <strong>{{ number_format($purchasedArea, 2) }} مترمربع</strong>
-            </div>
-            <div class="actions"><span></span><button type="button" class="btn btn-primary next">ادامه</button></div>
-        </section>
-
-        <section class="install-card panel" data-step="2">
-            <h2>۲. محل نصب</h2>
-            <div class="form-grid">
-                <label class="field full"><span>آدرس نصب</span><textarea name="installation_address" required>{{ $order->address }}</textarea></label>
-                <label class="field"><span>طبقه</span><input name="floor" placeholder="مثلاً ۳"></label>
-                <div class="field"><span>آسانسور</span><div class="choice-row">
-                    <label class="choice"><input type="radio" name="elevator" value="yes" required> دارد</label>
-                    <label class="choice"><input type="radio" name="elevator" value="no"> ندارد</label>
-                </div></div>
-                <label class="field"><span>نماینده محل (اختیاری)</span><input name="site_contact" placeholder="نام و شماره تماس"></label>
-            </div>
-            <div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">ادامه</button></div>
-        </section>
-
-        <section class="install-card panel" data-step="3">
-            <h2>۳. هماهنگی اجرا</h2>
-            <div class="field">
-                <span>وضعیت اندازه‌گیری</span>
-                <div class="choice-row">
-                    <label class="choice"><input type="radio" name="measurement" value="not_needed" required> متراژ خریداری‌شده مبنا باشد</label>
-                    <label class="choice"><input type="radio" name="measurement" value="needed"> درخواست اندازه‌گیری</label>
-                </div>
-            </div>
-            <div class="form-grid" style="margin-top:18px">
-                <label class="field"><span>تاریخ پیشنهادی اجرا</span><input name="preferred_date" placeholder="مثلاً شنبه ۱۲ مهر"></label>
-                <label class="field"><span>بازه زمانی پیشنهادی</span><select name="preferred_time"><option value="">انتخاب کنید</option><option>صبح</option><option>ظهر</option><option>عصر</option></select></label>
-                <label class="field full"><span>توضیحات تکمیلی</span><textarea name="notes" placeholder="توضیحات دسترسی، شرایط محل یا نکته‌ای برای تیم اجرا..."></textarea></label>
-            </div>
-            <div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">ادامه</button></div>
-        </section>
-
-        <section class="install-card panel" data-step="4">
-            <h2>۴. بررسی و تأیید</h2>
-            <div class="notice">
-                <div><b>کد سفارش:</b> {{ $order->tracking_code }}</div>
-                <div><b>کد پیگیری نصب:</b> {{ $trackingCode }}</div>
-                <div><b>متراژ نصب:</b> {{ number_format($purchasedArea, 2) }} مترمربع</div>
-                <div><b>هزینه نصب:</b> {{ number_format($installationAmount) }} ریال</div>
-            </div>
-            <div class="notice">با تأیید، اطلاعات شما برای هماهنگی اجرا به سامانه نصب پالاز ارسال می‌شود.</div>
-            <div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="submit" class="btn btn-primary">تأیید و ثبت درخواست نصب</button></div>
-        </section>
-    </form>
+@csrf
+<section class="install-card panel active" data-step="1">
+<h2>۱. فضا و ابعاد</h2><div class="notice">طاقه‌های خریداری‌شده قفل هستند؛ فقط فضاهای محل نصب را مشخص کنید.</div>
+<div id="spaces"></div>
+<button type="button" class="btn btn-light" id="addSpace">+ افزودن فضا</button>
+<div class="quote"><span>متراژ خریداری‌شده</span><strong>{{ number_format($purchasedArea,2) }} مترمربع</strong></div>
+<div class="actions"><span></span><button type="button" class="btn btn-primary next">ادامه</button></div></section>
+<section class="install-card panel" data-step="2"><h2>۲. کف و چسب</h2>
+<div class="form-grid"><label class="field"><span>نوع کف فعلی</span><select name="floor_type"><option value="">انتخاب کنید</option><option>بتن</option><option>سرامیک</option><option>سنگ</option><option>کفپوش قدیمی</option><option>سایر</option></select></label>
+<label class="field"><span>متراژ کف</span><input type="number" step="0.01" name="floor_area"></label></div>
+<div class="field" style="margin-top:16px"><span>نیاز به چسب / زیرسازی</span><div class="choice-row"><label class="choice"><input type="radio" name="glue_needed" value="yes"> دارد</label><label class="choice"><input type="radio" name="glue_needed" value="no"> ندارد</label></div></div>
+<div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">ادامه</button></div></section>
+<section class="install-card panel" data-step="3"><h2>۳. کارهای جانبی</h2>
+<div class="choice-row"><label class="choice"><input type="checkbox" name="side_work[]" value="جابجایی وسایل"> جابجایی وسایل</label><label class="choice"><input type="checkbox" name="side_work[]" value="جمع‌آوری کف قبلی"> جمع‌آوری کف قبلی</label><label class="choice"><input type="checkbox" name="side_work[]" value="زیرسازی"> زیرسازی</label></div>
+<div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">ادامه</button></div></section>
+<section class="install-card panel" data-step="4"><h2>۴. موارد خاص</h2>
+<div class="field"><span>توضیحات یا شرایط خاص</span><textarea name="special_notes" placeholder="پله، قرنیز، دسترسی، وسایل خاص و..."></textarea></div>
+<div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">ادامه</button></div></section>
+<section class="install-card panel" data-step="5"><h2>۵. محل نصب</h2>
+<div class="form-grid"><label class="field full"><span>آدرس نصب</span><textarea name="installation_address" required>{{ $order->address }}</textarea></label>
+<label class="field"><span>طبقه</span><input name="floor"></label><div class="field"><span>آسانسور</span><div class="choice-row"><label class="choice"><input type="radio" name="elevator" value="yes" required> دارد</label><label class="choice"><input type="radio" name="elevator" value="no"> ندارد</label></div></div>
+<label class="field"><span>نماینده محل</span><input name="site_contact"></label></div>
+<div class="field" style="margin-top:16px"><span>اندازه‌گیری</span><div class="choice-row"><label class="choice"><input type="radio" name="measurement" value="not_needed" required> نیاز نیست</label><label class="choice"><input type="radio" name="measurement" value="needed"> نیاز به اندازه‌گیری</label></div></div>
+<div class="form-grid" style="margin-top:16px"><label class="field"><span>تاریخ پیشنهادی</span><input name="preferred_date"></label><label class="field"><span>زمان پیشنهادی</span><select name="preferred_time"><option value="">انتخاب</option><option>صبح</option><option>ظهر</option><option>عصر</option></select></label></div>
+<div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="button" class="btn btn-primary next">بازبینی</button></div></section>
+<section class="install-card panel" data-step="6"><h2>۶. بازبینی و تأیید</h2>
+<div class="notice"><div>سفارش: <b>{{ $order->tracking_code }}</b></div><div>متراژ خرید: <b>{{ number_format($purchasedArea,2) }} مترمربع</b></div><div>هزینه نصب: <b>{{ number_format($installationAmount) }} ریال</b></div></div>
+<div class="notice">اطلاعات انتخاب‌شده در پنج مرحله قبل همراه سفارش برای واحد نصب پالاز ارسال می‌شود.</div>
+<div class="actions"><button type="button" class="btn btn-light prev">بازگشت</button><button type="submit" class="btn btn-primary">تأیید و ثبت درخواست</button></div></section>
+</form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const panels = [...document.querySelectorAll('.panel')];
+    const spaces = document.getElementById('spaces');
+    document.getElementById('addSpace')?.addEventListener('click', () => { const n=prompt('نام فضا را وارد کنید'); if(!n) return; const row=document.createElement('div'); row.className='field'; row.style.marginBottom='12px'; row.innerHTML='<input type="hidden" name="spaces[][name]" value="'+n.replace(/"/g,'&quot;')+'"><input name="spaces[][area]" type="number" step="0.01" placeholder="متراژ '+n.replace(/"/g,'&quot;')+' (مترمربع)">'; spaces.appendChild(row); });
     const steps = [...document.querySelectorAll('.install-step')];
     let current = 0;
 

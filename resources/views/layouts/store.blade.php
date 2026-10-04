@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <form class="search search-real" action="{{ route('shop') }}"><span>⌕</span><input name="q" value="{{ request('q') }}" placeholder="جستجوی محصول، دسته یا برند..." aria-label="جستجو"><button type="submit">⌕</button></form>
 <div class="header-actions">
 @if(session()->has('customer_user_id'))
-<form method="POST" action="{{ route('logout') }}" class="header-action-form">@csrf<button type="submit" class="header-action"><span class="action-icon">♙</span><span>خروج از حساب</span></button></form>
+<a href="{{ route('account') }}" class="header-action"><span class="action-icon">♙</span><span>حساب من</span></a><form method="POST" action="{{ route('logout') }}" class="header-action-form">@csrf<button type="submit" class="header-action"><span class="action-icon">↪</span><span>خروج</span></button></form>
 @else
 <a href="/login" class="header-action" aria-label="ورود به حساب کاربری"><span class="action-icon">♙</span><span>حساب کاربری</span></a>
 @endif

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\LoginController;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
+Route::get('/account', [AccountController::class, 'index'])->name('account')->middleware('customer.session');
 
 Route::get('/dev/import-carpet-catalog', function () {
     abort_unless(app()->environment('local'), 404);

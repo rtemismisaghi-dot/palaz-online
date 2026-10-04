@@ -257,18 +257,50 @@ class StoreController extends Controller
     {
         $product = $items->first();
 
-        $productSummary = $items->map(function (array $item) {
+        // Roll dimensions are already selected during purchase. Installation must
+        // receive the derived area and never ask the customer to re-enter rolls.
+        $rollWidth = 3;
+        $rolls = $items->filter(fn (array $item) => ($item['calculation_type'] ?? null) === 'roll')
+            ->map(function (array $item) use ($rollWidth) {
+                $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $quantity = max(1, (int) ($item['quantity'] ?? 1));
+                $area = $length !== null ? $rollWidth * $length * $quantity : 0;
+
+                return [
+                    'code' => $item['code'] ?? null,
+                    'name' => $item['name'] ?? null,
+                    'model' => $item['model'] ?? null,
+                    'width' => $rollWidth,
+                    'length' => $length,
+                    'quantity' => $quantity,
+                    'area' => $area,
+                ];
+            })->values();
+
+        $totalArea = (float) $rolls->sum('area');
+        $totalRollQuantity = (int) $rolls->sum('quantity');
+
+        $productSummary = $items->map(function (array $item) use ($rollWidth) {
+            $isRoll = ($item['calculation_type'] ?? null) === 'roll';
+            $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+            $quantity = max(1, (int) ($item['quantity'] ?? 1));
+            $area = ($isRoll && $length !== null) ? $rollWidth * $length * $quantity : null;
+
             return collect([
                 $item['name'] ?? null,
                 !empty($item['code']) ? 'کد: ' . $item['code'] : null,
                 !empty($item['model']) ? 'مدل: ' . $item['model'] : null,
-                isset($item['quantity']) ? 'تعداد: ' . $item['quantity'] : null,
+                $isRoll && $length !== null ? 'طاقه: عرض ۳ × طول ' . $length . ' متر' : null,
+                'تعداد: ' . $quantity,
+                $area !== null ? 'متراژ: ' . $area . ' مترمربع' : null,
             ])->filter()->implode(' | ');
         })->filter()->implode("\n");
 
         $installationDescription = trim((string) ($data['installation_description'] ?? ''));
         $description = collect([
             $productSummary ? 'محصولات سفارش:' . "\n" . $productSummary : null,
+            $totalArea > 0 ? 'متراژ کل نصب: ' . $totalArea . ' مترمربع' : null,
+            $totalRollQuantity > 0 ? 'تعداد طاقه: ' . $totalRollQuantity : null,
             $installationDescription ? 'توضیحات نصب: ' . $installationDescription : null,
         ])->filter()->implode("\n");
 
@@ -311,8 +343,9 @@ class StoreController extends Controller
                     'product_code' => $product['code'] ?? null,
                     'product_title' => $product['name'] ?? null,
                     'product_model' => $product['model'] ?? null,
-                    'area' => null,
-                    'quantity' => null,
+                    'area' => $totalArea > 0 ? $totalArea : null,
+                    'quantity' => $totalRollQuantity > 0 ? $totalRollQuantity : null,
+                    'rolls' => $rolls->all(),
                     'description' => $description,
                     'palaz_order_id' => 'PO-' . $order->id,
                 ]);

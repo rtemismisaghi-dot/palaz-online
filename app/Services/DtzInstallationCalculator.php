@@ -6,7 +6,7 @@ namespace App\Services;
  * Server-side copy of the current DTZ Palaz installation calculation.
  *
  * Current DTZ behavior:
- * - installation = purchased roll area × 385,000 ریال/m²
+ * - installation = purchased roll area × 500,000 ریال/m², with a 30 m² minimum (15,000,000 ریال)
  * - glue prices currently resolve to 0 in getGluePrice()
  * - floor/stair/fish/cut/elevator/carry/worker UI currently has no
  *   active pricing formula, so those amounts remain 0.
@@ -16,7 +16,8 @@ namespace App\Services;
  */
 class DtzInstallationCalculator
 {
-    public const INSTALLATION_RATE = 385000;
+    public const INSTALLATION_RATE = 500000;
+    public const MIN_INSTALLATION_AMOUNT = 15000000;
     public const MIN_INSTALLATION_AREA = 30;
 
     public function calculate(array $payload): array
@@ -42,7 +43,10 @@ class DtzInstallationCalculator
         $purchasedArea = (float) $rolls->sum('area');
         $installationArea = $purchasedArea;
 
-        $installationAmount = $installationArea * self::INSTALLATION_RATE;
+        $installationAmount = max(
+            $installationArea * self::INSTALLATION_RATE,
+            self::MIN_INSTALLATION_AMOUNT
+        );
 
         // These are deliberately zero because that is what the current DTZ
         // code actually calculates today.
@@ -58,8 +62,10 @@ class DtzInstallationCalculator
             'installation_area' => $installationArea,
             'minimum_area' => self::MIN_INSTALLATION_AREA,
             'minimum_area_met' => $installationArea >= self::MIN_INSTALLATION_AREA,
+            'minimum_amount' => self::MIN_INSTALLATION_AMOUNT,
             'rates' => [
                 'installation_per_m2' => self::INSTALLATION_RATE,
+                'minimum_installation_amount' => self::MIN_INSTALLATION_AMOUNT,
                 'glue' => 0,
                 'floor' => 0,
                 'floor_carry' => 0,

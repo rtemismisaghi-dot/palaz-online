@@ -7,7 +7,8 @@ return [
     'slack' => ['notifications' => ['bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'), 'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL')]],
     'openai' => ['key' => env('OPENAI_API_KEY'), 'model' => env('OPENAI_CHAT_MODEL', 'gpt-5.6-luna')],
     'dtz' => [
-        'url' => env('DTZ_URL'),
+        // Palaz Online runs on :8000 locally; DTZ must use a separate port.
+        'url' => env('DTZ_URL', 'http://127.0.0.1:8001'),
         'palaz_token' => env('DTZ_PALAZ_TOKEN'),
     ],
     'openrouter' => ['key' => env('OPENROUTER_API_KEY'), 'model' => env('OPENROUTER_MODEL', 'openrouter/free'), 'vision_model' => env('OPENROUTER_VISION_MODEL', env('OPENROUTER_MODEL', 'openrouter/free'))],

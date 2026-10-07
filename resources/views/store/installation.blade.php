@@ -24,13 +24,21 @@
                 <div class="install-card-head"><span>۱</span><h2>فضا و ابعاد</h2></div>
                 <div id="rolls">
                     @foreach($rolls as $index => $roll)
-                    <div class="roll-row">
-                        <div><label>محصول</label><input value="{{ $roll['name'] ?? 'موکت' }}" readonly></div>
-                        <div><label>کد</label><input value="{{ $roll['code'] ?? '—' }}" readonly></div>
-                        <div><label>عرض (متر)</label><input value="{{ number_format((float)($roll['width'] ?? 3), 2) }}" readonly></div>
-                        <div><label>طول (متر)</label><input value="{{ number_format((float)($roll['length'] ?? 1), 2) }}" readonly></div>
-                        <div><label>تعداد</label><input value="{{ (int)($roll['quantity'] ?? 1) }}" readonly></div>
-                        <div><label>متراژ</label><input value="{{ number_format((float)($roll['area'] ?? 0), 2) }} مترمربع" readonly></div>
+                    <div class="product-install-card">
+                        <div class="product-install-main">
+                            <div class="product-install-icon">P</div>
+                            <div class="product-install-title">
+                                <span>محصول {{ $index + 1 }}</span>
+                                <strong>{{ $roll['name'] ?? 'موکت پالاز' }}</strong>
+                                <small>{{ $roll['model'] ?? '—' }} · کد {{ $roll['code'] ?? '—' }}</small>
+                            </div>
+                        </div>
+                        <div class="product-install-details">
+                            <div><span>عرض</span><b>{{ number_format((float)($roll['width'] ?? 3), 2) }} متر</b></div>
+                            <div><span>طول هر طاقه</span><b>{{ number_format((float)($roll['length'] ?? 1), 2) }} متر</b></div>
+                            <div><span>تعداد طاقه</span><b>{{ (int)($roll['quantity'] ?? 1) }}</b></div>
+                            <div><span>متراژ این محصول</span><b>{{ number_format((float)($roll['area'] ?? 0), 2) }} مترمربع</b></div>
+                        </div>
                     </div>
                     @endforeach
                 </div>
@@ -167,7 +175,17 @@
 
 <style>
 .install-local-note{background:#fff8f8;border:1px solid #f2d5d7;border-radius:16px;padding:16px 18px;margin-bottom:18px;display:flex;gap:12px;flex-wrap:wrap}
-.install-local-note strong{color:#d91f26}.install-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px}.install-card,.install-summary{background:#fff;border:1px solid #eee;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 28px rgba(0,0,0,.045)}.install-summary{position:sticky;top:18px;height:max-content}.install-summary>div,.summary-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #eee}.install-summary>div:last-child,.summary-row.total{border-bottom:0}.install-card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}.install-card-head span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#d91f26;color:#fff;font-weight:800}.install-card h2,.install-summary h2{margin:0;font-size:20px}.roll-row{display:grid;grid-template-columns:2fr 1fr repeat(4,1fr);gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee}.option-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:15px}.option-row label,.install-card>label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#555}.install-card input,.install-card select,.install-card textarea{border:1px solid #ddd;border-radius:10px;padding:10px;background:#fff}.install-card input[readonly]{background:#fafafa}.check,.checks label{display:flex!important;flex-direction:row!important;align-items:center;gap:7px}.checks{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:18px}.outline-btn,.small-btn{border:1px solid #d91f26;background:#fff;color:#d91f26;border-radius:9px;padding:9px 14px}.small-btn{border-color:#ddd;color:#777}.sub-block{margin-top:18px}.glue-row{grid-template-columns:1fr 180px 80px}.stairs{margin-top:20px}.area-total{display:flex;justify-content:space-between;background:#fff8f8;border-radius:12px;padding:14px;margin-top:16px}.area-total b{color:#d91f26}.summary-row.total{font-size:18px;font-weight:800;color:#d91f26}.small-muted,.zero-note{font-size:12px;color:#777;margin-top:12px}.zero-note{background:#fafafa;border-radius:10px;padding:10px}.message{margin-top:12px;color:#555}@media(max-width:900px){.install-grid{grid-template-columns:1fr}.install-summary{position:static}.roll-row{grid-template-columns:1fr 1fr}.option-row{grid-template-columns:1fr 1fr}}@media(max-width:600px){.option-row,.roll-row{grid-template-columns:1fr}.install-card{padding:16px}}
+.install-local-note strong{color:#d91f26}.install-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px}.install-card,.install-summary{background:#fff;border:1px solid #eee;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 8px 28px rgba(0,0,0,.045)}.install-summary{position:sticky;top:18px;height:max-content}.install-summary>div,.summary-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #eee}.install-summary>div:last-child,.summary-row.total{border-bottom:0}.install-card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}.install-card-head span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#d91f26;color:#fff;font-weight:800}.install-card h2,.install-summary h2{margin:0;font-size:20px}.product-install-card{border:1px solid #eee;border-radius:15px;padding:16px;margin-bottom:12px;background:#fff}
+.product-install-main{display:flex;align-items:center;gap:12px;margin-bottom:15px}
+.product-install-icon{width:46px;height:46px;border-radius:12px;background:#d91f26;color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px}
+.product-install-title{display:flex;flex-direction:column;gap:3px;min-width:0}
+.product-install-title span,.product-install-title small{font-size:12px;color:#777}
+.product-install-title strong{font-size:16px;line-height:1.7}
+.product-install-details{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.product-install-details div{background:#fafafa;border-radius:10px;padding:10px}
+.product-install-details span{display:block;font-size:11px;color:#777;margin-bottom:4px}
+.product-install-details b{font-size:14px}
+.option-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:15px}.option-row label,.install-card>label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#555}.install-card input,.install-card select,.install-card textarea{border:1px solid #ddd;border-radius:10px;padding:10px;background:#fff}.install-card input[readonly]{background:#fafafa}.check,.checks label{display:flex!important;flex-direction:row!important;align-items:center;gap:7px}.checks{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:18px}.outline-btn,.small-btn{border:1px solid #d91f26;background:#fff;color:#d91f26;border-radius:9px;padding:9px 14px}.small-btn{border-color:#ddd;color:#777}.sub-block{margin-top:18px}.glue-row{grid-template-columns:1fr 180px 80px}.stairs{margin-top:20px}.area-total{display:flex;justify-content:space-between;background:#fff8f8;border-radius:12px;padding:14px;margin-top:16px}.area-total b{color:#d91f26}.summary-row.total{font-size:18px;font-weight:800;color:#d91f26}.small-muted,.zero-note{font-size:12px;color:#777;margin-top:12px}.zero-note{background:#fafafa;border-radius:10px;padding:10px}.message{margin-top:12px;color:#555}@media(max-width:900px){.install-grid{grid-template-columns:1fr}.install-summary{position:static}.product-install-details{grid-template-columns:1fr 1fr}.option-row{grid-template-columns:1fr 1fr}}@media(max-width:600px){.option-row,.product-install-details{grid-template-columns:1fr}.install-card{padding:16px}}
 </style>
 
 <script>

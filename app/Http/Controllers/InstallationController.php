@@ -59,7 +59,7 @@ class InstallationController extends Controller
             ])->values()->all();
 
         // Customer input can describe the installation, but can never change
-        // the purchased rolls that determine the DTZ base installation price.
+        // the purchased rolls that determine the installation price.
         $payload = $validated['payload'];
         $payload['rolls'] = $storedRolls;
 
@@ -78,13 +78,15 @@ class InstallationController extends Controller
             $order = $quote->order()->lockForUpdate()->firstOrFail();
             $productsTotal = (float) $order->items->sum(fn ($item) => (float) ($item->line_total ?? 0));
 
+            // Product prices/order totals are stored in تومان; installation
+            // tariffs are stored in ریال, so convert before adding to the order.
+            $installationAmountInTomans = (float) $result['total_amount'] / 10;
+
             $order->update([
-                'total' => $productsTotal + (float) $result['total_amount'],
+                'total' => $productsTotal + $installationAmountInTomans,
                 'status' => 'received',
             ]);
         });
-
-        $order = $quote->order()->with('items')->firstOrFail();
 
         return response()->json([
             'success' => true,

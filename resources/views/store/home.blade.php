@@ -153,7 +153,8 @@
 .palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
 .palaz-experience .px-surface-tab{border:1px solid #dedbd6;background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-size:11px;font-weight:800;color:#555;cursor:pointer}
 .palaz-experience .px-surface-tab.active{background:#fff4f5;border-color:#b71929;color:#b71929}
-.palaz-experience .px-visualizer-products{display:flex;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
+.palaz-experience .px-visualizer-products{display:none;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
+.palaz-experience .px-visualizer-products.is-ready{display:flex}
 .palaz-experience .px-product-chip{display:flex;align-items:center;gap:8px;min-width:180px;max-width:220px;padding:7px;border:1px solid #e5e0dc;border-radius:15px;background:#fff;color:#292c30;text-align:right;cursor:pointer;flex:0 0 auto}
 .palaz-experience .px-product-chip.active{border-color:#b71929;box-shadow:0 5px 18px rgba(183,25,41,.12)}
 .palaz-experience .px-product-chip.compared{box-shadow:inset 0 0 0 1px rgba(183,25,41,.16)}
@@ -739,9 +740,7 @@
                 <small>بعد از انتخاب عکس، مدل‌های واقعی کاتالوگ پالاز برای همان نوع کف نمایش داده می‌شوند.</small>
               </div>
 
-              <div class="px-visualizer-products" aria-live="polite">
-                <div class="px-product-loading">در حال آماده‌سازی مدل‌ها…</div>
-              </div>
+              <div class="px-visualizer-products" aria-live="polite"></div>
 
               <div class="px-visualizer-actions">
                 <button class="px-btn red px-visualizer-advisor" type="button">مشاوره با AI Advisor ←</button>
@@ -766,6 +765,7 @@
             const upload = root.querySelector('#px-space-upload');
             const tabs = [...root.querySelectorAll('.px-surface-tab')];
             const productsEl = root.querySelector('.px-visualizer-products');
+            productsEl.classList.remove('is-ready');
             const status = root.querySelector('.px-visualizer-status');
             const compare = root.querySelector('.px-visualizer-compare');
             const compareOpen = root.querySelector('.px-compare-open');
@@ -975,6 +975,8 @@
             });
 
             const loadProducts = async () => {
+              if (!uploadedUrl) return;
+              productsEl.classList.add('is-ready');
               productsEl.innerHTML = '<div class="px-product-loading">در حال دریافت مدل‌های واقعی پالاز…</div>';
               try {
                 const response = await fetch('{{ route('visualizer.products') }}?category=' + encodeURIComponent(surface), {
@@ -996,6 +998,11 @@
             tabs.forEach(tab => tab.addEventListener('click', () => {
               surface = tab.dataset.surface || 'carpet';
               tabs.forEach(item => item.classList.toggle('active', item === tab));
+              if (!uploadedUrl) {
+                setStatus('اول عکس فضا را اضافه کن', 'بعد از انتخاب عکس، مدل‌های واقعی همین دسته نمایش داده می‌شوند.');
+                paintPreview();
+                return;
+              }
               loadProducts();
             }));
 
@@ -1033,6 +1040,7 @@
                     setStatus('عکس فضا آماده است', data.message || 'یک مدل انتخاب کن؛ نمایش اولیه ادامه پیدا می‌کند.');
                   }
                   paintPreview();
+                  loadProducts();
                 })
                 .catch(() => {
                   setStatus('عکس فضا آماده است', 'تشخیص خودکار کف در دسترس نبود؛ نمایش اولیه ادامه پیدا می‌کند.');

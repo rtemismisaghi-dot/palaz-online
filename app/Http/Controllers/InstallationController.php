@@ -93,7 +93,11 @@ class InstallationController extends Controller
             'total_amount' => (float) $result['total_amount'],
             'installation_amount' => (float) $result['amounts']['installation'],
             'tracking_code' => $quote->tracking_code,
-            'callback_url' => route('checkout.installation.success', ['quote' => $quote->id]),
+            'callback_url' => URL::temporarySignedRoute(
+                'checkout.installation.success',
+                now()->addHours(4),
+                ['quote' => $quote->id]
+            ),
         ]);
     }
 

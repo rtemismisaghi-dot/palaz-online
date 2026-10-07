@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InstallationController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\AdvisorController;
 use App\Http\Controllers\CalculatorController;
@@ -291,7 +292,15 @@ Route::post('/cart/add/{id}', [StoreController::class, 'addToCart'])->name('cart
 Route::post('/cart/remove/{id}', [StoreController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/checkout', [StoreController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [StoreController::class, 'placeOrder'])->name('checkout.place');
-Route::get('/checkout/installation-complete', [StoreController::class, 'installationComplete'])->name('checkout.installation-complete');
+Route::get('/checkout/installation/{quote}/prepare', [InstallationController::class, 'prepare'])
+    ->middleware('signed')
+    ->name('checkout.installation.prepare');
+Route::post('/checkout/installation/{quote}/complete', [InstallationController::class, 'complete'])
+    ->middleware('signed')
+    ->name('checkout.installation.complete');
+Route::get('/checkout/installation/{quote}/success', [InstallationController::class, 'success'])
+    ->middleware('signed')
+    ->name('checkout.installation.success');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');

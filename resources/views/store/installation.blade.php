@@ -152,7 +152,7 @@
                 <div class="summary-row"><span>کف و چسب</span><b>۰ ریال</b></div>
                 <div class="summary-row"><span>کارهای جانبی</span><b>۰ ریال</b></div>
                 <div class="summary-row total"><span>هزینه نهایی نصب</span><b id="totalAmount">۰ ریال</b></div>
-                <p class="small-muted">نرخ فعلی منطق DTZ: ۳۸۵٬۰۰۰ ریال برای هر مترمربع. مبلغ نهایی در سرور دوباره محاسبه می‌شود.</p>
+                <p class="small-muted">اجرت نصب: ۵۰۰٬۰۰۰ ریال برای هر مترمربع؛ حداقل اجرت تا ۳۰ مترمربع، ۱۵٬۰۰۰٬۰۰۰ ریال. مبلغ نهایی در سرور دوباره محاسبه می‌شود.</p>
                 <button type="button" id="confirmInstallation" class="btn btn-primary wide">تأیید نهایی و ادامه سفارش</button>
                 <div id="installMessage" class="message"></div>
             </div>
@@ -166,7 +166,8 @@
             <div><span>تعداد طاقه</span><b>{{ data_get($quote->payload,'purchased_roll_quantity',0) }}</b></div>
             <div><span>متراژ خریداری‌شده</span><b>{{ number_format((float)data_get($quote->payload,'purchased_area',0),2) }} m²</b></div>
             <hr>
-            <div><span>نرخ نصب</span><b>۳۸۵٬۰۰۰ ریال / m²</b></div>
+            <div><span>اجرت نصب</span><b>۵۰۰٬۰۰۰ ریال / m²</b></div>
+            <div><span>حداقل اجرت</span><b>۱۵٬۰۰۰٬۰۰۰ ریال</b></div>
             <div><span>مبلغ فعلی</span><b id="sideAmount">۰ ریال</b></div>
         </aside>
     </div>
@@ -190,7 +191,8 @@
 
 <script>
 (function(){
-    const rate = 385000;
+    const rate = 500000;
+    const minimumAmount = 15000000;
     const purchasedArea = {{ json_encode((float)data_get($quote->payload,'purchased_area',0)) }};
     const completeUrl = @json($completeUrl);
 
@@ -198,7 +200,7 @@
     const value = id => document.getElementById(id)?.value ?? '';
 
     function updatePreview(){
-        const amount = purchasedArea * rate;
+        const amount = Math.max(purchasedArea * rate, minimumAmount);
         document.getElementById('installationAmount').textContent = money(amount);
         document.getElementById('totalAmount').textContent = money(amount);
         document.getElementById('sideAmount').textContent = money(amount);

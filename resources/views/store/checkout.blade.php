@@ -18,14 +18,14 @@
 <div class="checkout-block installation-details" id="installation-details" hidden>
 <span class="eyebrow">INSTALLATION / PROJECT</span>
 <h2>اطلاعات نصب</h2>
-<p class="installation-hint">طاقه‌ها هنگام خرید انتخاب شده‌اند؛ متراژ نصب از همان انتخاب‌ها به‌صورت خودکار محاسبه و برای فرآیند اجرا ارسال می‌شود. نیازی به ورود دوباره متراژ یا انتخاب طاقه نیست.</p>
+<p class="installation-hint">طاقه‌ها هنگام خرید انتخاب شده‌اند؛ متراژ نصب از همان طاقه‌های خریداری‌شده به‌صورت خودکار محاسبه می‌شود و ادامه محاسبه نصب داخل خود پالاز انجام خواهد شد. نیازی به ورود دوباره متراژ یا انتخاب طاقه نیست.</p>
 <div class="installation-auto-summary">
     <div><span>متراژ کل نصب</span><b>{{ $installationArea > 0 ? number_format($installationArea, 2) . ' مترمربع' : 'بر اساس سفارش محاسبه می‌شود' }}</b></div>
     @if($installationRollQuantity > 0)<div><span>تعداد طاقه</span><b>{{ $installationRollQuantity }} عدد</b></div>@endif
 </div>
 <label>توضیحات اولیه نصب <span class="optional">اختیاری</span><textarea name="installation_description" rows="3" placeholder="مثلاً توضیح کوتاه درباره محل یا زمان مناسب اجرا...">{{ old('installation_description') }}</textarea></label>
 </div>
-<div class="checkout-block"><span class="eyebrow">04 / PAYMENT</span><h2>روش پرداخت</h2><label class="payment-choice"><input type="radio" name="payment" value="offline" checked><span><b>پرداخت پس از تأیید سفارش</b><small>درگاه بانکی در این مرحله متصل نیست.</small></span></label><button class="btn btn-primary wide" type="submit">ثبت سفارش و دریافت کد پیگیری ←</button></div>
+<div class="checkout-block"><span class="eyebrow">04 / PAYMENT</span><h2>روش پرداخت</h2><label class="payment-choice"><input type="radio" name="payment" value="offline" checked><span><b>پرداخت پس از تأیید سفارش</b><small>درگاه بانکی در این مرحله متصل نیست.</small></span></label><button class="btn btn-primary wide" type="submit">ثبت سفارش و محاسبه نصب ←</button></div>
 </form>
 <aside class="checkout-summary"><span class="eyebrow">YOUR ORDER</span><h2>جزئیات سفارش</h2>
 @foreach($items as $item)

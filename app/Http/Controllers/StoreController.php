@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InstallationQuote;
 use App\Models\Order;
 use App\Models\ServiceRequest;
 use App\Support\StoreCatalog;
@@ -255,18 +256,16 @@ class StoreController extends Controller
         });
 
         if (($data['service'] ?? 'none') === 'installation') {
-            $prepareUrl = $this->forwardOrderInstallation($order, $data, $items);
+            $quote = $this->createInstallationQuote($order, $data, $items);
+            $request->session()->forget('cart');
 
-            if ($prepareUrl) {
-                $request->session()->forget('cart');
-                return redirect()->away($prepareUrl);
-            }
-
-            // Keep the cart so the customer can retry the installation handoff.
-            // Do not silently show a successful order page when DTZ rejected it.
-            return redirect()
-                ->route('checkout')
-                ->with('installation_error', 'سفارش ثبت شد، اما اتصال به سامانه نصب برقرار نشد. لطفاً دوباره تلاش کنید.');
+            return redirect()->away(
+                \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                    'checkout.installation.prepare',
+                    now()->addHours(4),
+                    ['quote' => $quote->id]
+                )
+            );
         }
 
         $request->session()->forget('cart');
@@ -274,18 +273,16 @@ class StoreController extends Controller
         return view('store.order-success', ['order' => $order->fresh()]);
     }
 
-    private function forwardOrderInstallation(Order $order, array $data, $items): ?string
+    private function createInstallationQuote(Order $order, array $data, $items): InstallationQuote
     {
-        $product = $items->first();
-
-        // Roll dimensions are already selected during purchase. Installation must
-        // receive the derived area and never ask the customer to re-enter rolls.
         $rollWidth = 3;
-        $rolls = $items->filter(fn (array $item) => ($item['calculation_type'] ?? null) === 'roll')
+        $rolls = $items
+            ->filter(fn (array $item) => ($item['calculation_type'] ?? null) === 'roll')
             ->map(function (array $item) use ($rollWidth) {
-                $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
+                $length = isset($item['roll_length'])
+                    ? max(1, min(15, (int) $item['roll_length']))
+                    : null;
                 $quantity = max(1, (int) ($item['quantity'] ?? 1));
-                $area = $length !== null ? $rollWidth * $length * $quantity : 0;
 
                 return [
                     'code' => $item['code'] ?? null,
@@ -294,180 +291,35 @@ class StoreController extends Controller
                     'width' => $rollWidth,
                     'length' => $length,
                     'quantity' => $quantity,
-                    'area' => $area,
+                    'area' => $length !== null ? $rollWidth * $length * $quantity : 0,
                 ];
-            })->values();
+            })
+            ->values()
+            ->all();
 
-        $totalArea = (float) $rolls->sum('area');
-        $totalRollQuantity = (int) $rolls->sum('quantity');
+        $totalArea = (float) collect($rolls)->sum('area');
+        $totalRollQuantity = (int) collect($rolls)->sum('quantity');
 
-        $productSummary = $items->map(function (array $item) use ($rollWidth) {
-            $isRoll = ($item['calculation_type'] ?? null) === 'roll';
-            $length = isset($item['roll_length']) ? max(1, min(15, (int) $item['roll_length'])) : null;
-            $quantity = max(1, (int) ($item['quantity'] ?? 1));
-            $area = ($isRoll && $length !== null) ? $rollWidth * $length * $quantity : null;
-
-            return collect([
-                $item['name'] ?? null,
-                !empty($item['code']) ? 'کد: ' . $item['code'] : null,
-                !empty($item['model']) ? 'مدل: ' . $item['model'] : null,
-                $isRoll && $length !== null ? 'طاقه: عرض ۳ × طول ' . $length . ' متر' : null,
-                'تعداد: ' . $quantity,
-                $area !== null ? 'متراژ: ' . $area . ' مترمربع' : null,
-            ])->filter()->implode(' | ');
-        })->filter()->implode("\n");
-
-        $installationDescription = trim((string) ($data['installation_description'] ?? ''));
-        $description = collect([
-            $productSummary ? 'محصولات سفارش:' . "\n" . $productSummary : null,
-            $totalArea > 0 ? 'متراژ کل نصب: ' . $totalArea . ' مترمربع' : null,
-            $totalRollQuantity > 0 ? 'تعداد طاقه: ' . $totalRollQuantity : null,
-            $installationDescription ? 'توضیحات نصب: ' . $installationDescription : null,
-        ])->filter()->implode("\n");
-
-        $description = $description !== '' ? $description : null;
-
-        $serviceData = [
-            'tracking_code' => $this->trackingCode('SR-', 8),
-            'type' => 'installation',
-            'name' => $data['name'],
-            'phone' => $data['phone'],
-            'description' => $description,
-            'status' => 'received',
-            'target_system' => 'dtz',
+        $payload = [
+            'customer' => [
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'city' => $data['city'],
+                'address' => $data['address'],
+                'postal_code' => $data['postal_code'] ?? null,
+                'description' => trim((string) ($data['installation_description'] ?? '')),
+            ],
+            'rolls' => $rolls,
+            'purchased_area' => $totalArea,
+            'purchased_roll_quantity' => $totalRollQuantity,
         ];
 
-        // Allow older local databases to complete checkout before the order_id migration is run.
-        if (Schema::hasColumn('service_requests', 'order_id')) {
-            $serviceData['order_id'] = $order->id;
-        }
-
-        $service = ServiceRequest::create($serviceData);
-
-        $token = (string) config('services.dtz.palaz_token');
-        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations';
-
-        if ($token === '' || ! str_starts_with($url, 'http')) {
-            $service->update(['status' => 'pending_integration']);
-            return null;
-        }
-
-        try {
-            $response = Http::withToken($token)
-                ->acceptJson()
-                ->timeout(15)
-                ->post($url, [
-                    'name' => $data['name'],
-                    'phone' => $data['phone'],
-                    'city' => $data['city'],
-                    'address' => $data['address'],
-                    'product_code' => $product['code'] ?? null,
-                    'product_title' => $product['name'] ?? null,
-                    'product_model' => $product['model'] ?? null,
-                    'area' => $totalArea > 0 ? $totalArea : null,
-                    'quantity' => $totalRollQuantity > 0 ? $totalRollQuantity : null,
-                    'rolls' => $rolls->all(),
-                    'description' => $description,
-                    'palaz_order_id' => 'PO-' . $order->id,
-                ]);
-
-            if ($response->successful()) {
-                $payload = $response->json();
-                $prepareUrl = $payload['prepare_url'] ?? null;
-
-                $service->update([
-                    'status' => 'forwarded',
-                    'external_id' => $payload['installation_id'] ?? null,
-                ]);
-
-                if (is_string($prepareUrl) && $prepareUrl !== '') {
-                    // Keep DTZ's signed path/query, but navigate through the configured DTZ host.
-                    $dtzBaseUrl = rtrim((string) config('services.dtz.url'), '/');
-                    $parsed = parse_url($prepareUrl);
-                    if ($dtzBaseUrl !== '' && is_array($parsed) && !empty($parsed['path'])) {
-                        $prepareUrl = $dtzBaseUrl . $parsed['path']
-                            . (!empty($parsed['query']) ? '?' . $parsed['query'] : '')
-                            . (!empty($parsed['fragment']) ? '#' . $parsed['fragment'] : '');
-                    }
-                    return $prepareUrl;
-                }
-
-                \Illuminate\Support\Facades\Log::error('DTZ installation handoff returned no prepare_url.', [
-                    'order_id' => $order->id,
-                    'status' => $response->status(),
-                    'response' => $payload,
-                ]);
-                $service->update(['status' => 'integration_failed']);
-                return null;
-            }
-
-            $errorPayload = $response->json();
-            $errorMessage = is_array($errorPayload)
-                ? ($errorPayload['message'] ?? json_encode($errorPayload, JSON_UNESCAPED_UNICODE))
-                : trim($response->body());
-
-            \Illuminate\Support\Facades\Log::error('DTZ installation handoff failed.', [
-                'order_id' => $order->id,
-                'url' => $url,
-                'status' => $response->status(),
-                'response' => $errorPayload ?: $response->body(),
-            ]);
-            $service->update(['status' => 'integration_failed']);
-
-            session()->flash(
-                'installation_error_detail',
-                'DTZ HTTP ' . $response->status() . ': ' . mb_substr((string) $errorMessage, 0, 300)
-            );
-        } catch (\Throwable $e) {
-            report($e);
-            $service->update(['status' => 'integration_failed']);
-
-            session()->flash(
-                'installation_error_detail',
-                'خطای اتصال به DTZ: ' . mb_substr($e->getMessage(), 0, 300)
-            );
-        }
-
-        return null;
-    }
-
-
-    public function installationComplete(Request $request)
-    {
-        $data = $request->validate([
-            'order_id' => ['required', 'string', 'max:120'],
-            'installation_id' => ['required', 'integer'],
-            'tracking_code' => ['nullable', 'string', 'max:120'],
-        ]);
-
-        $orderId = $data['order_id'];
-        $orderNumber = str_starts_with($orderId, 'PO-') ? (int) substr($orderId, 3) : 0;
-        abort_unless($orderNumber > 0, 404);
-
-        $order = Order::with('items')->findOrFail($orderNumber);
-        abort_unless($order->service === 'installation', 404);
-
-        $token = (string) config('services.dtz.palaz_token');
-        $url = rtrim((string) config('services.dtz.url'), '/') . '/api/palaz/installations/' . (int) $data['installation_id'] . '/quote';
-        abort_unless($token !== '' && str_starts_with($url, 'http'), 503);
-
-        $response = Http::withToken($token)->acceptJson()->timeout(15)->get($url);
-        abort_unless($response->successful(), 502);
-        $quote = $response->json();
-        abort_unless(($quote['success'] ?? false) && (int) ($quote['installation_id'] ?? 0) === (int) $data['installation_id'], 502);
-        abort_unless(($quote['external_reference'] ?? null) === $orderId, 409);
-
-        $installationAmount = (float) ($quote['total_amount'] ?? 0);
-        $productsTotal = (float) $order->items->sum(fn ($item) => (float) ($item->line_total ?? 0));
-        $order->update([
-            'total' => $productsTotal + $installationAmount,
-            'status' => 'received',
-        ]);
-
-        return view('store.order-success', [
-            'order' => $order->fresh('items'),
-            'installationAmount' => $installationAmount,
-            'installationTrackingCode' => $quote['tracking_code'] ?? $data['tracking_code'] ?? null,
+        return InstallationQuote::create([
+            'order_id' => $order->id,
+            'tracking_code' => $this->trackingCode('IN-', 10),
+            'payload' => $payload,
+            'total_amount' => 0,
+            'status' => 'pending',
         ]);
     }
 

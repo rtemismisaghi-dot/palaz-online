@@ -43,7 +43,6 @@ class StoreController extends Controller
         ];
 
         $products = collect(StoreCatalog::byCategory($category))
-            ->take(48)
             ->map(fn (array $product) => [
                 'id' => $product['id'],
                 'name' => $product['name'],

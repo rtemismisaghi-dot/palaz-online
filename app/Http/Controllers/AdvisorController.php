@@ -78,8 +78,18 @@ final class AdvisorController extends Controller
             'context.compare.*.unit' => ['nullable', 'string', 'max:80'],
         ]);
 
-        $result = $agent->reply($data['message'], $data['messages'] ?? [], $data['context'] ?? []);
+        try {
+            $result = $agent->reply($data['message'], $data['messages'] ?? [], $data['context'] ?? []);
 
-        return response()->json($result);
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'reply' => 'ارتباط با سرویس هوشمند موقتاً با مشکل روبه‌رو شد. اما من اینجا هستم؛ لطفاً سؤال‌تان را دوباره بفرستید.',
+                'mode' => 'fallback',
+                'actions' => [],
+            ], 200);
+        }
     }
 }

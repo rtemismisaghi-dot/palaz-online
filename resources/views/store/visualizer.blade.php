@@ -215,10 +215,10 @@
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
-                  'https://www.voxflor.com/wp-content/uploads/2020/07/step3-3-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2020/07/step3-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2020/07/step4-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2020/07/step5-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step3-3-room-visualizer-voxflor-1.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step3-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step4-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step5-room-visualizer-voxflor-1.jpg',
                   'https://palazonline.com/storage/uploads/005-1-2.jpg',
                   'https://palazonline.com/storage/uploads/005-1-2.jpg',
                   'https://palazonline.com/storage/uploads/005-1-2.jpg',
@@ -325,6 +325,9 @@
             const compareClose = root.querySelector('.px-compare-close');
             const compareUse = root.querySelector('.px-compare-use');
             const advisorButton = root.querySelector('.px-visualizer-advisor');
+            const roomOptions = [...root.querySelectorAll('.px-room-option[data-demo-room]')];
+            const customerRoom = root.querySelector('[data-customer-room]');
+            const compareSlider = root.querySelector('.px-compare-slider');
 
             const fallbackImages = {
               carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',

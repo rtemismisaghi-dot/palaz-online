@@ -1004,6 +1004,10 @@
             });
 
             advisorButton?.addEventListener('click', () => {
+              if (typeof window.palazOpenAdvisorWithContext === 'function') {
+                window.palazOpenAdvisorWithContext();
+                return;
+              }
               const opener = document.querySelector('.palaz-advisor-shortcut, .px-open-advisor');
               opener?.click();
             });

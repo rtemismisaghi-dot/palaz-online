@@ -223,20 +223,20 @@
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
-                  ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png'],
-                  ['name' => 'Hotel Corridor', 'image' => 'https://www.welcome-fukuoka.or.jp/topics_images/2/file/7738.jpg'],
-                  ['name' => 'Library', 'image' => 'https://alpha-tex.com/media/25/3a/d8/1752760401/RileyRaum1.jpg'],
-                  ['name' => 'Office Corridor', 'image' => 'https://shawfloors.widen.net/content/o7uvg8xgo4/jpeg/0S6A9572_.jpg?anchor=114%2C0&color=ffffffff&crop=true&h=1365&q=80&u=9ab8mp&w=1820'],
-                  ['name' => 'Office Lounge', 'image' => 'https://embed.widencdn.net/img/shawfloors/hdgsqei9mz/1120x775px/5T235_35516_FEATURE1.jpeg?crop=yes&keep=c&u=kgbzqj&use=2mlaz'],
-                  ['name' => 'Office Meeting Room', 'image' => 'https://www.floorworld.com/media/dajbnk5u/sky-gardens-sky-gardens-577-office-meetingroom-zone-carpet-tiles.jpg'],
-                  ['name' => 'Open Office 1', 'image' => 'https://thepanipathandloom.com/media/user_84/4_Qw6JmWm.jpg'],
-                  ['name' => 'Open Office 2', 'image' => 'https://api.kasperkent.be/sites/default/files/styles/webp/public/referenties/2018-06/GeneraalArmstrongweg1Antwerpen-20%20kopie_tiny_0.jpg.webp?itok=AVrQXgBl'],
-                  ['name' => 'Private Office', 'image' => 'https://www.toli.co.jp/product_carpet/rollcarpet/img/ew05.jpg'],
-                  ['name' => 'Reception', 'image' => 'https://www.tarketthospitality.com/TarkettHospitality/media/Images/Soft%20Surface/Inky/Blot_Watercolor_RM_1024x850.jpg?ext=.jpg'],
+                  ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png', 'polygon' => [[3,58],[97,58],[100,100],[0,100]]],
+                  ['name' => 'Hotel Corridor', 'image' => 'https://www.welcome-fukuoka.or.jp/topics_images/2/file/7738.jpg', 'polygon' => [[8,42],[92,42],[100,100],[0,100]]],
+                  ['name' => 'Library', 'image' => 'https://alpha-tex.com/media/25/3a/d8/1752760401/RileyRaum1.jpg', 'polygon' => [[5,52],[95,52],[100,100],[0,100]]],
+                  ['name' => 'Office Corridor', 'image' => 'https://shawfloors.widen.net/content/o7uvg8xgo4/jpeg/0S6A9572_.jpg?anchor=114%2C0&color=ffffffff&crop=true&h=1365&q=80&u=9ab8mp&w=1820', 'polygon' => [[4,48],[96,48],[100,100],[0,100]]],
+                  ['name' => 'Office Lounge', 'image' => 'https://embed.widencdn.net/img/shawfloors/hdgsqei9mz/1120x775px/5T235_35516_FEATURE1.jpeg?crop=yes&keep=c&u=kgbzqj&use=2mlaz', 'polygon' => [[2,55],[98,55],[100,100],[0,100]]],
+                  ['name' => 'Office Meeting Room', 'image' => 'https://www.floorworld.com/media/dajbnk5u/sky-gardens-sky-gardens-577-office-meetingroom-zone-carpet-tiles.jpg', 'polygon' => [[3,54],[97,54],[100,100],[0,100]]],
+                  ['name' => 'Open Office 1', 'image' => 'https://thepanipathandloom.com/media/user_84/4_Qw6JmWm.jpg', 'polygon' => [[2,51],[98,51],[100,100],[0,100]]],
+                  ['name' => 'Open Office 2', 'image' => 'https://api.kasperkent.be/sites/default/files/styles/webp/public/referenties/2018-06/GeneraalArmstrongweg1Antwerpen-20%20kopie_tiny_0.jpg.webp?itok=AVrQXgBl', 'polygon' => [[1,56],[99,56],[100,100],[0,100]]],
+                  ['name' => 'Private Office', 'image' => 'https://www.toli.co.jp/product_carpet/rollcarpet/img/ew05.jpg', 'polygon' => [[4,57],[96,57],[100,100],[0,100]]],
+                  ['name' => 'Reception', 'image' => 'https://www.tarketthospitality.com/TarkettHospitality/media/Images/Soft%20Surface/Inky/Blot_Watercolor_RM_1024x850.jpg?ext=.jpg', 'polygon' => [[2,55],[98,55],[100,100],[0,100]]],
                 ];
               @endphp
               @foreach($visualizerDemoRooms as $index => $room)
-                <button type="button" class="px-room-option{{ $index === 0 ? ' active' : '' }}" data-demo-room="{{ $index + 1 }}" data-room-image="{{ $room['image'] }}">
+                <button type="button" class="px-room-option{{ $index === 0 ? ' active' : '' }}" data-demo-room="{{ $index + 1 }}" data-room-image="{{ $room['image'] }}" data-room-polygon="{{ json_encode($room['polygon']) }}">
                   <img src="{{ $room['image'] }}" alt="{{ $room['name'] }}" loading="lazy"><span>{{ $room['name'] }}</span>
                 </button>
               @endforeach
@@ -384,7 +384,7 @@
               if (!floorOverlay || !sourceUrl || !Array.isArray(points) || points.length < 4) return;
               const image = new Image();
               image.onload = () => {
-                if (sourceUrl !== uploadedUrl || !selectedProduct) return;
+                if ((sourceUrl !== uploadedUrl && sourceUrl !== demoRoomUrl) || !selectedProduct) return;
                 const rect = preview.getBoundingClientRect();
                 const width = Math.max(1, rect.width);
                 const height = Math.max(1, rect.height);
@@ -410,7 +410,7 @@
               if (!floorOverlay) return;
               const base = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
-              const floorPoints = uploadedUrl && Array.isArray(floorPolygon) && floorPolygon.length >= 4
+              const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
                 : null;
 
@@ -437,7 +437,7 @@
                 floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
               }
 
-              if (selectedProduct && uploadedUrl && floorPoints) {
+              if (selectedProduct && floorPoints) {
                 setStatus(
                   selectedProduct.name + ' روی کف شناسایی‌شده',
                   'فقط محدوده کف عکس شما با این مدل پوشانده شده است.'
@@ -644,7 +644,12 @@
               }
               demoRoomUrl = option.dataset.roomImage || fallbackImages[surface];
               empty.style.display = 'none';
-              floorPolygon = null;
+              try {
+                const parsedPolygon = JSON.parse(option.dataset.roomPolygon || 'null');
+                floorPolygon = Array.isArray(parsedPolygon) && parsedPolygon.length >= 4 ? parsedPolygon : null;
+              } catch (error) {
+                floorPolygon = null;
+              }
               const roomImage = demoRoomUrl || fallbackImages[surface];
               preview.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.12)),url("' + roomImage + '")';
               preview.classList.remove('has-product');

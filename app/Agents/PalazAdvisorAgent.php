@@ -15,6 +15,13 @@ final class PalazAdvisorAgent
             ->map(fn ($m) => ['role' => $m['role'], 'content' => mb_substr((string) ($m['content'] ?? ''), 0, 1200)])
             ->take(-10)->values()->all();
 
+        // مسیر مرحله‌ای شروع مشاوره: ابتدا نوع فضا، سپس در صورت نیاز بخش فضا و در پایان متراژ.
+        // این مرحله‌ها را قبل از AI قطعی می‌کنیم تا گفتگو همیشه منظم و قابل پیش‌بینی باشد.
+        $guidedReply = $this->guidedConversationReply($message, $history);
+        if ($guidedReply !== null) {
+            return ['reply' => $guidedReply, 'mode' => 'guided', 'actions' => []];
+        }
+
         // اگر کاتالوگ/دیتابیس موقتاً در دسترس نبود، گفتگو نباید با خطای 500 قطع شود.
         // مشاور می‌تواند بدون کاتالوگ هم سؤال عمومی را پاسخ دهد و برای قیمت، کاربر را به فروشگاه هدایت کند.
         try {
@@ -261,6 +268,56 @@ REVIEW;
             return $area > 0 && $area <= 100000 ? $area : null;
         }
 
+        return null;
+    }
+
+    private function guidedConversationReply(string $message, array $history): ?string
+    {
+        $normalize = function (string $text): string {
+            $text = mb_strtolower(trim($text));
+            return str_replace(['ي','ى','ك','ة','ۀ','ؤ','إ','أ','ٱ'], ['ی','ی','ک','ه','ه','و','ا','ا','ا'], $text);
+        };
+
+        $current = $normalize($message);
+        $previousAssistant = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'assistant')
+            ->last();
+        $previousUser = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
+            ->last();
+        $assistantText = $normalize((string) ($previousAssistant['content'] ?? ''));
+
+        // شروع گفتگو: «سلام» یا پیام‌های عمومی، سؤال مرحله اول را دریافت می‌کنند.
+        if (preg_match('/سلام|درود|وقت بخیر/u', $current)) {
+            return 'حتماً. بگویید فضا از کدام نوع است: خانه، محل کار/اداری، هتل یا نمازخانه؟';
+        }
+
+        // پاسخ به سؤال نوع فضا.
+        $isHome = preg_match('/خانه|خانگی|منزل/u', $current);
+        $isOffice = preg_match('/محل کار|اداری|اداره|دفتر|دفتر کار/u', $current);
+        $isHotel = preg_match('/هتل/u', $current);
+        $isPrayer = preg_match('/نمازخانه/u', $current);
+        $wasAskingSpace = str_contains($assistantText, 'فضا') &&
+            (str_contains($assistantText, 'خانه') || str_contains($assistantText, 'محل کار') || str_contains($assistantText, 'هتل'));
+
+        if ($wasAskingSpace && ($isHome || $isOffice || $isHotel || $isPrayer)) {
+            if ($isHome) {
+                return 'برای خانه، بفرمایید برای کدام قسمت است؟ مثلاً پذیرایی، اتاق خواب، راهرو، آشپزخانه یا فضای دیگری؟';
+            }
+            if ($isHotel) {
+                return 'برای هتل، بفرمایید برای کدام قسمت است؟ مثلاً اتاق، راهرو، لابی، سالن یا فضای دیگری؟';
+            }
+            return 'برای این فضا حدوداً چه متراژی دارید؟';
+        }
+
+        // اگر برای خانه یا هتل قسمت فضا گفته شد، مرحله بعد فقط متراژ است.
+        $wasAskingPart = str_contains($assistantText, 'کدام قسمت') || str_contains($assistantText, 'کدام بخش');
+        $hasArea = $this->extractAdvisorArea($message) !== null;
+        if ($wasAskingPart && !$hasArea && mb_strlen($current) >= 2) {
+            return 'ممنون. حدوداً چه متراژی دارید؟';
+        }
+
+        // اگر کاربر مستقیماً در پاسخ به سؤال اولیه متراژ را هم گفته باشد، اجازه بده مسیر عادی ادامه پیدا کند.
         return null;
     }
 

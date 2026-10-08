@@ -926,7 +926,7 @@
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       const contextBadge = backdrop.querySelector('.palaz-advisor-context');
       let lastFocusedElement = null;
-      const welcomeText = 'حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
+      const welcomeText = 'سلام، وقت شما بخیر. من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
 
       let pendingVisualizerContext = null;
@@ -1012,68 +1012,60 @@
 
       const speakWelcome = () => {
         if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
-          if (voiceStatus) voiceStatus.textContent = 'صدای مرورگر در دسترس نیست؛ لطفاً پیام خود را بنویسید یا با میکروفون صحبت کنید.';
-          return;
+          if (voiceStatus) voiceStatus.textContent = 'پخش صدای فارسی در این مرورگر در دسترس نیست.';
+          return false;
         }
 
         const synth = window.speechSynthesis;
         synth.cancel();
         synth.resume();
 
-        const utterance = new SpeechSynthesisUtterance(welcomeText);
-        const persianVoice = getPersianVoice();
-        if (persianVoice) {
-          utterance.voice = persianVoice;
-          utterance.lang = persianVoice.lang || 'fa-IR';
-        } else {
+        const speakNow = () => {
+          synth.cancel();
+          const utterance = new SpeechSynthesisUtterance(welcomeText);
+          const persianVoice = getPersianVoice();
           utterance.lang = 'fa-IR';
-        }
-        utterance.rate = .92;
-        utterance.pitch = 1.08;
-        utterance.volume = 1;
+          if (persianVoice) utterance.voice = persianVoice;
+          utterance.rate = .9;
+          utterance.pitch = 1.06;
+          utterance.volume = 1;
 
-        utterance.onstart = () => {
-          setAdvisorVisualState('answering');
-          if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
-          voiceReplay?.classList.add('is-speaking');
-        };
-        utterance.onend = () => {
-          setAdvisorVisualState('');
-          if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
-          voiceReplay?.classList.remove('is-speaking');
-        };
-        utterance.onerror = () => {
-          setAdvisorVisualState('');
-          if (voiceStatus) voiceStatus.textContent = 'برای پخش صدا یک بار روی «پخش دوباره» بزنید.';
-          voiceReplay?.classList.remove('is-speaking');
-        };
-
-        // مهم: پخش باید بلافاصله در همان تعامل کاربر انجام شود؛
-        // منتظر voiceschanged یا setTimeout نمی‌مانیم چون مرورگر موبایل ممکن است آن را autoplay حساب کند.
-        synth.speak(utterance);
-
-        // اگر فهرست صداها بعداً آماده شد، فقط برای انتخاب صدای فارسی دوباره تلاش می‌کنیم.
-        if (!persianVoice) {
-          const refreshVoice = () => {
-            const voice = getPersianVoice();
-            if (!voice || synth.speaking) return;
-            synth.cancel();
-            const retry = new SpeechSynthesisUtterance(welcomeText);
-            retry.voice = voice;
-            retry.lang = voice.lang || 'fa-IR';
-            retry.rate = .92;
-            retry.pitch = 1.08;
-            retry.volume = 1;
-            retry.onstart = utterance.onstart;
-            retry.onend = utterance.onend;
-            retry.onerror = utterance.onerror;
-            synth.speak(retry);
+          utterance.onstart = () => {
+            setAdvisorVisualState('answering');
+            if (voiceStatus) voiceStatus.textContent = 'مشاور پالاز در حال صحبت است...';
+            voiceReplay?.classList.add('is-speaking');
           };
-          synth.addEventListener?.('voiceschanged', refreshVoice, { once: true });
-        }
-      };
+          utterance.onend = () => {
+            setAdvisorVisualState('');
+            if (voiceStatus) voiceStatus.textContent = 'آماده گفتگو با شما';
+            voiceReplay?.classList.remove('is-speaking');
+          };
+          utterance.onerror = () => {
+            setAdvisorVisualState('');
+            voiceReplay?.classList.remove('is-speaking');
+            if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ روی «پخش دوباره» بزنید.';
+          };
 
-      let previousBodyOverflow = '';
+          synth.speak(utterance);
+          return true;
+        };
+
+        // Chrome/Edge گاهی فهرست صداها را بعد از باز شدن پنجره آماده می‌کند.
+        // ابتدا همان لحظه تلاش می‌کنیم و اگر صداها هنوز آماده نبودند، با آماده‌شدن
+        // فهرست صداها دوباره فقط یک‌بار پخش می‌کنیم.
+        const spoken = speakNow();
+        if (!getPersianVoice()) {
+          const onVoicesChanged = () => {
+            window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
+            if (!window.speechSynthesis.speaking) speakNow();
+          };
+          window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged, { once: true });
+          window.setTimeout(() => {
+            window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
+          }, 2500);
+        }
+        return spoken;
+      };
 
       const openAdvisor = (options = {}) => {
         setAdvisorVisualState('listening');

@@ -215,16 +215,16 @@
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step1-1-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step2-2-room-visualizer-voxflor.jpg',
                   'https://www.voxflor.com/wp-content/uploads/2025/01/step3-3-room-visualizer-voxflor-1.jpg',
                   'https://www.voxflor.com/wp-content/uploads/2025/01/step3-room-visualizer-voxflor.jpg',
                   'https://www.voxflor.com/wp-content/uploads/2025/01/step4-room-visualizer-voxflor.jpg',
                   'https://www.voxflor.com/wp-content/uploads/2025/01/step5-room-visualizer-voxflor-1.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
-                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step6-6-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step6-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step7-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2025/01/step-1-room-visualizer-voxflor.jpg',
                 ];
               @endphp
               @foreach($visualizerDemoRooms as $index => $room)

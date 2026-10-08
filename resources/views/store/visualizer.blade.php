@@ -438,16 +438,51 @@
               image.src = sourceUrl;
             };
 
-            const mapFloorPointToPreview = ([x, y]) => {
+            let floorImageMetrics = null;
+
+            const getFloorImageMetrics = () => {
+              const sourceUrl = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
               const rect = preview.getBoundingClientRect();
-              return { x: (Number(x) || 0) / 100 * rect.width, y: (Number(y) || 0) / 100 * rect.height };
+              if (!sourceUrl || !rect.width || !rect.height) return null;
+              if (floorImageMetrics && floorImageMetrics.url === sourceUrl && floorImageMetrics.width === rect.width && floorImageMetrics.height === rect.height) {
+                return floorImageMetrics;
+              }
+              const image = new Image();
+              image.src = sourceUrl;
+              const naturalWidth = image.naturalWidth || 1;
+              const naturalHeight = image.naturalHeight || 1;
+              const scale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
+              const renderedWidth = naturalWidth * scale;
+              const renderedHeight = naturalHeight * scale;
+              floorImageMetrics = {
+                url: sourceUrl,
+                width: rect.width,
+                height: rect.height,
+                naturalWidth,
+                naturalHeight,
+                scale,
+                offsetX: (rect.width - renderedWidth) / 2,
+                offsetY: (rect.height - renderedHeight) / 2
+              };
+              return floorImageMetrics;
+            };
+
+            const mapFloorPointToPreview = ([x, y]) => {
+              const m = getFloorImageMetrics();
+              if (!m) return { x: 0, y: 0 };
+              return {
+                x: (Number(x) || 0) / 100 * m.naturalWidth * m.scale + m.offsetX,
+                y: (Number(y) || 0) / 100 * m.naturalHeight * m.scale + m.offsetY
+              };
             };
 
             const mapPreviewPointToFloor = (clientX, clientY) => {
               const rect = preview.getBoundingClientRect();
+              const m = getFloorImageMetrics();
+              if (!m || !rect.width || !rect.height) return [50, 50];
               return [
-                Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
-                Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100))
+                Math.max(0, Math.min(100, ((clientX - rect.left - m.offsetX) / m.scale / m.naturalWidth) * 100)),
+                Math.max(0, Math.min(100, ((clientY - rect.top - m.offsetY) / m.scale / m.naturalHeight) * 100))
               ];
             };
 

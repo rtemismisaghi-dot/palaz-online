@@ -150,7 +150,7 @@
 .palaz-experience .px-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}
 .palaz-experience .px-quick a{padding:15px;border:1px solid #e7e4df;border-radius:16px;background:#fff;text-decoration:none;color:#292c30}
 
-.palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
+.palaz-experience .px-space-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0 14px}.palaz-experience .px-space-preset{border:1px solid #e4dfda;background:#fff;border-radius:14px;padding:11px 12px;text-align:right;cursor:pointer;transition:.2s ease;color:#292c30}.palaz-experience .px-space-preset span,.palaz-experience .px-space-preset small{display:block}.palaz-experience .px-space-preset span{font-size:11px;font-weight:900}.palaz-experience .px-space-preset small{margin-top:3px;font-size:9px;color:#999}.palaz-experience .px-space-preset.active{border-color:#b71929;background:#fff7f8;box-shadow:0 6px 18px rgba(183,25,41,.08)}.palaz-experience .px-space-preset:hover{transform:translateY(-1px);border-color:#b71929}.palaz-experience .px-space-preset.upload-preset{display:block;font:inherit}.palaz-experience .px-space-preset.upload-preset input{display:none}@media(max-width:560px){.palaz-experience .px-space-presets{grid-template-columns:1fr 1fr}}.palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
 .palaz-experience .px-surface-tab{border:1px solid #dedbd6;background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-size:11px;font-weight:800;color:#555;cursor:pointer}
 .palaz-experience .px-surface-tab.active{background:#fff4f5;border-color:#b71929;color:#b71929}
 .palaz-experience .px-visualizer-products{display:flex;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
@@ -727,6 +727,13 @@
               <span class="px-kicker">02 / VISUALIZER</span>
               <h2 class="px-title">فضای خودت را<br>واقعاً ببین.</h2>
               <p class="px-sub">عکس فضای خودت را وارد کن، کف را مشخص کن و مدل‌های واقعی موکت، لمینیت و SPC را روی همان فضا امتحان کن.</p>
+              <div class="px-space-presets" aria-label="فضاهای آماده">
+                <button type="button" class="px-space-preset active" data-space="living" data-image="https://palazonline.com/storage/uploads/IMG_1100-4.PNG"><span>پذیرایی مدرن</span><small>روشن و مینیمال</small></button>
+                <button type="button" class="px-space-preset" data-space="bedroom" data-image="https://palazonline.com/storage/uploads/005-1-2.jpg"><span>اتاق خواب</span><small>آرام و گرم</small></button>
+                <button type="button" class="px-space-preset" data-space="office" data-image="https://palazonline.com/storage/uploads/010-1.jpg"><span>دفتر کار</span><small>مدرن و رسمی</small></button>
+                <button type="button" class="px-space-preset" data-space="project" data-image="https://palazonline.com/storage/uploads/IMG_5777.PNG"><span>هتل و پروژه</span><small>لوکس و حرفه‌ای</small></button>
+                <label class="px-space-preset upload-preset"><span>عکس خودم</span><small>آپلود فضای شما</small><input id="px-space-upload-inline" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+              </div>
 
               <div class="px-visualizer-surface-tabs" role="tablist" aria-label="نوع کفپوش">
                 <button type="button" class="px-surface-tab active" data-surface="carpet">موکت</button>
@@ -764,6 +771,8 @@
             const preview = root.querySelector('.px-visualizer-preview');
             const empty = root.querySelector('.px-preview-empty');
             const upload = root.querySelector('#px-space-upload');
+            const inlineUpload = root.querySelector('#px-space-upload-inline');
+            const spacePresets = [...root.querySelectorAll('.px-space-preset[data-image]')];
             const tabs = [...root.querySelectorAll('.px-surface-tab')];
             const productsEl = root.querySelector('.px-visualizer-products');
             const status = root.querySelector('.px-visualizer-status');
@@ -786,6 +795,7 @@
             let products = [];
             let compareProducts = [];
             let floorPolygon = null;
+            let selectedSpace = 'living';
 
             window.palazVisualizerState = () => ({
               surface,
@@ -802,6 +812,12 @@
               }))
             });
 
+            const usePresetSpace = button => {
+              selectedSpace = button.dataset.space || 'living'; uploadedUrl = ''; floorPolygon = null;
+              spacePresets.forEach(item => item.classList.toggle('active', item === button));
+              if (upload) upload.value = ''; if (inlineUpload) inlineUpload.value = '';
+              paintPreview(); setStatus('فضای آماده انتخاب شد', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
+            };
             const imageUrl = value => {
               if (!value) return fallbackImages[surface];
               if (/^https?:\/\//i.test(value) || value.startsWith('data:') || value.startsWith('blob:')) return value;
@@ -814,7 +830,7 @@
             };
 
             const paintPreview = () => {
-              const base = uploadedUrl || fallbackImages[surface];
+              const base = uploadedUrl || (spacePresets.find(item => item.dataset.space === selectedSpace)?.dataset.image) || fallbackImages[surface];
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
               const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
@@ -999,6 +1015,16 @@
               loadProducts();
             }));
 
+            spacePresets.forEach(button => button.addEventListener('click', () => usePresetSpace(button)));
+
+            const handleSpaceUpload = file => {
+              if (!file) return;
+              if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { setStatus('فرمت عکس مناسب نیست', 'فقط JPG، PNG یا WEBP انتخاب کن.'); return; }
+              const reader = new FileReader();
+              reader.onload = () => { uploadedUrl = String(reader.result || ''); selectedSpace = 'custom'; spacePresets.forEach(item => item.classList.remove('active')); floorPolygon = null; paintPreview(); setStatus('عکس فضای شما آماده است', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.'); };
+              reader.readAsDataURL(file);
+            };
+            inlineUpload?.addEventListener('change', event => handleSpaceUpload(event.target.files?.[0]));
             upload?.addEventListener('change', event => {
               const file = event.target.files?.[0];
               if (!file) return;

@@ -122,7 +122,7 @@
   .palaz-visualizer-page .px-upload-btn{grid-column:1/-1;width:100%}
   .palaz-visualizer-page .px-sample-note{top:12px;right:12px}
 }
-.palaz-visualizer-page .px-visualizer-kicker{display:flex;align-items:center;gap:12px;margin-bottom:4px}.palaz-visualizer-page .px-visualizer-kicker-image{width:54px;height:54px;flex:0 0 54px;border-radius:14px;background:url('https://palazonline.com/storage/uploads/005-1-2.jpg') center/cover no-repeat;box-shadow:0 8px 22px rgba(37,40,44,.14);border:3px solid #fff}.palaz-visualizer-page .px-visualizer-kicker .px-kicker{margin:0}@media(max-width:560px){.palaz-visualizer-page .px-visualizer-kicker-image{width:46px;height:46px;flex-basis:46px;border-radius:12px}} </style>
+.palaz-visualizer-page .px-visualizer-kicker{display:flex;align-items:center;gap:12px;margin-bottom:4px}.palaz-visualizer-page .px-visualizer-kicker-image{width:54px;height:54px;flex:0 0 54px;border-radius:14px;background:url('/images/palaz-p-mark.png') center/contain no-repeat;background-color:#fff;box-shadow:0 8px 22px rgba(37,40,44,.14);border:3px solid #fff}.palaz-visualizer-page .px-visualizer-kicker .px-kicker{margin:0}@media(max-width:560px){.palaz-visualizer-page .px-visualizer-kicker-image{width:46px;height:46px;flex-basis:46px;border-radius:12px}} </style>
 <div class="palaz-reference-home palaz-experience palaz-visualizer-page">
   <div class="px-wrap">
     <header class="px-page-head">

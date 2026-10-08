@@ -138,7 +138,15 @@
 .palaz-experience .px-card-content{position:absolute;z-index:2;right:18px;left:18px;bottom:16px}
 .palaz-experience .px-card-content strong{display:block;font-size:19px;margin-bottom:3px}
 .palaz-experience .px-card-content span{font-size:12px;opacity:.85}
-.palaz-experience .px-tools{padding:34px 0 64px}
+.palaz-experience .px-tools{padding:34px 0 64px}.palaz-experience .px-home-visualizer-card{display:grid;grid-template-columns:1.05fr .95fr;min-height:360px;border-radius:28px;overflow:hidden;background:#f3f1ee}
+.palaz-experience .px-home-visualizer-image{position:relative;min-height:360px;overflow:hidden;background:#ddd}
+.palaz-experience .px-home-visualizer-image img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .5s ease}
+.palaz-experience .px-home-visualizer-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.03),rgba(0,0,0,.34))}
+.palaz-experience .px-home-visualizer-image span{position:absolute;z-index:2;right:18px;bottom:18px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.9);color:#25282c;font-size:10px;font-weight:800}
+.palaz-experience .px-home-visualizer-card:hover .px-home-visualizer-image img{transform:scale(1.035)}
+.palaz-experience .px-home-visualizer-copy{padding:42px;display:flex;flex-direction:column;justify-content:center}
+.palaz-experience .px-home-visualizer-copy .px-btn{align-self:flex-start;margin-top:18px}
+@media(max-width:760px){.palaz-experience .px-home-visualizer-card{grid-template-columns:1fr}.palaz-experience .px-home-visualizer-image{min-height:240px}.palaz-experience .px-home-visualizer-copy{padding:28px 24px}.palaz-experience .px-home-visualizer-copy .px-btn{width:100%}}
 .palaz-experience .px-tool-shell{display:grid;grid-template-columns:1.15fr .85fr;min-height:410px;border-radius:28px;overflow:hidden;background:#f3f1ee}
 .palaz-experience .px-tool-image{position:relative;background:url('https://palazonline.com/storage/uploads/005-1-2.jpg') center/cover;min-height:410px}
 .palaz-experience .px-tool-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
@@ -684,13 +692,17 @@
 
       <section class="px-tools" id="visualizer">
         <div class="px-wrap">
-          <div class="px-tool-shell" style="display:flex;align-items:center;justify-content:space-between;gap:28px;padding:38px 42px;border-radius:28px;background:#f3f1ee">
-            <div style="max-width:700px">
+          <div class="px-tool-shell px-home-visualizer-card">
+            <div class="px-home-visualizer-image" aria-hidden="true">
+              <img src="https://floorcenter.ae/wp-content/uploads/2024/09/Living-room-Wall-Carpet.webp" alt="" loading="lazy">
+              <span>فضای واقعی با موکت</span>
+            </div>
+            <div class="px-home-visualizer-copy">
               <span class="px-kicker">02 / VISUALIZER</span>
               <h2 class="px-title">فضای خودت را<br>واقعاً ببین.</h2>
-              <p class="px-sub">برای تجربه کامل Visualizer وارد صفحه اختصاصی شو؛ عکس فضای خودت را اضافه کن و مدل‌های واقعی پالاز را روی آن امتحان کن.</p>
+              <p class="px-sub">عکس فضای خودت را اضافه کن و مدل‌های واقعی پالاز را روی همان فضا امتحان کن.</p>
+              <a class="px-btn red" href="{{ route('visualizer') }}">ورود به VISUALIZER ←</a>
             </div>
-            <a class="px-btn red" href="{{ route('visualizer') }}">ورود به VISUALIZER ←</a>
           </div>
         </div>
       </section>

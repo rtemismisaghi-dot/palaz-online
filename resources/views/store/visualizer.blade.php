@@ -427,7 +427,7 @@
                 preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
                 preview.style.setProperty('--palaz-floor-saturation', surface === 'carpet' ? '0.94' : '0.88');
                 preview.classList.add('has-product');
-                applyFloorPolygon(uploadedUrl, floorPoints);
+                applyFloorPolygon(base, floorPoints);
               } else {
                 preview.style.backgroundImage =
                   'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
@@ -440,17 +440,17 @@
               if (selectedProduct && floorPoints) {
                 setStatus(
                   selectedProduct.name + ' روی کف شناسایی‌شده',
-                  'فقط محدوده کف عکس شما با این مدل پوشانده شده است.'
+                  uploadedUrl ? 'فقط محدوده کف عکس شما با این مدل پوشانده شده است.' : 'فقط محدوده کف فضای دمو با این مدل پوشانده شده است.'
                 );
               } else if (selectedProduct && !uploadedUrl) {
                 setStatus(
                   selectedProduct.name + ' انتخاب شد',
-                  'برای اجرای واقعی روی کف، عکس فضای خودتان را اضافه کنید.'
+                  'مدل انتخاب‌شده فقط روی سطح کف فضای دمو اجرا می‌شود.'
                 );
               } else if (uploadedUrl) {
                 setStatus('عکس شما آماده است', 'کف در حال بررسی است؛ بعد از انتخاب مدل، فقط سطح کف اجرا می‌شود.');
               } else {
-                setStatus('عکس فضا را اضافه کن', 'مدل‌های دمو فقط برای انتخاب هستند و روی آن‌ها موکت اجرا نمی‌شود.');
+                setStatus('فضا آماده است', 'یک مدل واقعی از کاتالوگ پالاز انتخاب کن تا فقط روی کف اجرا شود.');
               }
             };
 

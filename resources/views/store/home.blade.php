@@ -150,7 +150,7 @@
 .palaz-experience .px-quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:22px}
 .palaz-experience .px-quick a{padding:15px;border:1px solid #e7e4df;border-radius:16px;background:#fff;text-decoration:none;color:#292c30}
 
-.palaz-experience .px-space-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0 14px}.palaz-experience .px-space-preset{border:1px solid #e4dfda;background:#fff;border-radius:14px;padding:11px 12px;text-align:right;cursor:pointer;transition:.2s ease;color:#292c30}.palaz-experience .px-space-preset span,.palaz-experience .px-space-preset small{display:block}.palaz-experience .px-space-preset span{font-size:11px;font-weight:900}.palaz-experience .px-space-preset small{margin-top:3px;font-size:9px;color:#999}.palaz-experience .px-space-preset.active{border-color:#b71929;background:#fff7f8;box-shadow:0 6px 18px rgba(183,25,41,.08)}.palaz-experience .px-space-preset:hover{transform:translateY(-1px);border-color:#b71929}.palaz-experience .px-space-preset.upload-preset{display:block;font:inherit}.palaz-experience .px-space-preset.upload-preset input{display:none}@media(max-width:560px){.palaz-experience .px-space-presets{grid-template-columns:1fr 1fr}}.palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
+.palaz-experience .px-visualizer-preview.has-space .px-preview-empty{display:none}.palaz-experience .px-space-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0 14px}.palaz-experience .px-space-preset{border:1px solid #e4dfda;background:#fff;border-radius:14px;padding:11px 12px;text-align:right;cursor:pointer;transition:.2s ease;color:#292c30}.palaz-experience .px-space-preset span,.palaz-experience .px-space-preset small{display:block}.palaz-experience .px-space-preset span{font-size:11px;font-weight:900}.palaz-experience .px-space-preset small{margin-top:3px;font-size:9px;color:#999}.palaz-experience .px-space-preset.active{border-color:#b71929;background:#fff7f8;box-shadow:0 6px 18px rgba(183,25,41,.08)}.palaz-experience .px-space-preset:hover{transform:translateY(-1px);border-color:#b71929}.palaz-experience .px-space-preset.upload-preset{display:block;font:inherit}.palaz-experience .px-space-preset.upload-preset input{display:none}@media(max-width:560px){.palaz-experience .px-space-presets{grid-template-columns:1fr 1fr}}.palaz-experience .px-visualizer-surface-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 12px}
 .palaz-experience .px-surface-tab{border:1px solid #dedbd6;background:#fff;border-radius:999px;padding:9px 14px;font:inherit;font-size:11px;font-weight:800;color:#555;cursor:pointer}
 .palaz-experience .px-surface-tab.active{background:#fff4f5;border-color:#b71929;color:#b71929}
 .palaz-experience .px-visualizer-products{display:flex;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
@@ -813,7 +813,7 @@
             });
 
             const usePresetSpace = button => {
-              selectedSpace = button.dataset.space || 'living'; uploadedUrl = ''; floorPolygon = null;
+              selectedSpace = button.dataset.space || 'living'; uploadedUrl = ''; floorPolygon = null; preview.classList.add('has-space');
               spacePresets.forEach(item => item.classList.toggle('active', item === button));
               if (upload) upload.value = ''; if (inlineUpload) inlineUpload.value = '';
               paintPreview(); setStatus('فضای آماده انتخاب شد', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
@@ -1021,13 +1021,14 @@
               if (!file) return;
               if (!['image/jpeg','image/png','image/webp'].includes(file.type)) { setStatus('فرمت عکس مناسب نیست', 'فقط JPG، PNG یا WEBP انتخاب کن.'); return; }
               const reader = new FileReader();
-              reader.onload = () => { uploadedUrl = String(reader.result || ''); selectedSpace = 'custom'; spacePresets.forEach(item => item.classList.remove('active')); floorPolygon = null; paintPreview(); setStatus('عکس فضای شما آماده است', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.'); };
+              reader.onload = () => { uploadedUrl = String(reader.result || ''); selectedSpace = 'custom'; preview.classList.add('has-space'); spacePresets.forEach(item => item.classList.remove('active')); floorPolygon = null; paintPreview(); setStatus('عکس فضای شما آماده است', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.'); };
               reader.readAsDataURL(file);
             };
             inlineUpload?.addEventListener('change', event => handleSpaceUpload(event.target.files?.[0]));
             upload?.addEventListener('change', event => {
               const file = event.target.files?.[0];
               if (!file) return;
+              preview.classList.add('has-space');
 
               if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
                 setStatus('فرمت عکس مناسب نیست', 'فقط JPG، PNG یا WEBP انتخاب کن.');

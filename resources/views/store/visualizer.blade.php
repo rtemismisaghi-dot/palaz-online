@@ -636,6 +636,35 @@
               root.scrollIntoView({ behavior:'smooth', block:'center' });
             });
 
+            const analyzeDemoRoom = async (roomUrl) => {
+              if (!roomUrl) return;
+              try {
+                const response = await fetch('{{ route('advisor.analyze-demo') }}', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                  },
+                  body: JSON.stringify({ url: roomUrl })
+                });
+                if (!response.ok) throw new Error('demo_analysis_failed');
+                const data = await response.json();
+                if (roomUrl !== demoRoomUrl || uploadedUrl) return;
+                const points = Array.isArray(data.floor_polygon) ? data.floor_polygon : [];
+                floorPolygon = points.length >= 4 ? points : null;
+                paintPreview();
+                setStatus(
+                  floorPolygon ? 'کف اتاق شناسایی شد' : 'کف اتاق دقیق شناسایی نشد',
+                  floorPolygon ? 'موکت فقط داخل محدوده واقعی کف اجرا می‌شود.' : 'برای این تصویر، عکس فضای خودتان را وارد کنید تا تحلیل دقیق‌تری انجام شود.'
+                );
+              } catch (error) {
+                if (roomUrl !== demoRoomUrl || uploadedUrl) return;
+                paintPreview();
+                setStatus('تحلیل فضای دمو انجام نشد', 'محدوده آماده دمو به‌عنوان پشتیبان استفاده می‌شود.');
+              }
+            };
+
             roomOptions.forEach(option => option.addEventListener('click', () => {
               roomOptions.forEach(item => item.classList.toggle('active', item === option));
               if (uploadedUrl) {
@@ -654,8 +683,9 @@
               preview.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.12)),url("' + roomImage + '")';
               preview.classList.remove('has-product');
               preview.style.removeProperty('--palaz-texture');
-              setStatus('اتاق آماده انتخاب شد', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
+              setStatus('در حال شناسایی کف اتاق…', 'عکس دمو در حال تحلیل است تا مرز واقعی کف مشخص شود.');
               paintPreview();
+              analyzeDemoRoom(demoRoomUrl);
             }));
 
             customerRoom?.addEventListener('click', () => upload?.click());

@@ -762,7 +762,7 @@
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
               <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
-              <div class="palaz-advisor-bubble">حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟</div>
+              <div class="palaz-advisor-bubble">سلام، وقت شما بخیر. من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.</div>
             </div>
           </div>
 
@@ -1074,13 +1074,18 @@
         const spoken = speakNow();
         if (!getPersianFemaleVoice()) {
           const onVoicesChanged = () => {
-            window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
-            if (!window.speechSynthesis.speaking) speakNow();
+            if (getPersianFemaleVoice() && !window.speechSynthesis.speaking) {
+              window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
+              speakNow();
+            }
           };
-          window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged, { once: true });
+          window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged);
           window.setTimeout(() => {
             window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
-          }, 2500);
+            if (!getPersianFemaleVoice() && voiceStatus) {
+              voiceStatus.textContent = 'برای صدای زن فارسی، یک Voice فارسی زن روی Chrome/Windows فعال کنید.';
+            }
+          }, 5000);
         }
         return spoken;
       };

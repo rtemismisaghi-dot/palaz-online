@@ -78,6 +78,8 @@
 .palaz-visualizer-page .px-floor-editor{position:absolute;inset:0;z-index:8;width:100%;height:100%;display:none;overflow:visible;pointer-events:none}
 .palaz-visualizer-page .px-floor-editor.is-editing{display:block}
 .palaz-visualizer-page .px-floor-editor-shape{fill:rgba(183,25,41,.16);stroke:rgba(183,25,41,.95);stroke-width:2;vector-effect:non-scaling-stroke;stroke-dasharray:7 5}
+.palaz-visualizer-page .px-floor-editor-point.add{fill:#25282c;stroke:#fff;cursor:copy}
+.palaz-visualizer-page .px-floor-editor-hint{position:absolute;z-index:9;top:14px;left:14px;padding:7px 10px;border-radius:10px;background:rgba(37,40,44,.9);color:#fff;font-size:9px;pointer-events:none}
 .palaz-visualizer-page .px-floor-editor-point{fill:#fff;stroke:#b71929;stroke-width:2;vector-effect:non-scaling-stroke;cursor:grab;pointer-events:all}
 .palaz-visualizer-page .px-floor-editor-point:active{cursor:grabbing}
 .palaz-visualizer-page .px-floor-editor-toolbar{position:absolute;z-index:10;left:14px;right:14px;bottom:14px;display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid rgba(255,255,255,.7);border-radius:15px;background:rgba(255,255,255,.93);box-shadow:0 12px 35px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
@@ -270,7 +272,7 @@
                 <g class="px-floor-editor-points"></g>
               </svg>
               <div class="px-floor-editor-toolbar" hidden>
-                <span><b>اصلاح محدوده کف</b><small>نقاط را روی لبه واقعی کف بکشید.</small></span>
+                <span><b>اصلاح محدوده کف</b><small>نقطه را بکشید؛ دوبار کلیک روی نقطه آن را حذف می‌کند.</small></span>
                 <button type="button" data-floor-action="cancel">انصراف</button>
                 <button type="button" data-floor-action="reset">بازنشانی</button>
                 <button type="button" class="primary" data-floor-action="done">تأیید</button>
@@ -498,7 +500,21 @@
                 circle.setAttribute('cy', p.y);
                 circle.setAttribute('r', floorEditorEditing ? '7' : '0');
                 circle.dataset.index = String(index);
+                circle.setAttribute('tabindex', floorEditorEditing ? '0' : '-1');
                 floorEditorPoints.appendChild(circle);
+
+                if (floorEditorEditing) {
+                  const next = pts[(index + 1) % pts.length];
+                  const midpoint = { x: (p.x + next.x) / 2, y: (p.y + next.y) / 2 };
+                  const add = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                  add.classList.add('px-floor-editor-point', 'add');
+                  add.setAttribute('cx', midpoint.x);
+                  add.setAttribute('cy', midpoint.y);
+                  add.setAttribute('r', '4');
+                  add.dataset.after = String(index);
+                  add.setAttribute('tabindex', '0');
+                  floorEditorPoints.appendChild(add);
+                }
               });
             };
 
@@ -529,11 +545,32 @@
               if (!floorEditorEditing) return;
               const target = event.target.closest ? event.target.closest('.px-floor-editor-point') : null;
               if (!target) return;
+              if (target.classList.contains('add')) {
+                const after = Number(target.dataset.after);
+                if (Number.isNaN(after)) return;
+                const rect = preview.getBoundingClientRect();
+                const p = mapPreviewPointToFloor(event.clientX, event.clientY);
+                floorPolygon.splice(after + 1, 0, p);
+                renderFloorEditor();
+                event.preventDefault();
+                return;
+              }
               floorDragIndex = Number(target.dataset.index);
               if (Number.isNaN(floorDragIndex)) return;
               event.preventDefault();
               try { target.setPointerCapture(event.pointerId); } catch (_) {}
             };
+
+            floorEditor?.addEventListener('dblclick', event => {
+              if (!floorEditorEditing) return;
+              const target = event.target.closest ? event.target.closest('.px-floor-editor-point') : null;
+              if (!target || target.classList.contains('add')) return;
+              const index = Number(target.dataset.index);
+              if (Number.isNaN(index) || floorPolygon.length <= 4) return;
+              floorPolygon.splice(index, 1);
+              renderFloorEditor();
+              paintPreview();
+            });
 
             floorEditor?.addEventListener('pointerdown', startFloorDrag);
             floorEditor?.addEventListener('pointermove', handleFloorPointer);

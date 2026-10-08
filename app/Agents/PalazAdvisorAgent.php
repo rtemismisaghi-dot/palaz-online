@@ -15,7 +15,15 @@ final class PalazAdvisorAgent
             ->map(fn ($m) => ['role' => $m['role'], 'content' => mb_substr((string) ($m['content'] ?? ''), 0, 1200)])
             ->take(-10)->values()->all();
 
-        $allProducts = collect(StoreCatalog::products());
+        // اگر کاتالوگ/دیتابیس موقتاً در دسترس نبود، گفتگو نباید با خطای 500 قطع شود.
+        // مشاور می‌تواند بدون کاتالوگ هم سؤال عمومی را پاسخ دهد و برای قیمت، کاربر را به فروشگاه هدایت کند.
+        try {
+            $allProducts = collect(StoreCatalog::products());
+        } catch (\Throwable $e) {
+            report($e);
+            $allProducts = collect();
+        }
+
         $catalog = $allProducts
             ->map(fn ($p) => implode(' | ', array_filter([
                 'شناسه: '.($p['id'] ?? ''),

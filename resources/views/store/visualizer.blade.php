@@ -961,8 +961,8 @@
                   setStatus('عکس فضا آماده است', 'تشخیص خودکار کف در دسترس نبود؛ نمایش اولیه ادامه پیدا می‌کند.');
                   paintPreview();
                 });
-              selectedProduct = null;
-              compareProducts = [];
+              // محصول انتخاب‌شده را نگه می‌داریم تا با بارگذاری عکس، مشتری مجبور نباشد
+              // مدل و کد را دوباره از اول انتخاب کند.
               renderCompare();
               renderProducts();
               paintPreview();

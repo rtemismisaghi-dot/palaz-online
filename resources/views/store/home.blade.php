@@ -1050,7 +1050,7 @@
 
       let previousBodyOverflow = '';
 
-      const openAdvisor = () => {
+      const openAdvisor = (options = {}) => {
         setAdvisorVisualState('listening');
         lastFocusedElement = document.activeElement;
         previousBodyOverflow = document.body.style.overflow;
@@ -1072,6 +1072,14 @@
           }
         }
         input?.focus();
+
+        if (options.intro && !options.introShown) {
+          options.introShown = true;
+          window.setTimeout(() => {
+            addMessage(options.intro, 'assistant');
+            speakText(options.intro);
+          }, 120);
+        }
       };
 
       // شروع صدا مستقیماً از تعامل کاربر انجام می‌شود تا مرورگر آن را autoplay حساب نکند.
@@ -1098,7 +1106,14 @@
           lastFocusedElement = null;
         }, 220);
       };
-      openers.forEach(btn => btn.addEventListener('click', openAdvisor));
+      openers.forEach(btn => btn.addEventListener('click', () => openAdvisor()));
+
+      window.palazOpenAdvisorWithContext = (intro = '') => {
+        const context = getAdvisorContext();
+        openAdvisor({ intro: intro || (context.product?.name
+          ? 'مدل «' + context.product.name + '» را می‌بینم. اگر کد، قیمت، مقایسه یا محاسبه متراژ این محصول را می‌خواهید، از همین‌جا شروع کنیم.'
+          : '') });
+      };
       voiceReplay?.addEventListener('click', speakWelcome);
       close?.addEventListener('click', closeAdvisor);
       backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAdvisor(); });

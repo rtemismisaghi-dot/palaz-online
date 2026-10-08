@@ -820,7 +820,7 @@
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
                 : null;
 
-              if (uploadedUrl && texture) {
+              if (texture) {
                 // نسخه اول Visualizer: عکس کاربر حفظ می‌شود و تکسچر محصول
                 // با ماسک نرم روی ناحیه کف قرار می‌گیرد. موتور تشخیص دقیق
                 // گوشه‌های کف در مرحله Vision به همین API متصل خواهد شد.
@@ -975,7 +975,6 @@
             });
 
             const loadProducts = async () => {
-              if (!uploadedUrl) return;
               productsEl.classList.add('is-ready');
               productsEl.innerHTML = '<div class="px-product-loading">در حال دریافت مدل‌های واقعی پالاز…</div>';
               try {
@@ -998,13 +997,10 @@
             tabs.forEach(tab => tab.addEventListener('click', () => {
               surface = tab.dataset.surface || 'carpet';
               tabs.forEach(item => item.classList.toggle('active', item === tab));
-              if (!uploadedUrl) {
-                setStatus('اول عکس فضا را اضافه کن', 'بعد از انتخاب عکس، مدل‌های واقعی همین دسته نمایش داده می‌شوند.');
-                paintPreview();
-                return;
-              }
               loadProducts();
             }));
+
+            loadProducts();
 
             upload?.addEventListener('change', event => {
               const file = event.target.files?.[0];

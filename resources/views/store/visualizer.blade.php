@@ -621,8 +621,8 @@
                   'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
                 preview.dataset.texture = texture;
                 floorOverlay.style.backgroundImage = 'url("' + texture + '")';
-                floorOverlay.style.backgroundSize = surface === 'carpet' ? '24% 24%' : 'cover';
-                floorOverlay.style.backgroundRepeat = surface === 'carpet' ? 'repeat' : 'no-repeat';
+                floorOverlay.style.backgroundSize = 'cover';
+                floorOverlay.style.backgroundRepeat = 'no-repeat';
                 floorOverlay.style.backgroundPosition = 'center';
                 floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
                 preview.style.setProperty('--palaz-floor-opacity', surface === 'carpet' ? '0.84' : '0.72');

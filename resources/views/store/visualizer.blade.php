@@ -334,6 +334,7 @@
 
             let surface = 'carpet';
             let uploadedUrl = '';
+            let demoRoomUrl = '';
             let selectedProduct = null;
             let products = [];
             let compareProducts = [];
@@ -366,7 +367,7 @@
             };
 
             const paintPreview = () => {
-              const base = uploadedUrl || fallbackImages[surface];
+              const base = uploadedUrl || demoRoomUrl || fallbackImages[surface];
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
               const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
@@ -478,7 +479,7 @@
 
             const renderCompareModal = () => {
               if (!compareModal || compareProducts.length < 2) return;
-              const base = uploadedUrl || fallbackImages[surface];
+              const base = uploadedUrl || demoRoomUrl || fallbackImages[surface];
               const points = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => (Number(point[0]) || 0) + '% ' + (Number(point[1]) || 0) + '%').join(', ')
                 : '4% 18%,96% 18%,100% 100%,0 100%';
@@ -542,9 +543,10 @@
                 URL.revokeObjectURL(uploadedUrl);
                 uploadedUrl = '';
               }
+              demoRoomUrl = option.dataset.roomImage || fallbackImages[surface];
               empty.style.display = 'none';
               floorPolygon = null;
-              const roomImage = option.dataset.roomImage || fallbackImages[surface];
+              const roomImage = demoRoomUrl || fallbackImages[surface];
               preview.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.12)),url("' + roomImage + '")';
               preview.classList.remove('has-product');
               preview.style.removeProperty('--palaz-texture');
@@ -596,6 +598,7 @@
 
               if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
               uploadedUrl = URL.createObjectURL(file);
+              demoRoomUrl = '';
               empty.style.display = 'none';
               floorPolygon = null;
               setStatus('در حال دیدن فضای شما…', 'هوش مصنوعی در حال تشخیص محدوده کف است.');

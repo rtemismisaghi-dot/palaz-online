@@ -155,6 +155,54 @@ PROMPT;
                 $clean = collect($polygon)->map(function ($point) {
                     return [max(0, min(100, (float) ($point[0] ?? 0))), max(0, min(100, (float) ($point[1] ?? 0)))];
                 })->values()->all();
+
+                // بررسی دوم، همان تصویر را با polygon اولیه دوباره به Vision می‌دهد تا
+                // مرزهای پرسپکتیو، مبلمان و اتصال کف/دیوار دقیق‌تر بازبینی شوند.
+                $reviewSystem = <<<'REVIEW'
+تو بازبین نهایی ماسک کف برای Room Visualizer هستی.
+عکس و polygon اولیه را بررسی کن و فقط نسخه دقیق‌تر مرز واقعی کف را برگردان.
+فقط JSON معتبر و بدون Markdown:
+{"floor_polygon":[[x,y],...],"confidence":0,"floor_notes":""}
+- مختصات 0 تا 100 و مربوط به خود تصویر باشند.
+- مرز کف را دقیق روی اتصال کف با دیوار، قرنیز، پایه مبلمان و لبه پله دنبال کن.
+- مبلمان، تخت، میز، صندلی، کمد، فرش، قالی و پادری را داخل ماسک نیاور.
+- زیر یا پشت اجسام را حدس نزن؛ فقط کف قابل مشاهده را ماسک کن.
+- دیوار، سقف، پرده و سطوح عمودی را حذف کن.
+- ذوزنقه ساده فقط اگر واقعاً با مرز تصویر منطبق است؛ در غیر این صورت از شکست‌های متعدد استفاده کن.
+- حداقل 10 نقطه و برای مرزهای پیچیده تا 40 نقطه بده.
+- polygon اولیه را صرفاً تأیید نکن؛ اگر اشتباه است اصلاحش کن.
+- confidence بین 0 و 1 باشد.
+REVIEW;
+                $reviewPrompt = 'Polygon اولیه: '.json_encode($clean, JSON_UNESCAPED_UNICODE)."\nآن را با خود تصویر تطبیق بده و نسخه دقیق‌تر را برگردان.";
+                $review = Http::withToken($apiKey)
+                    ->acceptJson()
+                    ->withHeaders(['HTTP-Referer' => config('app.url'), 'X-Title' => 'Palaz AI Floor Review'])
+                    ->timeout(45)
+                    ->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'model' => config('services.openrouter.vision_model', config('services.openrouter.model', 'openrouter/free')),
+                        'messages' => [[
+                            'role' => 'system',
+                            'content' => $reviewSystem,
+                        ], [
+                            'role' => 'user',
+                            'content' => [
+                                ['type' => 'text', 'text' => $reviewPrompt],
+                                ['type' => 'image_url', 'image_url' => ['url' => $imageDataUrl]],
+                            ],
+                        ]],
+                        'max_tokens' => 1200,
+                        'temperature' => 0.05,
+                    ]);
+                $reviewText = trim((string) data_get($review->json(), 'choices.0.message.content', ''));
+                $reviewText = preg_replace('/^```(?:json)?\s*|\s*```$/u', '', $reviewText);
+                $reviewData = json_decode($reviewText, true);
+                $reviewPolygon = $reviewData['floor_polygon'] ?? null;
+                if ($review->successful() && is_array($reviewPolygon) && count($reviewPolygon) >= 6) {
+                    $clean = collect($reviewPolygon)->map(function ($point) {
+                        return [max(0, min(100, (float) ($point[0] ?? 0))), max(0, min(100, (float) ($point[1] ?? 0)))];
+                    })->values()->all();
+                    return ['ok' => true, 'message' => (string) ($reviewData['floor_notes'] ?? $data['floor_notes'] ?? 'سطح کف با بررسی دوم دقیق‌تر شد.'), 'floor_polygon' => $clean, 'confidence' => max(0, min(1, (float) ($reviewData['confidence'] ?? $data['confidence'] ?? 0)))];
+                }
                 return ['ok' => true, 'message' => (string) ($data['floor_notes'] ?? 'سطح کف برای نمایش محصول تشخیص داده شد.'), 'floor_polygon' => $clean, 'confidence' => max(0, min(1, (float) ($data['confidence'] ?? 0)))];
             }
         } catch (\Throwable $e) {

@@ -652,11 +652,16 @@
                 const data = await response.json();
                 if (roomUrl !== demoRoomUrl || uploadedUrl) return;
                 const points = Array.isArray(data.floor_polygon) ? data.floor_polygon : [];
-                floorPolygon = points.length >= 4 ? points : null;
+                // Never discard the working demo fallback when Vision returns no polygon.
+                if (points.length >= 4) {
+                  floorPolygon = points;
+                }
                 paintPreview();
                 setStatus(
-                  floorPolygon ? 'کف اتاق شناسایی شد' : 'کف اتاق دقیق شناسایی نشد',
-                  floorPolygon ? 'موکت فقط داخل محدوده واقعی کف اجرا می‌شود.' : 'برای این تصویر، عکس فضای خودتان را وارد کنید تا تحلیل دقیق‌تری انجام شود.'
+                  points.length >= 4 ? 'کف اتاق شناسایی شد' : 'محدوده کف آماده است',
+                  points.length >= 4
+                    ? 'موکت فقط داخل محدوده واقعی کف اجرا می‌شود.'
+                    : 'تحلیل خودکار کامل نشد؛ محدوده آماده این فضای دمو حفظ شد.'
                 );
               } catch (error) {
                 if (roomUrl !== demoRoomUrl || uploadedUrl) return;

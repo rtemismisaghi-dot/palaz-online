@@ -694,7 +694,7 @@
         <div class="px-wrap">
           <div class="px-tool-shell px-home-visualizer-card">
             <div class="px-home-visualizer-image" aria-hidden="true">
-              <img src="https://floorcenter.ae/wp-content/uploads/2024/09/Living-room-Wall-Carpet.webp" alt="" loading="lazy">
+              <img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy">
               <span>فضای واقعی با موکت</span>
             </div>
             <div class="px-home-visualizer-copy">

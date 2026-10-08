@@ -384,7 +384,7 @@
               if (!floorOverlay) return;
               const base = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
-              const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
+              const floorPoints = uploadedUrl && Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
                 : null;
 
@@ -413,6 +413,8 @@
                 preview.style.backgroundImage =
                   'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
                 preview.classList.remove('has-product');
+                floorOverlay.style.backgroundImage = 'none';
+                floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
                 preview.style.removeProperty('--palaz-texture');
                 preview.style.removeProperty('--palaz-floor-clip');
               }

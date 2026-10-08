@@ -210,26 +210,26 @@
           <div class="px-room-picker">
             <div class="px-room-picker-head">
               <div><span class="px-kicker">ROOM VISUALIZER</span><strong>فضای خودت را انتخاب کن</strong></div>
-              <small>مثل VOX: از اتاق آماده شروع کن یا عکس مشتری را وارد کن.</small>
+              <small>چند فضای آماده برای شروع؛ یا عکس فضای مشتری را وارد کن.</small>
             </div>
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step1-1-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step2-2-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step3-3-room-visualizer-voxflor-1.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step3-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step4-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step5-room-visualizer-voxflor-1.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step6-6-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step6-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step7-room-visualizer-voxflor.jpg',
-                  'https://www.voxflor.com/wp-content/uploads/2025/01/step-1-room-visualizer-voxflor.jpg',
+                  ['name' => 'Hotel Room', 'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e149b0?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Hotel Corridor', 'image' => 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Library', 'image' => 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Office Corridor', 'image' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Office Lounge', 'image' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Office Meeting Room', 'image' => 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Open Office 1', 'image' => 'https://images.unsplash.com/photo-1497366811363-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Open Office 2', 'image' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Private Office', 'image' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Reception', 'image' => 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=85'],
                 ];
               @endphp
               @foreach($visualizerDemoRooms as $index => $room)
-                <button type="button" class="px-room-option{{ $index === 0 ? ' active' : '' }}" data-demo-room="{{ $index + 1 }}" data-room-image="{{ $room }}">
-                  <img src="{{ $room }}" alt="اتاق نمونه {{ $index + 1 }}" loading="lazy"><span>اتاق {{ str_pad($index + 1,2,'0',STR_PAD_LEFT) }}</span>
+                <button type="button" class="px-room-option{{ $index === 0 ? ' active' : '' }}" data-demo-room="{{ $index + 1 }}" data-room-image="{{ $room['image'] }}">
+                  <img src="{{ $room['image'] }}" alt="{{ $room['name'] }}" loading="lazy"><span>{{ $room['name'] }}</span>
                 </button>
               @endforeach
               <button type="button" class="px-room-option customer" data-customer-room><span>＋ عکس فضای من</span></button>

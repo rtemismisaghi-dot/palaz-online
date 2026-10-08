@@ -43,12 +43,15 @@ class StoreController extends Controller
         ];
 
         $products = collect(StoreCatalog::byCategory($category))
-            ->take(24)
+            ->take(48)
             ->map(fn (array $product) => [
                 'id' => $product['id'],
                 'name' => $product['name'],
                 'tone' => $product['tone'],
-                'image' => $product['image'] ?: $fallbackImages[$category],
+                'model' => $product['model'],
+                'code' => $product['code'],
+                'category' => $product['category'],
+                'image' => $product['image'] ?: ($category === 'carpet' ? null : $fallbackImages[$category]),
             ])
             ->values();
 

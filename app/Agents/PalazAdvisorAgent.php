@@ -297,8 +297,10 @@ REVIEW;
         $isOffice = preg_match('/محل کار|اداری|اداره|دفتر|دفتر کار/u', $current);
         $isHotel = preg_match('/هتل/u', $current);
         $isPrayer = preg_match('/نمازخانه/u', $current);
-        $wasAskingSpace = str_contains($assistantText, 'فضا') &&
-            (str_contains($assistantText, 'خانه') || str_contains($assistantText, 'محل کار') || str_contains($assistantText, 'هتل'));
+        $wasAskingSpace =
+            str_contains($assistantText, 'برای چه فضایی')
+            || str_contains($assistantText, 'چه فضایی')
+            || (str_contains($assistantText, 'فضا') && str_contains($assistantText, 'نوع پوشش'));
 
         if ($wasAskingSpace && ($isHome || $isOffice || $isHotel || $isPrayer)) {
             if ($isHome) {
@@ -487,7 +489,7 @@ REVIEW;
     {
         $t = mb_strtolower($message);
         if (preg_match('/سلام|درود|وقت بخیر/u', $t)) {
-            return 'سلام 👋 من مشاور پالاز هستم. برای چه فضایی دنبال پوشش هستید؟';
+            return 'حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
         }
         if (str_contains($t, 'اندازه')) {
             return 'اگر متراژ دقیق ندارید، می‌توانید درخواست اندازه‌گیری ثبت کنید تا ادامه مسیر را راهنمایی‌تان کنم.';

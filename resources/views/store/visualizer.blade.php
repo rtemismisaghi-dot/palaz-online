@@ -63,7 +63,7 @@
 .palaz-visualizer-page .px-compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .palaz-visualizer-page .px-compare-view{position:relative;min-height:420px;overflow:hidden;border-radius:20px;background:#ddd}
 .palaz-visualizer-page .px-compare-image{position:absolute;inset:0;background-position:center;background-size:cover}
-.palaz-visualizer-page .px-compare-image:after{content:"";position:absolute;left:7%;right:7%;bottom:7%;height:52%;background-image:var(--compare-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%))}
+.palaz-visualizer-page .px-compare-image:after{content:"";position:absolute;left:7%;right:7%;bottom:7%;height:52%;background-image:var(--compare-texture);background-size:var(--palaz-compare-texture-size,cover);background-repeat:var(--palaz-compare-texture-repeat,no-repeat);background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%))}
 .palaz-visualizer-page .px-compare-label{position:absolute;z-index:3;right:14px;top:14px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.92);font-size:11px;font-weight:900;color:#25282c;box-shadow:0 8px 25px rgba(0,0,0,.12)}
 .palaz-visualizer-page .px-compare-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:#777;font-size:10px}
 @media(max-width:700px){.palaz-visualizer-page .px-compare-grid{grid-template-columns:1fr}.palaz-visualizer-page .px-compare-view{min-height:300px}.palaz-visualizer-page .px-compare-footer{flex-direction:column;align-items:stretch}.palaz-visualizer-page .px-compare-footer .px-btn{width:100%}}
@@ -89,7 +89,7 @@
 .palaz-visualizer-page .px-floor-editor-toolbar small{font-size:8px;color:#777}
 .palaz-visualizer-page .px-floor-editor-toolbar button{border:1px solid #ded8d4;background:#fff;color:#555;border-radius:9px;padding:7px 10px;font:inherit;font-size:9px;font-weight:800;cursor:pointer}
 .palaz-visualizer-page .px-floor-editor-toolbar button.primary{background:#25282c;border-color:#25282c;color:#fff}
-.palaz-visualizer-page .px-floor-overlay{position:absolute;inset:0;z-index:2;background-image:none;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:0;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1);transform:scale(1.002);transform-origin:center;box-shadow:0 0 35px rgba(0,0,0,.08) inset}.palaz-visualizer-page .px-visualizer-preview.has-product .px-floor-overlay{opacity:var(--palaz-floor-opacity,.84);mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02)}
+.palaz-visualizer-page .px-floor-overlay{position:absolute;inset:0;z-index:2;background-image:none;background-size:cover;background-position:center;background-repeat:no-repeat;mix-blend-mode:multiply;opacity:0;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1);transform:scale(1.002);transform-origin:center;box-shadow:0 0 35px rgba(0,0,0,.08) inset}.palaz-visualizer-page .px-visualizer-preview.has-product .px-floor-overlay{opacity:var(--palaz-floor-opacity,.84);mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02)}
 @media(max-width:900px){.palaz-visualizer-page .px-product-chip{min-width:165px}.palaz-visualizer-page .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-visualizer-page .px-product-chip{min-width:155px}.palaz-visualizer-page .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-visualizer-page .px-visualizer-actions .px-btn{width:100%}}
 .palaz-visualizer-page .px-visualizer-shell{position:relative}
@@ -621,6 +621,9 @@
                   'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
                 preview.dataset.texture = texture;
                 floorOverlay.style.backgroundImage = 'url("' + texture + '")';
+                floorOverlay.style.backgroundSize = surface === 'carpet' ? '24% 24%' : 'cover';
+                floorOverlay.style.backgroundRepeat = surface === 'carpet' ? 'repeat' : 'no-repeat';
+                floorOverlay.style.backgroundPosition = 'center';
                 floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
                 preview.style.setProperty('--palaz-floor-opacity', surface === 'carpet' ? '0.84' : '0.72');
                 preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
@@ -768,6 +771,8 @@
                 const product = compareProducts[index];
                 room.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
                 room.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
+                room.style.setProperty('--palaz-compare-texture-size', product._visualizerSurface === 'carpet' ? '24% 24%' : 'cover');
+                room.style.setProperty('--palaz-compare-texture-repeat', product._visualizerSurface === 'carpet' ? 'repeat' : 'no-repeat');
                 room.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
               });
               const surfaceNames = { carpet:'موکت', carpet_tile:'موکت تایل', laminate:'لمینیت', spc:'SPC' };

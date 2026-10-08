@@ -122,7 +122,38 @@
   .palaz-visualizer-page .px-upload-btn{grid-column:1/-1;width:100%}
   .palaz-visualizer-page .px-sample-note{top:12px;right:12px}
 }
-.palaz-visualizer-page .px-visualizer-kicker{display:flex;align-items:center;gap:12px;margin-bottom:4px}.palaz-visualizer-page .px-visualizer-kicker-image{width:54px;height:54px;flex:0 0 54px;border-radius:14px;background:url('https://floorcenter.ae/wp-content/uploads/2024/09/Living-room-Wall-Carpet.webp') center/cover no-repeat;background-color:#fff;box-shadow:0 8px 22px rgba(37,40,44,.14);border:3px solid #fff}.palaz-visualizer-page .px-visualizer-kicker .px-kicker{margin:0}@media(max-width:560px){.palaz-visualizer-page .px-visualizer-kicker-image{width:46px;height:46px;flex-basis:46px;border-radius:12px}} </style>
+.palaz-visualizer-page .px-visualizer-kicker{display:flex;align-items:center;gap:12px;margin-bottom:4px}.palaz-visualizer-page .px-visualizer-kicker-image{width:54px;height:54px;flex:0 0 54px;border-radius:14px;background:url('https://floorcenter.ae/wp-content/uploads/2024/09/Living-room-Wall-Carpet.webp') center/cover no-repeat;background-color:#fff;box-shadow:0 8px 22px rgba(37,40,44,.14);border:3px solid #fff}.palaz-visualizer-page .px-visualizer-kicker .px-kicker{margin:0}@media(max-width:560px){.palaz-visualizer-page .px-visualizer-kicker-image{width:46px;height:46px;flex-basis:46px;border-radius:12px}} 
+.palaz-visualizer-page .px-room-picker{margin:0 0 18px;position:relative;z-index:2}
+.palaz-visualizer-page .px-room-picker-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:10px}
+.palaz-visualizer-page .px-room-picker-head strong{font-size:16px;color:#25282c}
+.palaz-visualizer-page .px-room-picker-head small{color:#888;font-size:10px}
+.palaz-visualizer-page .px-room-options{display:flex;gap:9px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:thin}
+.palaz-visualizer-page .px-room-option{position:relative;flex:0 0 112px;height:78px;border:1px solid #ddd8d3;border-radius:14px;overflow:hidden;background:#ddd;cursor:pointer;padding:0}
+.palaz-visualizer-page .px-room-option img{width:100%;height:100%;object-fit:cover;display:block}
+.palaz-visualizer-page .px-room-option:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(0,0,0,.58))}
+.palaz-visualizer-page .px-room-option span{position:absolute;z-index:2;right:8px;bottom:7px;color:#fff;font-size:9px;font-weight:900}
+.palaz-visualizer-page .px-room-option.active{border:2px solid #b71929;box-shadow:0 7px 20px rgba(183,25,41,.14)}
+.palaz-visualizer-page .px-room-option.customer{background:#fff;border-style:dashed;display:grid;place-items:center;color:#555;font-weight:800;font-size:10px}
+.palaz-visualizer-page .px-room-option.customer:after{display:none}
+.palaz-visualizer-page .px-room-option.customer span{position:static;color:#555}
+.palaz-visualizer-page .px-visualizer-products{display:flex!important;gap:8px;overflow-x:auto;padding:4px 1px 8px;scrollbar-width:thin;min-height:66px}
+.palaz-visualizer-page .px-visualizer-products.is-ready{display:flex!important}
+.palaz-visualizer-page .px-product-chip{min-width:205px}
+.palaz-visualizer-page .px-compare-dialog{width:min(1180px,100%);padding:20px}
+.palaz-visualizer-page .px-compare-split{position:relative;min-height:560px;overflow:hidden;border-radius:20px;background:#ddd;touch-action:none;user-select:none}
+.palaz-visualizer-page .px-compare-split .px-compare-room{position:absolute;inset:0;background-position:center;background-size:cover}
+.palaz-visualizer-page .px-compare-side{position:absolute;inset:0;overflow:hidden}
+.palaz-visualizer-page .px-compare-side .px-compare-room{width:100%;height:100%}
+.palaz-visualizer-page .px-compare-side.right{clip-path:inset(0 0 0 50%)}
+.palaz-visualizer-page .px-compare-side .px-compare-room:after{content:"";position:absolute;left:11%;right:11%;bottom:10%;height:48%;background-image:var(--compare-texture);background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.82;clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%))}
+.palaz-visualizer-page .px-compare-side.left .px-compare-room:after{opacity:.82}
+.palaz-visualizer-page .px-compare-divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;z-index:5;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.palaz-visualizer-page .px-compare-handle{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;border:2px solid #fff;background:#25282c;color:#fff;display:grid;place-items:center;font-size:18px;box-shadow:0 8px 24px rgba(0,0,0,.28);cursor:ew-resize}
+.palaz-visualizer-page .px-compare-tag{position:absolute;z-index:7;top:16px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.92);color:#25282c;font-size:10px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.palaz-visualizer-page .px-compare-tag.left{left:16px}.palaz-visualizer-page .px-compare-tag.right{right:16px}
+.palaz-visualizer-page .px-compare-slider{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:8;cursor:ew-resize}
+@media(max-width:700px){.palaz-visualizer-page .px-room-picker-head{display:block}.palaz-visualizer-page .px-room-picker-head small{display:block;margin-top:5px}.palaz-visualizer-page .px-compare-split{min-height:390px}}
+</style>
 <div class="palaz-reference-home palaz-experience palaz-visualizer-page">
   <div class="px-wrap">
     <header class="px-page-head">
@@ -135,6 +166,17 @@
     </header>
       <main class="px-tools">
         <div class="px-wrap">
+
+          <div class="px-room-picker">
+            <div class="px-room-picker-head">
+              <div><span class="px-kicker">ROOM VISUALIZER</span><strong>فضای خودت را انتخاب کن</strong></div>
+              <small>مثل VOX: از اتاق آماده شروع کن یا عکس مشتری را وارد کن.</small>
+            </div>
+            <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
+              <button type="button" class="px-room-option active" data-demo-room="1"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 01</span></button><button type="button" class="px-room-option" data-demo-room="2"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 02</span></button><button type="button" class="px-room-option" data-demo-room="3"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 03</span></button><button type="button" class="px-room-option" data-demo-room="4"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 04</span></button><button type="button" class="px-room-option" data-demo-room="5"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 05</span></button><button type="button" class="px-room-option" data-demo-room="6"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 06</span></button><button type="button" class="px-room-option" data-demo-room="7"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 07</span></button><button type="button" class="px-room-option" data-demo-room="8"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 08</span></button><button type="button" class="px-room-option" data-demo-room="9"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 09</span></button><button type="button" class="px-room-option" data-demo-room="10"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 10</span></button>
+              <button type="button" class="px-room-option customer" data-customer-room><span>＋ عکس فضای من</span></button>
+            </div>
+          </div>
           <div class="px-tool-shell px-visualizer-shell">
             <div class="px-tool-image px-visualizer-preview" role="img" aria-label="پیش‌نمایش فضای انتخابی">
               <div class="px-preview-empty">
@@ -155,25 +197,25 @@
                 <div class="px-compare-backdrop"></div>
                 <section class="px-compare-dialog" role="dialog" aria-modal="true" aria-labelledby="px-compare-title">
                   <header class="px-compare-header">
-                    <div><span class="px-kicker">PRODUCT COMPARISON</span><strong id="px-compare-title">دو مدل را روی فضای خودت مقایسه کن</strong></div>
+                    <div><span class="px-kicker">PALAZ / COMPARE</span><strong id="px-compare-title">دو کفپوش را روی یک فضا مقایسه کن</strong></div>
                     <button type="button" class="px-compare-close" aria-label="بستن">×</button>
                   </header>
-                  <div class="px-compare-grid">
-                    <article class="px-compare-view" data-compare-view="0">
-                      <div class="px-compare-image"></div>
-                      <div class="px-compare-label"></div>
-                    </article>
-                    <article class="px-compare-view" data-compare-view="1">
-                      <div class="px-compare-image"></div>
-                      <div class="px-compare-label"></div>
-                    </article>
+                  <div class="px-compare-split" data-compare-split>
+                    <div class="px-compare-side left"><div class="px-compare-room"></div></div>
+                    <div class="px-compare-side right"><div class="px-compare-room"></div></div>
+                    <span class="px-compare-tag left"></span>
+                    <span class="px-compare-tag right"></span>
+                    <div class="px-compare-divider"></div>
+                    <div class="px-compare-handle">↔</div>
+                    <input class="px-compare-slider" type="range" min="0" max="100" value="50" aria-label="مقایسه دو محصول">
                   </div>
                   <footer class="px-compare-footer">
-                    <span>هر مدل را انتخاب کن تا در Visualizer اصلی هم نمایش داده شود.</span>
-                    <button type="button" class="px-btn red px-compare-use">استفاده از مدل انتخاب‌شده ←</button>
+                    <span>خط وسط را با ماوس یا لمس جابه‌جا کن تا سهم هر محصول را ببینی.</span>
+                    <button type="button" class="px-btn red px-compare-use">استفاده از محصول انتخاب‌شده ←</button>
                   </footer>
                 </section>
               </div>
+
             </div>
 
             <div class="px-tool-copy">
@@ -382,23 +424,32 @@
               const points = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => (Number(point[0]) || 0) + '% ' + (Number(point[1]) || 0) + '%').join(', ')
                 : '4% 18%,96% 18%,100% 100%,0 100%';
-              compareModal.querySelectorAll('[data-compare-view]').forEach((view, index) => {
+
+              const leftRoom = compareModal.querySelector('.px-compare-side.left .px-compare-room');
+              const rightRoom = compareModal.querySelector('.px-compare-side.right .px-compare-room');
+              const leftTag = compareModal.querySelector('.px-compare-tag.left');
+              const rightTag = compareModal.querySelector('.px-compare-tag.right');
+
+              [leftRoom, rightRoom].forEach((room, index) => {
                 const product = compareProducts[index];
-                const image = view.querySelector('.px-compare-image');
-                const label = view.querySelector('.px-compare-label');
-                if (!product) return;
-                image.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
-                image.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
-                image.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
-                label.textContent = product.name + (product.tone ? ' • ' + product.tone : '');
-                view.onclick = () => {
-                  selectedProduct = product;
-                  paintPreview();
-                  renderProducts();
-                  renderCompare();
-                  renderCompareModal();
-                };
+                room.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
+                room.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
+                room.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
               });
+              leftTag.textContent = compareProducts[0].name + (compareProducts[0].tone ? ' • ' + compareProducts[0].tone : '');
+              rightTag.textContent = compareProducts[1].name + (compareProducts[1].tone ? ' • ' + compareProducts[1].tone : '');
+              if (compareSlider) compareSlider.value = 50;
+              updateCompareSlider(50);
+            };
+
+            const updateCompareSlider = value => {
+              const v = Math.max(0, Math.min(100, Number(value) || 50));
+              const right = compareModal?.querySelector('.px-compare-side.right');
+              const divider = compareModal?.querySelector('.px-compare-divider');
+              const handle = compareModal?.querySelector('.px-compare-handle');
+              if (right) right.style.clipPath = 'inset(0 0 0 ' + v + '%)';
+              if (divider) divider.style.left = v + '%';
+              if (handle) handle.style.left = v + '%';
             };
 
             const openCompare = () => {
@@ -415,6 +466,7 @@
               document.body.style.overflow = '';
             };
 
+            compareSlider?.addEventListener('input', event => updateCompareSlider(event.target.value));
             compareOpen?.addEventListener('click', openCompare);
             compareClose?.addEventListener('click', closeCompare);
             compareModal?.querySelector('.px-compare-backdrop')?.addEventListener('click', closeCompare);
@@ -425,6 +477,20 @@
               closeCompare();
               root.scrollIntoView({ behavior:'smooth', block:'center' });
             });
+
+            roomOptions.forEach(option => option.addEventListener('click', () => {
+              roomOptions.forEach(item => item.classList.toggle('active', item === option));
+              if (uploadedUrl) {
+                URL.revokeObjectURL(uploadedUrl);
+                uploadedUrl = '';
+              }
+              empty.style.display = '';
+              floorPolygon = null;
+              setStatus('اتاق آماده انتخاب شد', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
+              paintPreview();
+            }));
+
+            customerRoom?.addEventListener('click', () => upload?.click());
 
             const loadProducts = async () => {
               productsEl.classList.add('is-ready');

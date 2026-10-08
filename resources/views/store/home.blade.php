@@ -762,7 +762,7 @@
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
               <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
-              <div class="palaz-advisor-bubble">سلام 👋 خوش آمدید به پالاز.<br>من مشاور هوشمند پالاز هستم و فارسی با شما گفتگو می‌کنم؛ برای انتخاب محصول، مقایسه، طراحی فضا، محاسبه و مسیر اجرا کنارتان هستم.<br><br>از کجا شروع کنیم؟</div>
+              <div class="palaz-advisor-bubble">حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟</div>
             </div>
           </div>
 
@@ -926,7 +926,7 @@
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       const contextBadge = backdrop.querySelector('.palaz-advisor-context');
       let lastFocusedElement = null;
-      const welcomeText = 'سلام، خوش آمدید به پالاز. من مشاور هوشمند پالاز هستم و فارسی با شما گفتگو می‌کنم. برای انتخاب محصول، مقایسه، طراحی فضا، محاسبه و مسیر اجرا در کنار شما هستم. از کجا شروع کنیم؟';
+      const welcomeText = 'حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
 
       let pendingVisualizerContext = null;
@@ -967,15 +967,17 @@
         synth.cancel();
         synth.resume();
 
-        const utterance = new SpeechSynthesisUtterance(String(text));
+        const voices = synth.getVoices();
         const voice = getPersianVoice();
-        if (voice) {
-          utterance.voice = voice;
-          utterance.lang = voice.lang || 'fa-IR';
-        } else {
-          utterance.lang = 'fa-IR';
+        const utterance = new SpeechSynthesisUtterance(String(text));
+        utterance.lang = 'fa-IR';
+        if (voice) utterance.voice = voice;
+        else if (voices.length) {
+          // اگر صدای فارسی روی ویندوز نصب نباشد، باز هم زبان جمله را فارسی اعلام می‌کنیم
+          // تا مرورگر نزدیک‌ترین موتور صدای در دسترس را انتخاب کند.
+          utterance.voice = voices.find(v => /^fa/i.test(v.lang)) || voices[0];
         }
-        utterance.rate = .92;
+        utterance.rate = .9;
         utterance.pitch = 1.05;
         utterance.volume = 1;
 
@@ -992,7 +994,7 @@
         utterance.onerror = () => {
           setAdvisorVisualState('');
           voiceReplay?.classList.remove('is-speaking');
-          if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ دوباره تلاش کنید.';
+          if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ روی «پخش دوباره» بزنید.';
         };
 
         synth.speak(utterance);
@@ -1136,7 +1138,9 @@
           ? 'مدل «' + context.product.name + '» را می‌بینم. اگر کد، قیمت، مقایسه یا محاسبه متراژ این محصول را می‌خواهید، از همین‌جا شروع کنیم.'
           : '') });
       };
-      voiceReplay?.addEventListener('click', speakWelcome);
+      voiceReplay?.addEventListener('click', () => {
+        speakWelcome();
+      });
       close?.addEventListener('click', closeAdvisor);
       backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAdvisor(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeAdvisor(); });
@@ -1258,8 +1262,9 @@
           const transcript = e.results?.[0]?.[0]?.transcript?.trim() || '';
           if (transcript) {
             input.value = transcript;
-            input.focus();
-            if (voiceStatus) voiceStatus.textContent = 'پیام شما دریافت شد';
+            if (voiceStatus) voiceStatus.textContent = 'پیام شما دریافت شد؛ در حال ارسال...';
+            // گفتار مستقیماً وارد همان مسیر چت تایپی می‌شود تا پاسخ هم فارسی و هم صوتی باشد.
+            window.setTimeout(() => form?.requestSubmit(), 80);
           }
         };
 

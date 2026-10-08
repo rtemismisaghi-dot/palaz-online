@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Agents\PalazAdvisorAgent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 final class AdvisorController extends Controller
 {
@@ -19,6 +20,34 @@ final class AdvisorController extends Controller
 
         return response()->json($agent->analyzeSpace($dataUrl));
     }
+    public function analyzeDemo(Request $request, PalazAdvisorAgent $agent)
+    {
+        $data = $request->validate([
+            'url' => ['required', 'url', 'max:2048'],
+        ]);
+
+        $url = $data['url'];
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        $allowedHosts = [
+            'd2xsxph8kpxj0f.cloudfront.net', 'www.welcome-fukuoka.or.jp',
+            'alpha-tex.com', 'shawfloors.widen.net', 'embed.widencdn.net',
+            'www.floorworld.com', 'thepanipathandloom.com', 'api.kasperkent.be',
+            'www.toli.co.jp', 'www.tarketthospitality.com',
+        ];
+        abort_unless(in_array($host, $allowedHosts, true), 422, 'demo_image_host_not_allowed');
+
+        $response = Http::timeout(20)->accept('*/*')->get($url);
+        if (!$response->successful()) {
+            return response()->json(['message' => 'demo_image_fetch_failed'], 422);
+        }
+
+        $mime = strtolower((string) ($response->header('Content-Type') ?: 'image/jpeg'));
+        $mime = str_contains($mime, 'png') ? 'image/png' : (str_contains($mime, 'webp') ? 'image/webp' : 'image/jpeg');
+        $dataUrl = 'data:' . $mime . ';base64,' . base64_encode($response->body());
+
+        return response()->json($agent->analyzeSpace($dataUrl));
+    }
+
     public function chat(Request $request, PalazAdvisorAgent $agent)
     {
         $data = $request->validate([

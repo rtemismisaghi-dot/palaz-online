@@ -215,16 +215,16 @@
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
-                  ['name' => 'Hotel Room', 'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e149b0?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Hotel Corridor', 'image' => 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Library', 'image' => 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Office Corridor', 'image' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Office Lounge', 'image' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Office Meeting Room', 'image' => 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Open Office 1', 'image' => 'https://images.unsplash.com/photo-1497366811363-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Open Office 2', 'image' => 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Private Office', 'image' => 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=900&q=85'],
-                  ['name' => 'Reception', 'image' => 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=85'],
+                  ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png'],
+                  ['name' => 'Hotel Corridor', 'image' => 'https://www.dctuk.com/Content/Images/c34703d7-6d10-41f8-83b1-d639045237d7.jpg'],
+                  ['name' => 'Library', 'image' => 'https://alpha-tex.com/media/25/3a/d8/1752760401/RileyRaum1.jpg'],
+                  ['name' => 'Office Corridor', 'image' => 'https://s7d4.scene7.com/is/image/MohawkResidential/83128_949_room_00'],
+                  ['name' => 'Office Lounge', 'image' => 'https://embed.widencdn.net/img/shawfloors/hdgsqei9mz/1120x775px/5T235_35516_FEATURE1.jpeg?crop=yes&keep=c&u=kgbzqj&use=2mlaz'],
+                  ['name' => 'Office Meeting Room', 'image' => 'https://www.floorworld.com/media/dajbnk5u/sky-gardens-sky-gardens-577-office-meetingroom-zone-carpet-tiles.jpg'],
+                  ['name' => 'Open Office 1', 'image' => 'https://thepanipathandloom.com/media/user_84/4_Qw6JmWm.jpg'],
+                  ['name' => 'Open Office 2', 'image' => 'https://api.kasperkent.be/sites/default/files/styles/webp/public/referenties/2018-06/GeneraalArmstrongweg1Antwerpen-20%20kopie_tiny_0.jpg.webp?itok=AVrQXgBl'],
+                  ['name' => 'Private Office', 'image' => 'https://www.toli.co.jp/product_carpet/rollcarpet/img/ew05.jpg'],
+                  ['name' => 'Reception', 'image' => 'https://www.tarketthospitality.com/TarkettHospitality/media/Images/Soft%20Surface/Inky/Blot_Watercolor_RM_1024x850.jpg?ext=.jpg'],
                 ];
               @endphp
               @foreach($visualizerDemoRooms as $index => $room)

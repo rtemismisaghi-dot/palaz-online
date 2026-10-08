@@ -929,6 +929,29 @@
       const welcomeText = 'سلام، خوش آمدید به پالاز. من مشاور هوشمند پالاز هستم و فارسی با شما گفتگو می‌کنم. برای انتخاب محصول، مقایسه، طراحی فضا، محاسبه و مسیر اجرا در کنار شما هستم. از کجا شروع کنیم؟';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
 
+      let pendingVisualizerContext = null;
+      try {
+        const stored = sessionStorage.getItem('palaz_advisor_visualizer_context');
+        if (stored) {
+          pendingVisualizerContext = JSON.parse(stored);
+          sessionStorage.removeItem('palaz_advisor_visualizer_context');
+          window.palazVisualizerState = () => pendingVisualizerContext || {};
+        }
+      } catch (_) {}
+
+      const openAdvisorFromVisualizer = () => {
+        if (pendingVisualizerContext) {
+          const productName = pendingVisualizerContext.product?.name || '';
+          const compareCount = Array.isArray(pendingVisualizerContext.compare) ? pendingVisualizerContext.compare.length : 0;
+          const intro = productName
+            ? 'مدل «' + productName + '» را از Visualizer همراه خود آورده‌اید. می‌توانم درباره کد، مشخصات، قیمت و محاسبه آن کمک کنم.'
+            : compareCount
+              ? 'دو محصول انتخاب‌شده در Visualizer را همراه خود آورده‌اید. می‌توانیم مشخصات، قیمت و تفاوت‌هایشان را بررسی کنیم.'
+              : '';
+          window.setTimeout(() => openAdvisor({ intro }), 180);
+        }
+      };
+
       const getPersianVoice = () => {
         const voices = window.speechSynthesis.getVoices();
         if (!voices.length) return null;
@@ -1107,6 +1130,9 @@
         }, 220);
       };
       openers.forEach(btn => btn.addEventListener('click', () => openAdvisor()));
+      if (window.location.hash === '#advisor' && pendingVisualizerContext) {
+        openAdvisorFromVisualizer();
+      }
 
       window.palazOpenAdvisorWithContext = (intro = '') => {
         const context = getAdvisorContext();

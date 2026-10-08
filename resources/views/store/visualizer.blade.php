@@ -771,8 +771,8 @@
                 const product = compareProducts[index];
                 room.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
                 room.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
-                room.style.setProperty('--palaz-compare-texture-size', product._visualizerSurface === 'carpet' ? '24% 24%' : 'cover');
-                room.style.setProperty('--palaz-compare-texture-repeat', product._visualizerSurface === 'carpet' ? 'repeat' : 'no-repeat');
+                room.style.setProperty('--palaz-compare-texture-size', '65% 65%');
+                room.style.setProperty('--palaz-compare-texture-repeat', 'no-repeat');
                 room.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
               });
               const surfaceNames = { carpet:'موکت', carpet_tile:'موکت تایل', laminate:'لمینیت', spc:'SPC' };

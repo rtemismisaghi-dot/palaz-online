@@ -216,9 +216,9 @@
               @php
                 $visualizerDemoRooms = [
                   ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png'],
-                  ['name' => 'Hotel Corridor', 'image' => 'https://www.dctuk.com/Content/Images/c34703d7-6d10-41f8-83b1-d639045237d7.jpg'],
+                  ['name' => 'Hotel Corridor', 'image' => 'https://www.welcome-fukuoka.or.jp/topics_images/2/file/7738.jpg'],
                   ['name' => 'Library', 'image' => 'https://alpha-tex.com/media/25/3a/d8/1752760401/RileyRaum1.jpg'],
-                  ['name' => 'Office Corridor', 'image' => 'https://s7d4.scene7.com/is/image/MohawkResidential/83128_949_room_00'],
+                  ['name' => 'Office Corridor', 'image' => 'https://shawfloors.widen.net/content/o7uvg8xgo4/jpeg/0S6A9572_.jpg?anchor=114%2C0&color=ffffffff&crop=true&h=1365&q=80&u=9ab8mp&w=1820'],
                   ['name' => 'Office Lounge', 'image' => 'https://embed.widencdn.net/img/shawfloors/hdgsqei9mz/1120x775px/5T235_35516_FEATURE1.jpeg?crop=yes&keep=c&u=kgbzqj&use=2mlaz'],
                   ['name' => 'Office Meeting Room', 'image' => 'https://www.floorworld.com/media/dajbnk5u/sky-gardens-sky-gardens-577-office-meetingroom-zone-carpet-tiles.jpg'],
                   ['name' => 'Open Office 1', 'image' => 'https://thepanipathandloom.com/media/user_84/4_Qw6JmWm.jpg'],

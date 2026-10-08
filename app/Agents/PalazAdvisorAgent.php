@@ -245,6 +245,25 @@ REVIEW;
 
         return ['ok' => false, 'message' => 'تشخیص خودکار کف انجام نشد. می‌توانیم تصویر را نگه داریم و نمایش اولیه را ادامه دهیم.', 'floor_polygon' => null];
     }
+    private function extractAdvisorArea(string $message): ?float
+    {
+        $normalized = strtr($message, [
+            '۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9',
+            '٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9',
+            '٫'=>'.', '٬'=>',',
+        ]);
+
+        // فقط متراژ را از عبارت‌هایی مثل «۶۰ متر»، «۶۰ مترمربع» یا «متراژ ۶۰» استخراج می‌کنیم.
+        if (preg_match('/(?:متراژ|مساحت|زیربنا)\\s*[:：]?\\s*(\\d+(?:[.,]\\d+)?)|(?:\\b)(\\d+(?:[.,]\\d+)?)\\s*(?:متر\\s*مربع|مترمربع|متر)(?:\\b)/u', $normalized, $matches)) {
+            $value = $matches[1] !== '' ? $matches[1] : ($matches[2] ?? '');
+            $value = str_replace(',', '.', $value);
+            $area = (float) $value;
+            return $area > 0 && $area <= 100000 ? $area : null;
+        }
+
+        return null;
+    }
+
     private function calculationContext($products, float $area): string
     {
         if ($products->isEmpty() || $area <= 0) {

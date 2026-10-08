@@ -948,7 +948,7 @@
             : compareCount
               ? 'دو محصول انتخاب‌شده در Visualizer را همراه خود آورده‌اید. می‌توانیم مشخصات، قیمت و تفاوت‌هایشان را بررسی کنیم.'
               : '';
-          window.setTimeout(() => openAdvisor({ intro }), 180);
+          window.setTimeout(() => openAdvisor({ intro, skipWelcome: true }), 180);
         }
       };
 
@@ -1075,6 +1075,9 @@
 
       const openAdvisor = (options = {}) => {
         setAdvisorVisualState('listening');
+        if (!options.skipWelcome) {
+          speakWelcome();
+        }
         lastFocusedElement = document.activeElement;
         previousBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';

@@ -1108,15 +1108,8 @@
         }
       };
 
-      // شروع صدا مستقیماً از تعامل کاربر انجام می‌شود تا مرورگر آن را autoplay حساب نکند.
-      openers.forEach(btn => {
-        btn.addEventListener('pointerdown', () => {
-          if (!backdrop.classList.contains('is-open')) speakWelcome();
-        }, {passive:true});
-        btn.addEventListener('keydown', e => {
-          if ((e.key === 'Enter' || e.key === ' ') && !backdrop.classList.contains('is-open')) speakWelcome();
-        });
-      });
+      // صدا فقط یک بار از رویداد اصلی باز شدن مشاور اجرا می‌شود.
+      // اجرای هم‌زمان pointerdown/keydown قبلی باعث لغو صدای خوش‌آمدگویی می‌شد.
 
       const closeAdvisor = () => {
         setAdvisorVisualState('');
@@ -1317,25 +1310,6 @@
       header.classList.remove('mobile-open');
       button.setAttribute('aria-expanded', 'false');
       button.textContent = '☰';
-    });
-  });
-})();
-</script>
-
-<script>
-(() => {
-  document.addEventListener('DOMContentLoaded', () => {
-    const openNewAdvisor = () => {
-      const trigger = document.getElementById('palazAiTrigger');
-      if (trigger) {
-        trigger.click();
-        return;
-      }
-      document.getElementById('palaz-advisor-panel')?.classList.add('is-open');
-    };
-
-    document.querySelectorAll('.palaz-advisor-shortcut, .px-open-advisor').forEach(button => {
-      button.addEventListener('click', openNewAdvisor);
     });
   });
 })();

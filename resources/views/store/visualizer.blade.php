@@ -268,7 +268,7 @@
                     <input class="px-compare-slider" type="range" min="0" max="100" value="50" aria-label="مقایسه دو محصول">
                   </div>
                   <footer class="px-compare-footer">
-                    <span>خط وسط را با ماوس یا لمس جابه‌جا کن تا سهم هر محصول را ببینی.</span>
+                    <span>خط وسط را با موس یا لمس بکش؛ می‌توانی از ۰٪ تا ۱۰۰٪ سهم هر کفپوش را ببینی.</span>
                     <button type="button" class="px-btn red px-compare-use">استفاده از محصول انتخاب‌شده ←</button>
                   </footer>
                 </section>
@@ -283,6 +283,7 @@
 
               <div class="px-visualizer-surface-tabs" role="tablist" aria-label="نوع کفپوش">
                 <button type="button" class="px-surface-tab active" data-surface="carpet">موکت</button>
+                <button type="button" class="px-surface-tab" data-surface="carpet_tile">موکت تایل</button>
                 <button type="button" class="px-surface-tab" data-surface="laminate">لمینیت</button>
                 <button type="button" class="px-surface-tab" data-surface="spc">SPC</button>
               </div>
@@ -331,6 +332,7 @@
 
             const fallbackImages = {
               carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
+              carpet_tile: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
               laminate: 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
               spc: 'https://palazonline.com/storage/uploads/IMG_5777.PNG'
             };
@@ -370,7 +372,7 @@
             };
 
             const paintPreview = () => {
-              const base = uploadedUrl || demoRoomUrl || fallbackImages[surface];
+              const base = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
               const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
@@ -439,7 +441,7 @@
                   if (!product) return;
 
                   const previousProductId = selectedProduct?.id ?? null;
-                  selectedProduct = product;
+                  selectedProduct = { ...product, _visualizerSurface: surface };
                   preview.classList.remove('visualizer-switching');
                   if (previousProductId !== product.id && uploadedUrl && floorPolygon) {
                     void preview.offsetWidth;
@@ -498,8 +500,10 @@
                 room.style.setProperty('--compare-texture', 'url("' + imageUrl(product.image) + '")');
                 room.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
               });
-              leftTag.textContent = compareProducts[0].name + (compareProducts[0].tone ? ' • ' + compareProducts[0].tone : '');
-              rightTag.textContent = compareProducts[1].name + (compareProducts[1].tone ? ' • ' + compareProducts[1].tone : '');
+              const surfaceNames = { carpet:'موکت', carpet_tile:'موکت تایل', laminate:'لمینیت', spc:'SPC' };
+              const compareName = item => (surfaceNames[item._visualizerSurface] || item.category || 'کفپوش') + ' • ' + item.name + (item.tone ? ' • ' + item.tone : '');
+              leftTag.textContent = compareName(compareProducts[0]);
+              rightTag.textContent = compareName(compareProducts[1]);
               if (compareSlider) compareSlider.value = 50;
               updateCompareSlider(50);
             };
@@ -529,6 +533,27 @@
             };
 
             compareSlider?.addEventListener('input', event => updateCompareSlider(event.target.value));
+
+            const compareSplit = compareModal?.querySelector('[data-compare-split]');
+            let compareDragging = false;
+            const comparePositionFromPointer = event => {
+              if (!compareSplit) return 50;
+              const rect = compareSplit.getBoundingClientRect();
+              return Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100));
+            };
+            compareSplit?.addEventListener('pointerdown', event => {
+              if (event.target === compareSlider) return;
+              compareDragging = true;
+              compareSplit.setPointerCapture?.(event.pointerId);
+              updateCompareSlider(comparePositionFromPointer(event));
+            });
+            compareSplit?.addEventListener('pointermove', event => {
+              if (!compareDragging) return;
+              updateCompareSlider(comparePositionFromPointer(event));
+            });
+            compareSplit?.addEventListener('pointerup', () => { compareDragging = false; });
+            compareSplit?.addEventListener('pointercancel', () => { compareDragging = false; });
+
             compareOpen?.addEventListener('click', openCompare);
             compareClose?.addEventListener('click', closeCompare);
             compareModal?.querySelector('.px-compare-backdrop')?.addEventListener('click', closeCompare);
@@ -569,8 +594,9 @@
                 if (!response.ok) throw new Error('products_failed');
                 const data = await response.json();
                 products = Array.isArray(data.products) ? data.products : [];
-                selectedProduct = null;
-                compareProducts = [];
+                // Changing category must not erase the two products already
+                // chosen for comparison; this is what enables carpet ↔ SPC,
+                // carpet tile ↔ laminate, etc.
                 renderProducts();
                 renderCompare();
                 paintPreview();

@@ -93,7 +93,7 @@
 @media(max-width:900px){.palaz-visualizer-page .px-product-chip{min-width:165px}.palaz-visualizer-page .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-visualizer-page .px-product-chip{min-width:155px}.palaz-visualizer-page .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-visualizer-page .px-visualizer-actions .px-btn{width:100%}}
 .palaz-visualizer-page .px-visualizer-shell{position:relative}
-.palaz-visualizer-page .px-visualizer-preview{display:flex;align-items:center;justify-content:center;background-image:url('https://palazonline.com/storage/uploads/005-1-2.jpg');background-position:center;background-size:cover;transition:background-image .25s ease}
+.palaz-visualizer-page .px-visualizer-preview{display:flex;align-items:center;justify-content:center;position:relative;background-image:url('https://palazonline.com/storage/uploads/005-1-2.jpg');background-position:center;background-size:cover;transition:background-image .25s ease}.palaz-visualizer-page .px-visualizer-preview.is-uploaded{background-size:100% 100%;background-repeat:no-repeat;background-color:#111}
 .palaz-visualizer-page .px-preview-empty{position:relative;z-index:3;width:min(330px,calc(100% - 40px));padding:28px 24px;text-align:center;border:1px solid rgba(255,255,255,.55);border-radius:22px;background:rgba(255,255,255,.88);box-shadow:0 18px 45px rgba(0,0,0,.12);backdrop-filter:blur(8px)}
 .palaz-visualizer-page .px-preview-empty>span{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 12px;border-radius:50%;background:#b71929;color:#fff;font-size:25px}
 .palaz-visualizer-page .px-preview-empty strong{display:block;color:#25282c;font-size:17px;margin-bottom:5px}
@@ -874,6 +874,9 @@
                 URL.revokeObjectURL(uploadedUrl);
                 uploadedUrl = '';
               }
+              preview.classList.remove('is-uploaded');
+              preview.style.removeProperty('background-size');
+              preview.style.removeProperty('background-repeat');
               demoRoomUrl = option.dataset.roomImage || fallbackImages[surface];
               empty.style.display = 'none';
               try {
@@ -937,29 +940,41 @@
               if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
               uploadedUrl = URL.createObjectURL(file);
               demoRoomUrl = '';
+              preview.classList.add('is-uploaded');
+              preview.style.backgroundSize = '100% 100%';
+              preview.style.backgroundRepeat = 'no-repeat';
               empty.style.display = 'none';
               floorPolygon = null;
               setStatus('در حال دیدن فضای شما…', 'هوش مصنوعی در حال تشخیص محدوده کف است.');
               const formData = new FormData();
               formData.append('image', file);
+              // عکس باید بلافاصله نمایش داده شود؛ تحلیل Vision نباید نمایش عکس را متوقف کند.
+              paintPreview();
+              loadProducts();
               fetch('{{ route('advisor.analyze-space') }}', {
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: formData
-              }).then(response => response.ok ? response.json() : Promise.reject(new Error('vision_failed')))
+              }).then(async response => {
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(payload.message || 'vision_failed');
+                return payload;
+              })
                 .then(data => {
                   if (Array.isArray(data.floor_polygon) && data.floor_polygon.length >= 4) {
                     floorPolygon = data.floor_polygon;
-                    setStatus('کف فضا تشخیص داده شد', data.message || 'حالا یک مدل واقعی انتخاب کن.');
+                    setStatus('کف فضا تشخیص داده شد', data.message || 'کف شناسایی شد؛ موکت انتخاب‌شده آماده اجراست.');
                   } else {
-                    setStatus('عکس فضا آماده است', data.message || 'یک مدل انتخاب کن؛ نمایش اولیه ادامه پیدا می‌کند.');
+                    setStatus('عکس فضا آماده است', data.message || 'تشخیص دقیق کف کامل نشد.');
                   }
                   paintPreview();
-                  loadProducts();
+                  renderProducts();
                 })
-                .catch(() => {
-                  setStatus('عکس فضا آماده است', 'تشخیص خودکار کف در دسترس نبود؛ نمایش اولیه ادامه پیدا می‌کند.');
+                .catch(error => {
+                  console.warn('Palaz visualizer vision error', error);
+                  setStatus('عکس فضا نمایش داده شد', 'تشخیص خودکار کف کامل نشد؛ عکس شما آماده انتخاب مدل است.');
                   paintPreview();
+                  renderProducts();
                 });
               // محصول انتخاب‌شده را نگه می‌داریم تا با بارگذاری عکس، مشتری مجبور نباشد
               // مدل و کد را دوباره از اول انتخاب کند.

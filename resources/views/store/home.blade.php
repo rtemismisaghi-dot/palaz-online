@@ -1207,8 +1207,13 @@
             body: JSON.stringify({ message: value, messages: history, context: window.palazVisualizerState?.() || {} })
           });
 
-          const data = await response.json();
-          if (!response.ok || !data.reply) throw new Error('advisor_failed');
+          const raw = await response.text();
+          let data = {};
+          try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
+          if (!response.ok || !data.reply) {
+            const detail = data.message || 'advisor_failed';
+            throw new Error(detail);
+          }
           addMessage(data.reply, 'assistant', data.actions || []);
           speakText(data.reply);
           setAdvisorVisualState('answering');

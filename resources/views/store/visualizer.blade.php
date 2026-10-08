@@ -223,7 +223,7 @@
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
               @php
                 $visualizerDemoRooms = [
-                  ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png', 'polygon' => [[3,58],[97,58],[100,100],[0,100]]],
+                  ['name' => 'Hotel Room', 'image' => 'https://d2xsxph8kpxj0f.cloudfront.net/310519663411168455/BxcdgenBntjaKqnHJobXxQ/products/ou2G23Rz2ice67ybs6g7B.png', 'polygon' => [[7,61],[22,55],[43,57],[67,59],[94,67],[100,100],[0,100]]],
                   ['name' => 'Hotel Corridor', 'image' => 'https://www.welcome-fukuoka.or.jp/topics_images/2/file/7738.jpg', 'polygon' => [[8,42],[92,42],[100,100],[0,100]]],
                   ['name' => 'Library', 'image' => 'https://alpha-tex.com/media/25/3a/d8/1752760401/RileyRaum1.jpg', 'polygon' => [[5,52],[95,52],[100,100],[0,100]]],
                   ['name' => 'Office Corridor', 'image' => 'https://shawfloors.widen.net/content/o7uvg8xgo4/jpeg/0S6A9572_.jpg?anchor=114%2C0&color=ffffffff&crop=true&h=1365&q=80&u=9ab8mp&w=1820', 'polygon' => [[4,48],[96,48],[100,100],[0,100]]],

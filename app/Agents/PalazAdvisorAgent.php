@@ -17,13 +17,16 @@ final class PalazAdvisorAgent
 
         $catalog = collect(StoreCatalog::products())
             ->map(fn ($p) => implode(' | ', array_filter([
+                'شناسه: '.($p['id'] ?? ''),
                 'نام: '.$p['name'],
                 'دسته: '.($p['category'] ?? ''),
+                'مدل/آلبوم: '.($p['model'] ?? ''),
+                'کد: '.($p['code'] ?? ''),
                 'قیمت: '.($p['price'] !== null ? number_format((float)$p['price']).' تومان' : 'استعلامی'),
                 'واحد: '.($p['unit'] ?? ''),
                 'رنگ/تون: '.($p['tone'] ?? ''),
                 'توضیح: '.($p['description'] ?? ''),
-            ])))->take(100)->implode("\n");
+            ])))->take(250)->implode("\n");
 
         $apiKey = (string) config('services.openrouter.key');
 
@@ -222,6 +225,30 @@ REVIEW;
         }
         if (!empty($context['product']['tone'])) {
             $parts[] = 'تون محصول انتخاب‌شده: '.mb_substr((string) $context['product']['tone'], 0, 80);
+        }
+        if (!empty($context['product']['code'])) {
+            $parts[] = 'کد محصول انتخاب‌شده: '.mb_substr((string) $context['product']['code'], 0, 100);
+        }
+        if (!empty($context['product']['model'])) {
+            $parts[] = 'مدل/آلبوم محصول انتخاب‌شده: '.mb_substr((string) $context['product']['model'], 0, 120);
+        }
+        if (!empty($context['compare']) && is_array($context['compare'])) {
+            $compareLines = collect($context['compare'])
+                ->take(2)
+                ->map(fn ($item, $index) => implode(' | ', array_filter([
+                    'مقایسه '.($index + 1),
+                    'شناسه: '.($item['id'] ?? ''),
+                    'نام: '.mb_substr((string) ($item['name'] ?? ''), 0, 160),
+                    'مدل/آلبوم: '.mb_substr((string) ($item['model'] ?? ''), 0, 120),
+                    'کد: '.mb_substr((string) ($item['code'] ?? ''), 0, 100),
+                    'تون: '.mb_substr((string) ($item['tone'] ?? ''), 0, 80),
+                ])))
+                ->filter()
+                ->implode("\n");
+            if ($compareLines !== '') {
+                $parts[] = "دو محصول فعلی Visualizer برای مقایسه:\n".$compareLines;
+                $parts[] = 'در مقایسه فقط همین دو محصول را بر اساس داده کاتالوگ توضیح بده و برنده تعیین نکن.';
+            }
         }
         if (!empty($context['space_analyzed'])) {
             $parts[] = 'عکس فضای کاربر قبلاً با Vision بررسی شده و محدوده کف شناسایی شده است.';

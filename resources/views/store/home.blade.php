@@ -762,7 +762,7 @@
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
               <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
-              <div class="palaz-advisor-bubble">سلام 👋 من مشاور پالاز هستم.<br>برای انتخاب بهترین پوشش، از فضای شما شروع کنیم؟</div>
+              <div class="palaz-advisor-bubble">سلام 👋 خوش آمدید به پالاز.<br>من مشاور هوشمند پالاز هستم و فارسی با شما گفتگو می‌کنم؛ برای انتخاب محصول، مقایسه، طراحی فضا، محاسبه و مسیر اجرا کنارتان هستم.<br><br>از کجا شروع کنیم؟</div>
             </div>
           </div>
 
@@ -926,7 +926,7 @@
       const voiceReplay = backdrop.querySelector('.palaz-advisor-voice-replay');
       const contextBadge = backdrop.querySelector('.palaz-advisor-context');
       let lastFocusedElement = null;
-      const welcomeText = 'سلام، من مشاور هوشمند پالاز هستم. برای انتخاب محصول، مقایسه، محاسبه و اجرای فضای شما در کنار شما هستم. از کجا شروع کنیم؟';
+      const welcomeText = 'سلام، خوش آمدید به پالاز. من مشاور هوشمند پالاز هستم و فارسی با شما گفتگو می‌کنم. برای انتخاب محصول، مقایسه، طراحی فضا، محاسبه و مسیر اجرا در کنار شما هستم. از کجا شروع کنیم؟';
       const getAdvisorContext = () => window.palazVisualizerState?.() || {};
 
       const getPersianVoice = () => {

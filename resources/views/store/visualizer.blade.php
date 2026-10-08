@@ -40,6 +40,14 @@
 .palaz-visualizer-page .px-product-chip small{margin-top:3px;color:#999;font-size:9px}
 .palaz-visualizer-page .px-product-chip i{font-style:normal;color:#b71929;font-size:16px;margin-right:auto}
 .palaz-visualizer-page .px-product-loading{padding:13px 2px;color:#888;font-size:10px}
+.palaz-visualizer-page .px-carpet-models{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}
+.palaz-visualizer-page .px-carpet-model{border:1px solid #e5e0dc;border-radius:14px;background:#fff;padding:12px;text-align:right;cursor:pointer;font:inherit;color:#292c30}
+.palaz-visualizer-page .px-carpet-model.active{border-color:#b71929;background:#fff7f8;box-shadow:0 5px 18px rgba(183,25,41,.1)}
+.palaz-visualizer-page .px-carpet-model b,.palaz-visualizer-page .px-carpet-model small{display:block}
+.palaz-visualizer-page .px-carpet-model b{font-size:11px}
+.palaz-visualizer-page .px-carpet-model small{margin-top:5px;color:#999;font-size:9px}
+.palaz-visualizer-page .px-carpet-codes{margin-top:10px}
+.palaz-visualizer-page .px-carpet-back{border:0;background:transparent;color:#b71929;font:inherit;font-size:10px;font-weight:800;cursor:pointer;padding:5px 0 9px}
 .palaz-visualizer-page .px-visualizer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .palaz-visualizer-page .px-visualizer-actions .px-btn{border:0;cursor:pointer}
 .palaz-visualizer-page .px-visualizer-compare{position:absolute;z-index:5;right:16px;bottom:16px;display:flex;gap:6px;padding:6px;border-radius:13px;background:rgba(255,255,255,.9);box-shadow:0 8px 25px rgba(0,0,0,.16)}
@@ -419,38 +427,68 @@
               }
             };
 
+            let selectedCarpetModel = null;
+
             const renderProducts = () => {
               if (!products.length) {
                 productsEl.innerHTML = '<div class="px-product-loading">برای این دسته هنوز محصولی در کاتالوگ ثبت نشده است.</div>';
                 return;
               }
 
-              const grouped = new Map();
-              products.forEach((product, index) => {
-                const model = product.model || product.name || 'مدل پالاز';
-                if (!grouped.has(model)) grouped.set(model, []);
-                grouped.get(model).push({ product, index });
-              });
+              if (surface === 'carpet') {
+                const grouped = new Map();
+                products.forEach((product, index) => {
+                  const model = product.model || product.name || 'مدل پالاز';
+                  if (!grouped.has(model)) grouped.set(model, []);
+                  grouped.get(model).push({ product, index });
+                });
 
-              productsEl.innerHTML = Array.from(grouped.entries()).map(([model, items]) => {
-                const cards = items.map(({product, index}) => {
+                if (!selectedCarpetModel || !grouped.has(selectedCarpetModel)) {
+                  productsEl.innerHTML = '<div class="px-carpet-models">' +
+                    Array.from(grouped.entries()).map(([model, items]) =>
+                      '<button type="button" class="px-carpet-model" data-carpet-model="' + model.replace(/"/g, '&quot;') + '">' +
+                      '<b>' + model + '</b><small>' + items.length + ' کد و رنگ</small></button>'
+                    ).join('') +
+                  '</div>';
+                  productsEl.querySelectorAll('[data-carpet-model]').forEach(button => {
+                    button.addEventListener('click', () => {
+                      selectedCarpetModel = button.dataset.carpetModel;
+                      renderProducts();
+                    });
+                  });
+                  return;
+                }
+
+                const items = grouped.get(selectedCarpetModel);
+                productsEl.innerHTML = '<div class="px-carpet-codes"><button type="button" class="px-carpet-back" data-carpet-back>← بازگشت به مدل‌های موکت</button><div class="px-product-model-title"><b>' + selectedCarpetModel + '</b><small>' + items.length + ' کد و رنگ</small></div><div class="px-product-model-grid">' +
+                  items.map(({product,index}) => {
+                    const active = selectedProduct?.id === product.id;
+                    const compared = compareProducts.some(item => item.id === product.id);
+                    const code = product.code ? 'کد ' + product.code : 'بدون کد';
+                    return '<button type="button" class="px-product-chip' + (active ? ' active' : '') + (compared ? ' compared' : '') + '" data-product-index="' + index + '">' +
+                      (product.image ? '<img src="' + imageUrl(product.image) + '" alt="' + code + '" loading="lazy">' : '<span class="px-product-no-image">بدون عکس</span>') +
+                      '<span><b>' + code + '</b><small>' + (product.tone || 'بدون رنگ') + '</small></span><i>' + (compared ? '✓' : '＋') + '</i></button>';
+                  }).join('') +
+                '</div></div>';
+
+                productsEl.querySelector('[data-carpet-back]')?.addEventListener('click', () => {
+                  selectedCarpetModel = null;
+                  renderProducts();
+                });
+              } else {
+                productsEl.innerHTML = products.map((product, index) => {
                   const active = selectedProduct?.id === product.id;
                   const compared = compareProducts.some(item => item.id === product.id);
-                  const code = product.code ? 'کد ' + product.code : 'بدون کد';
                   return '<button type="button" class="px-product-chip' + (active ? ' active' : '') + (compared ? ' compared' : '') + '" data-product-index="' + index + '">' +
-                    '<img src="' + (product.image ? imageUrl(product.image) : '') + '" alt="' + code + '" loading="lazy">' +
-                    '<span><b>' + code + '</b><small>' + (product.tone || 'موکت') + '</small></span>' +
-                    '<i>' + (compared ? '✓' : '＋') + '</i>' +
-                  '</button>';
+                    '<img src="' + imageUrl(product.image) + '" alt="" loading="lazy">' +
+                    '<span><b>' + product.name + '</b><small>' + (product.tone || 'مدل پالاز') + '</small></span><i>' + (compared ? '✓' : '＋') + '</i></button>';
                 }).join('');
-                return '<div class="px-product-model"><div class="px-product-model-title"><b>' + model + '</b><small>' + items.length + ' کد</small></div><div class="px-product-model-grid">' + cards + '</div></div>';
-              }).join('');
+              }
 
               productsEl.querySelectorAll('[data-product-index]').forEach(button => {
                 button.addEventListener('click', () => {
                   const product = products[Number(button.dataset.productIndex)];
                   if (!product) return;
-
                   const previousProductId = selectedProduct?.id ?? null;
                   selectedProduct = { ...product, _visualizerSurface: surface };
                   preview.classList.remove('visualizer-switching');
@@ -459,12 +497,8 @@
                     preview.classList.add('visualizer-switching');
                     window.setTimeout(() => preview.classList.remove('visualizer-switching'), 700);
                   }
-                  if (!compareProducts.some(item => item.id === product.id)) {
-                    compareProducts = [...compareProducts, selectedProduct].slice(-2);
-                  }
-                  renderProducts();
-                  renderCompare();
-                  paintPreview();
+                  if (!compareProducts.some(item => item.id === product.id)) compareProducts = [...compareProducts, selectedProduct].slice(-2);
+                  renderProducts(); renderCompare(); paintPreview();
                 });
               });
             };

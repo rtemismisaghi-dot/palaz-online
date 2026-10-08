@@ -394,12 +394,24 @@
               product: selectedProduct ? {
                 id: selectedProduct.id,
                 name: selectedProduct.name,
-                tone: selectedProduct.tone || ''
+                tone: selectedProduct.tone || '',
+                model: selectedProduct.model || '',
+                code: selectedProduct.code || '',
+                category: selectedProduct.category || surface,
+                price: selectedProduct.price ?? null,
+                unit: selectedProduct.unit || '',
+                calculation_type: selectedProduct.calculation_type || ''
               } : null,
               compare: compareProducts.slice(0, 2).map(item => ({
                 id: item.id,
                 name: item.name,
-                tone: item.tone || ''
+                tone: item.tone || '',
+                model: item.model || '',
+                code: item.code || '',
+                category: item.category || item._visualizerSurface || '',
+                price: item.price ?? null,
+                unit: item.unit || '',
+                calculation_type: item.calculation_type || ''
               }))
             });
 

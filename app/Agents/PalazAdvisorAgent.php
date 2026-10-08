@@ -32,6 +32,7 @@ final class PalazAdvisorAgent
         // قبل از ارسال به مدل، محصولات مرتبط با متن کاربر را از کاتالوگ واقعی پیدا می‌کنیم
         // تا مشاور مجبور نباشد بین کل کاتالوگ حدس بزند.
         $matchedProducts = $this->matchProducts($message, $allProducts);
+        $area = $this->extractAdvisorArea($message);
         $matchedText = $matchedProducts->isNotEmpty()
             ? "\n\nمحصولات مرتبط با پیام فعلی کاربر از کاتالوگ واقعی:\n"
                 .$matchedProducts->map(fn ($p) => implode(' | ', array_filter([
@@ -44,6 +45,10 @@ final class PalazAdvisorAgent
                     'واحد: '.($p['unit'] ?? ''),
                     'رنگ/تون: '.($p['tone'] ?? ''),
                 ])))->implode("\n")
+            : '';
+
+        $calculationText = $area !== null
+            ? $this->calculationContext($matchedProducts, $area)
             : '';
 
         $apiKey = (string) config('services.openrouter.key');
@@ -62,7 +67,7 @@ final class PalazAdvisorAgent
 اگر سؤال خارج از حوزه پالاز است ولی پاسخ عمومی و قابل‌اعتمادش را می‌دانی، پاسخ مفید و کوتاه بده و اگر برای آن حوزه تخصصی نیستی این محدودیت را شفاف بگو؛ گفتگو را بی‌دلیل قطع نکن. برای موضوعات حساس یا نیازمند اطلاعات به‌روز، ادعای قطعی نکن و کاربر را به منبع مناسب راهنمایی کن.
 کاتالوگ فعلی:
 PROMPT;
-            $contextText = $this->contextText($context).$matchedText;
+            $contextText = $this->contextText($context).$matchedText.$calculationText;
             $payload = array_merge(
                 [['role' => 'system', 'content' => $system."\n".$catalog.$contextText]],
                 $history,
@@ -232,6 +237,67 @@ REVIEW;
 
         return ['ok' => false, 'message' => 'تشخیص خودکار کف انجام نشد. می‌توانیم تصویر را نگه داریم و نمایش اولیه را ادامه دهیم.', 'floor_polygon' => null];
     }
+    private function calculationContext($products, float $area): string
+    {
+        if ($products->isEmpty() || $area <= 0) {
+            return '';
+        }
+
+        $lines = $products->take(5)->map(function ($product) use ($area) {
+            if (($product['price'] ?? null) === null) {
+                return 'برآورد '.$product['name'].': قیمت استعلامی است؛ عدد قطعی اعلام نکن.';
+            }
+
+            $base = (float) $product['price'];
+            $vatUnit = $base * 1.10;
+            $type = strtolower((string) ($product['calculation_type'] ?? ''));
+            $unit = mb_strtolower((string) ($product['unit'] ?? ''));
+            $quantity = $area;
+            $coverage = 'هر مترمربع';
+
+            if ($type === 'roll' || str_contains($unit, 'رول') || str_contains($unit, 'طاقه')) {
+                $coverage = 'رول عرض ۳ متر';
+                $rolls = (int) ceil($area / 3);
+                $estimated = $rolls * $base * 3;
+                return implode(' | ', [
+                    'برآورد '.$product['name'],
+                    'متراژ: '.number_format($area, 2).' مترمربع',
+                    'الگوی محاسبه: عرض ۳ متر، تعداد رول تقریبی: '.$rolls,
+                    'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
+                    'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
+                    'این فقط برآورد اولیه است و طول طاقه/پرت باید در سفارش نهایی بررسی شود.',
+                ]);
+            }
+
+            if ($type === 'carton' || str_contains($unit, 'کارتن')) {
+                $factor = (float) data_get($product, 'attributes.carton_factor', 1.777);
+                if ($factor <= 0) $factor = 1.777;
+                $cartons = (int) ceil($area / $factor);
+                $estimated = $cartons * $base;
+                return implode(' | ', [
+                    'برآورد '.$product['name'],
+                    'متراژ: '.number_format($area, 2).' مترمربع',
+                    'پوشش هر کارتن: '.number_format($factor, 3).' مترمربع',
+                    'تعداد کارتن: '.$cartons,
+                    'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
+                    'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
+                ]);
+            }
+
+            $estimated = $quantity * $base;
+            return implode(' | ', [
+                'برآورد '.$product['name'],
+                'متراژ: '.number_format($area, 2).' مترمربع',
+                'قیمت واحد: '.number_format($base).' تومان',
+                'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
+                'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
+            ]);
+        })->implode("\n");
+
+        return "\n\nمحاسبه اولیه قطعی‌سازی‌شده از داده کاتالوگ (برای ".$area." مترمربع):\n".$lines
+            ."\nقانون: این اعداد برآورد اولیه‌اند؛ موجودی، پرت، برش و شرایط اجرای واقعی ممکن است مبلغ نهایی را تغییر دهد. اگر قیمت محصول استعلامی است عدد نساز.";
+    }
+
     private function matchProducts(string $message, $products)
     {
         $query = $this->normalizeSearchText($message);

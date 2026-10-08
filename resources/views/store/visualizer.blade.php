@@ -75,7 +75,7 @@
 @keyframes palazFloorReveal{0%{opacity:.15;transform:scale(1.035);filter:saturate(.72) blur(.7px)}55%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.001);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02) blur(0)}100%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.002)}}
 @media(prefers-reduced-motion:reduce){.palaz-visualizer-page .px-visualizer-preview.has-product:after,.palaz-visualizer-page .px-visualizer-preview.visualizer-switching:after{animation:none;transition:none}}.palaz-visualizer-page .px-visualizer-preview.has-product:after{opacity:var(--palaz-floor-opacity,.78)!important;mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));transform:scale(1.002);transform-origin:center}
 .palaz-visualizer-page .px-visualizer-preview.has-product:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 38%,rgba(0,0,0,.08));opacity:.72}
-.palaz-visualizer-page .px-visualizer-preview.has-product:after{content:"";position:absolute;inset:0;z-index:2;background-image:var(--palaz-texture);background-size:cover;background-position:center;mix-blend-mode:var(--palaz-floor-blend,multiply);opacity:var(--palaz-floor-opacity,.82);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));pointer-events:none;box-shadow:0 0 35px rgba(0,0,0,.08) inset}
+.palaz-visualizer-page .px-floor-overlay{position:absolute;inset:0;z-index:2;background-image:none;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:0;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1);transform:scale(1.002);transform-origin:center;box-shadow:0 0 35px rgba(0,0,0,.08) inset}.palaz-visualizer-page .px-visualizer-preview.has-product .px-floor-overlay{opacity:var(--palaz-floor-opacity,.84);mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02)}
 @media(max-width:900px){.palaz-visualizer-page .px-product-chip{min-width:165px}.palaz-visualizer-page .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-visualizer-page .px-product-chip{min-width:155px}.palaz-visualizer-page .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-visualizer-page .px-visualizer-actions .px-btn{width:100%}}
 .palaz-visualizer-page .px-visualizer-shell{position:relative}
@@ -252,7 +252,7 @@
                 <label class="px-upload-btn">عکس فضای خودم<input id="px-space-upload" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
               </div>
               <div class="px-sample-note"><b>فضای الهام‌بخش</b><span>یک نمونه واقعی برای شروع Visualizer</span></div>
-              <div class="px-preview-badge">PALAZ VISUALIZER</div>
+              <div class="px-preview-badge">PALAZ VISUALIZER</div>\n              <div class="px-floor-overlay" aria-hidden="true"></div>
               <div class="px-visualizer-compare" hidden>
                 <button type="button" data-compare="0"></button>
                 <button type="button" data-compare="1"></button>
@@ -322,6 +322,7 @@
             if (!root) return;
 
             const preview = root.querySelector('.px-visualizer-preview');
+            const floorOverlay = root.querySelector('.px-floor-overlay');
             const empty = root.querySelector('.px-preview-empty');
             const upload = root.querySelector('#px-space-upload');
             const tabs = [...root.querySelectorAll('.px-surface-tab')];
@@ -380,6 +381,7 @@
             };
 
             const paintPreview = () => {
+              if (!floorOverlay) return;
               const base = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
               const texture = selectedProduct ? imageUrl(selectedProduct.image) : null;
               const floorPoints = Array.isArray(floorPolygon) && floorPolygon.length >= 4
@@ -393,16 +395,16 @@
 
                 if (floorPoints) {
                   const points = floorPoints.map(point => point[0] + '% ' + point[1] + '%').join(', ');
-                  preview.style.setProperty('--palaz-texture', 'url("' + texture + '")');
-                  preview.style.setProperty('--palaz-floor-clip', 'polygon(' + points + ')');
+                  floorOverlay.style.backgroundImage = 'url("' + texture + '")';
+                  floorOverlay.style.clipPath = 'polygon(' + points + ')';
                   preview.style.setProperty('--palaz-floor-opacity', surface === 'carpet' ? '0.84' : '0.72');
                   preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
                   preview.style.setProperty('--palaz-floor-saturation', surface === 'carpet' ? '0.94' : '0.88');
                   preview.classList.add('has-product');
                 } else {
                   preview.classList.remove('has-product');
-                  preview.style.removeProperty('--palaz-texture');
-                  preview.style.removeProperty('--palaz-floor-clip');
+                  floorOverlay.style.backgroundImage = 'none';
+                  floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
                   preview.style.removeProperty('--palaz-floor-opacity');
                   preview.style.removeProperty('--palaz-floor-blend');
                   preview.style.removeProperty('--palaz-floor-saturation');

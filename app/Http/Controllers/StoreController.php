@@ -32,11 +32,12 @@ class StoreController extends Controller
     public function visualizerProducts(Request $request)
     {
         $category = $request->string('category')->toString() ?: null;
-        $allowed = ['carpet', 'laminate', 'spc'];
+        $allowed = ['carpet', 'carpet_tile', 'laminate', 'spc'];
         abort_unless($category && in_array($category, $allowed, true), 422);
 
         $fallbackImages = [
             'carpet' => 'https://palazonline.com/storage/uploads/005-1-2.jpg',
+            'carpet_tile' => 'https://palazonline.com/storage/uploads/005-1-2.jpg',
             'laminate' => 'https://palazonline.com/storage/uploads/IMG_1100-4.PNG',
             'spc' => 'https://palazonline.com/storage/uploads/IMG_5777.PNG',
         ];

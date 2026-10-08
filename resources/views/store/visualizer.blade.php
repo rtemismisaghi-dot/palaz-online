@@ -75,6 +75,18 @@
 @keyframes palazFloorReveal{0%{opacity:.15;transform:scale(1.035);filter:saturate(.72) blur(.7px)}55%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.001);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02) blur(0)}100%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.002)}}
 @media(prefers-reduced-motion:reduce){.palaz-visualizer-page .px-visualizer-preview.has-product:after,.palaz-visualizer-page .px-visualizer-preview.visualizer-switching:after{animation:none;transition:none}}.palaz-visualizer-page .px-visualizer-preview.has-product:after{display:none!important}
 .palaz-visualizer-page .px-visualizer-preview.has-product:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 38%,rgba(0,0,0,.08));opacity:.72}
+.palaz-visualizer-page .px-floor-editor{position:absolute;inset:0;z-index:8;width:100%;height:100%;display:none;overflow:visible;pointer-events:none}
+.palaz-visualizer-page .px-floor-editor.is-editing{display:block}
+.palaz-visualizer-page .px-floor-editor-shape{fill:rgba(183,25,41,.16);stroke:rgba(183,25,41,.95);stroke-width:2;vector-effect:non-scaling-stroke;stroke-dasharray:7 5}
+.palaz-visualizer-page .px-floor-editor-point{fill:#fff;stroke:#b71929;stroke-width:2;vector-effect:non-scaling-stroke;cursor:grab;pointer-events:all}
+.palaz-visualizer-page .px-floor-editor-point:active{cursor:grabbing}
+.palaz-visualizer-page .px-floor-editor-toolbar{position:absolute;z-index:10;left:14px;right:14px;bottom:14px;display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid rgba(255,255,255,.7);border-radius:15px;background:rgba(255,255,255,.93);box-shadow:0 12px 35px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
+.palaz-visualizer-page .px-floor-editor-toolbar[hidden]{display:none}
+.palaz-visualizer-page .px-floor-editor-toolbar span{margin-right:auto;display:grid;gap:2px}
+.palaz-visualizer-page .px-floor-editor-toolbar b{font-size:10px;color:#25282c}
+.palaz-visualizer-page .px-floor-editor-toolbar small{font-size:8px;color:#777}
+.palaz-visualizer-page .px-floor-editor-toolbar button{border:1px solid #ded8d4;background:#fff;color:#555;border-radius:9px;padding:7px 10px;font:inherit;font-size:9px;font-weight:800;cursor:pointer}
+.palaz-visualizer-page .px-floor-editor-toolbar button.primary{background:#25282c;border-color:#25282c;color:#fff}
 .palaz-visualizer-page .px-floor-overlay{position:absolute;inset:0;z-index:2;background-image:none;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:0;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1);transform:scale(1.002);transform-origin:center;box-shadow:0 0 35px rgba(0,0,0,.08) inset}.palaz-visualizer-page .px-visualizer-preview.has-product .px-floor-overlay{opacity:var(--palaz-floor-opacity,.84);mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02)}
 @media(max-width:900px){.palaz-visualizer-page .px-product-chip{min-width:165px}.palaz-visualizer-page .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
 @media(max-width:560px){.palaz-visualizer-page .px-product-chip{min-width:155px}.palaz-visualizer-page .px-visualizer-actions{display:grid;grid-template-columns:1fr}.palaz-visualizer-page .px-visualizer-actions .px-btn{width:100%}}
@@ -253,6 +265,16 @@
               </div>
               <div class="px-sample-note"><b>فضای الهام‌بخش</b><span>یک نمونه واقعی برای شروع Visualizer</span></div>
               <div class="px-preview-badge">PALAZ VISUALIZER</div>\n              <div class="px-floor-overlay" aria-hidden="true"></div>
+              <svg class="px-floor-editor" aria-hidden="true" preserveAspectRatio="none">
+                <polygon class="px-floor-editor-shape"></polygon>
+                <g class="px-floor-editor-points"></g>
+              </svg>
+              <div class="px-floor-editor-toolbar" hidden>
+                <span><b>اصلاح محدوده کف</b><small>نقاط را روی لبه واقعی کف بکشید.</small></span>
+                <button type="button" data-floor-action="cancel">انصراف</button>
+                <button type="button" data-floor-action="reset">بازنشانی</button>
+                <button type="button" class="primary" data-floor-action="done">تأیید</button>
+              </div>
               <div class="px-visualizer-compare" hidden>
                 <button type="button" data-compare="0"></button>
                 <button type="button" data-compare="1"></button>
@@ -304,6 +326,7 @@
               <div class="px-visualizer-products" aria-live="polite"></div>
 
               <div class="px-visualizer-actions">
+                <button type="button" class="px-btn px-btn-light" data-floor-action="edit">✎ اصلاح کف</button>
                 <button class="px-btn red px-visualizer-advisor" type="button">مشاوره با AI Advisor ←</button>
                 <a class="px-btn soft" href="{{ route('services',['type'=>'design']) }}">ادامه طراحی ←</a>
               </div>
@@ -338,6 +361,12 @@
             const roomOptions = [...root.querySelectorAll('.px-room-option[data-demo-room]')];
             const customerRoom = root.querySelector('[data-customer-room]');
             const compareSlider = root.querySelector('.px-compare-slider');
+            const floorEditor = root.querySelector('.px-floor-editor');
+            const floorEditorShape = root.querySelector('.px-floor-editor-shape');
+            const floorEditorPoints = root.querySelector('.px-floor-editor-points');
+            const floorEditorToolbar = root.querySelector('.px-floor-editor-toolbar');
+            const floorEditButton = root.querySelector('[data-floor-action="edit"]');
+            const floorActionButtons = [...root.querySelectorAll('[data-floor-action]')];
 
             const fallbackImages = {
               carpet: 'https://palazonline.com/storage/uploads/005-1-2.jpg',
@@ -353,6 +382,9 @@
             let products = [];
             let compareProducts = [];
             let floorPolygon = null;
+            let floorPolygonBeforeEdit = null;
+            let floorEditorEditing = false;
+            let floorDragIndex = -1;
 
             window.palazVisualizerState = () => ({
               surface,
@@ -405,6 +437,100 @@
               };
               image.src = sourceUrl;
             };
+
+            const mapFloorPointToPreview = ([x, y]) => {
+              const rect = preview.getBoundingClientRect();
+              return { x: (Number(x) || 0) / 100 * rect.width, y: (Number(y) || 0) / 100 * rect.height };
+            };
+
+            const mapPreviewPointToFloor = (clientX, clientY) => {
+              const rect = preview.getBoundingClientRect();
+              return [
+                Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
+                Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100))
+              ];
+            };
+
+            const renderFloorEditor = () => {
+              if (!floorEditor || !Array.isArray(floorPolygon) || floorPolygon.length < 4) return;
+              const pts = floorPolygon.map(mapFloorPointToPreview);
+              floorEditorShape.setAttribute('points', pts.map(p => p.x + ',' + p.y).join(' '));
+              floorEditorPoints.innerHTML = '';
+              pts.forEach((p, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.classList.add('px-floor-editor-point');
+                circle.setAttribute('cx', p.x);
+                circle.setAttribute('cy', p.y);
+                circle.setAttribute('r', floorEditorEditing ? '7' : '0');
+                circle.dataset.index = String(index);
+                floorEditorPoints.appendChild(circle);
+              });
+            };
+
+            const setFloorEditorMode = editing => {
+              floorEditorEditing = editing;
+              if (!floorEditor) return;
+              floorEditor.classList.toggle('is-editing', editing);
+              floorEditorToolbar.hidden = !editing;
+              if (editing) {
+                floorPolygonBeforeEdit = JSON.parse(JSON.stringify(floorPolygon || []));
+                renderFloorEditor();
+                setStatus('اصلاح محدوده کف', 'نقاط قرمز را روی لبه واقعی کف بکشید و سپس «تأیید» را بزنید.');
+              } else {
+                floorDragIndex = -1;
+                renderFloorEditor();
+              }
+            };
+
+            const handleFloorPointer = event => {
+              if (!floorEditorEditing || floorDragIndex < 0 || !Array.isArray(floorPolygon)) return;
+              const point = mapPreviewPointToFloor(event.clientX, event.clientY);
+              floorPolygon[floorDragIndex] = point;
+              renderFloorEditor();
+              paintPreview();
+            };
+
+            const startFloorDrag = event => {
+              if (!floorEditorEditing) return;
+              const target = event.target.closest ? event.target.closest('.px-floor-editor-point') : null;
+              if (!target) return;
+              floorDragIndex = Number(target.dataset.index);
+              if (Number.isNaN(floorDragIndex)) return;
+              event.preventDefault();
+              try { target.setPointerCapture(event.pointerId); } catch (_) {}
+            };
+
+            floorEditor?.addEventListener('pointerdown', startFloorDrag);
+            floorEditor?.addEventListener('pointermove', handleFloorPointer);
+            floorEditor?.addEventListener('pointerup', () => { floorDragIndex = -1; });
+            floorEditor?.addEventListener('pointercancel', () => { floorDragIndex = -1; });
+            window.addEventListener('resize', () => { if (floorEditorEditing) renderFloorEditor(); });
+
+            floorActionButtons.forEach(button => {
+              button.addEventListener('click', () => {
+                const action = button.dataset.floorAction;
+                if (action === 'edit') {
+                  if (!Array.isArray(floorPolygon) || floorPolygon.length < 4) {
+                    setStatus('ابتدا کف را شناسایی کنید', 'برای اصلاح، یک فضای دمو یا عکس خودتان را انتخاب کنید.');
+                    return;
+                  }
+                  setFloorEditorMode(true);
+                } else if (action === 'cancel') {
+                  floorPolygon = floorPolygonBeforeEdit;
+                  setFloorEditorMode(false);
+                  paintPreview();
+                  setStatus('اصلاح لغو شد', 'محدوده قبلی کف دوباره استفاده شد.');
+                } else if (action === 'reset') {
+                  floorPolygon = floorPolygonBeforeEdit;
+                  renderFloorEditor();
+                  paintPreview();
+                } else if (action === 'done') {
+                  setFloorEditorMode(false);
+                  paintPreview();
+                  setStatus('محدوده کف تأیید شد', 'اجرای محصول فقط داخل محدوده اصلاح‌شده انجام می‌شود.');
+                }
+              });
+            });
 
             const paintPreview = () => {
               if (!floorOverlay) return;

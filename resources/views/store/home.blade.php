@@ -952,12 +952,30 @@
         }
       };
 
-      const getPersianVoice = () => {
+      const getPersianFemaleVoice = () => {
         const voices = window.speechSynthesis.getVoices();
         if (!voices.length) return null;
+
+        const persian = voices.filter(v =>
+          /^fa(-|_)?IR$/i.test(v.lang)
+          || /^fa/i.test(v.lang)
+          || /persian|farsi|فارسی/i.test(v.name)
+        );
+        if (!persian.length) return null;
+
+        // مشاور پالاز همیشه باید با صدای زن صحبت کند؛ اول نام‌های رایج
+        // برای صدای زن را بررسی می‌کنیم و بعد سراغ نشانه‌های female/female voice می‌رویم.
+        const femaleHints = /female|woman|girl|زن|دختر|zira|jenny|aria|samantha|susan|heera|hazel|linda|sara|sofia|sophia|victoria|karen|moira|ava|emma|olivia/i;
+        return persian.find(v => femaleHints.test(String(v.name || '')))
+          || persian.find(v => femaleHints.test(String(v.voiceURI || '')))
+          || null;
+      };
+
+      const getAnyPersianVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
         return voices.find(v => /^fa(-|_)?IR$/i.test(v.lang))
           || voices.find(v => /^fa/i.test(v.lang))
-          || voices.find(v => /persian|farsi/i.test(v.name))
+          || voices.find(v => /persian|farsi|فارسی/i.test(v.name))
           || null;
       };
 
@@ -968,14 +986,15 @@
         synth.resume();
 
         const voices = synth.getVoices();
-        const voice = getPersianVoice();
+        const voice = getPersianFemaleVoice();
         const utterance = new SpeechSynthesisUtterance(String(text));
         utterance.lang = 'fa-IR';
         if (voice) utterance.voice = voice;
-        else if (voices.length) {
-          // اگر صدای فارسی روی ویندوز نصب نباشد، باز هم زبان جمله را فارسی اعلام می‌کنیم
-          // تا مرورگر نزدیک‌ترین موتور صدای در دسترس را انتخاب کند.
-          utterance.voice = voices.find(v => /^fa/i.test(v.lang)) || voices[0];
+        else {
+          // صدای مردانه را هرگز به عنوان صدای مشاور انتخاب نکن.
+          // اگر صدای زن فارسی هنوز توسط مرورگر بارگذاری نشده باشد، صدا بعد از voiceschanged دوباره تلاش می‌شود.
+          const fallbackPersian = getAnyPersianVoice();
+          if (fallbackPersian) utterance.voice = fallbackPersian;
         }
         utterance.rate = .9;
         utterance.pitch = 1.05;
@@ -994,7 +1013,7 @@
         utterance.onerror = () => {
           setAdvisorVisualState('');
           voiceReplay?.classList.remove('is-speaking');
-          if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ روی «پخش دوباره» بزنید.';
+          if (voiceStatus) voiceStatus.textContent = 'صدای زن فارسی در مرورگر پیدا نشد؛ صدای زن فارسی را در تنظیمات صدا نصب یا فعال کنید.';
         };
 
         synth.speak(utterance);
@@ -1023,7 +1042,7 @@
         const speakNow = () => {
           synth.cancel();
           const utterance = new SpeechSynthesisUtterance(welcomeText);
-          const persianVoice = getPersianVoice();
+          const persianVoice = getPersianFemaleVoice();
           utterance.lang = 'fa-IR';
           if (persianVoice) utterance.voice = persianVoice;
           utterance.rate = .9;
@@ -1043,7 +1062,7 @@
           utterance.onerror = () => {
             setAdvisorVisualState('');
             voiceReplay?.classList.remove('is-speaking');
-            if (voiceStatus) voiceStatus.textContent = 'پخش صدا انجام نشد؛ روی «پخش دوباره» بزنید.';
+            if (voiceStatus) voiceStatus.textContent = 'صدای زن فارسی در مرورگر پیدا نشد؛ صدای زن فارسی را در تنظیمات صدا نصب یا فعال کنید.';
           };
 
           synth.speak(utterance);
@@ -1051,10 +1070,9 @@
         };
 
         // Chrome/Edge گاهی فهرست صداها را بعد از باز شدن پنجره آماده می‌کند.
-        // ابتدا همان لحظه تلاش می‌کنیم و اگر صداها هنوز آماده نبودند، با آماده‌شدن
-        // فهرست صداها دوباره فقط یک‌بار پخش می‌کنیم.
+        // تا وقتی صدای زن فارسی پیدا نشده، دوباره بعد از آماده‌شدن فهرست صداها تلاش می‌کنیم.
         const spoken = speakNow();
-        if (!getPersianVoice()) {
+        if (!getPersianFemaleVoice()) {
           const onVoicesChanged = () => {
             window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
             if (!window.speechSynthesis.speaking) speakNow();

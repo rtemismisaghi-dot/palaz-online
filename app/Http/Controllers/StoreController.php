@@ -50,7 +50,7 @@ class StoreController extends Controller
                 'model' => $product['model'],
                 'code' => $product['code'],
                 'category' => $product['category'],
-                'image' => $product['image'] ?: ($category === 'carpet' ? null : $fallbackImages[$category]),
+                'image' => $product['image'] ?: $fallbackImages[$category],
             ])
             ->values();
 

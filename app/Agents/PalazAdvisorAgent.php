@@ -15,18 +15,36 @@ final class PalazAdvisorAgent
             ->map(fn ($m) => ['role' => $m['role'], 'content' => mb_substr((string) ($m['content'] ?? ''), 0, 1200)])
             ->take(-10)->values()->all();
 
-        $catalog = collect(StoreCatalog::products())
+        $allProducts = collect(StoreCatalog::products());
+        $catalog = $allProducts
             ->map(fn ($p) => implode(' | ', array_filter([
                 'شناسه: '.($p['id'] ?? ''),
                 'نام: '.$p['name'],
                 'دسته: '.($p['category'] ?? ''),
                 'مدل/آلبوم: '.($p['model'] ?? ''),
                 'کد: '.($p['code'] ?? ''),
-                'قیمت: '.($p['price'] !== null ? number_format((float)$p['price']).' تومان' : 'استعلامی'),
+                'قیمت پایه: '.($p['price'] !== null ? number_format((float)$p['price']).' تومان' : 'استعلامی'),
                 'واحد: '.($p['unit'] ?? ''),
                 'رنگ/تون: '.($p['tone'] ?? ''),
                 'توضیح: '.($p['description'] ?? ''),
             ])))->take(250)->implode("\n");
+
+        // قبل از ارسال به مدل، محصولات مرتبط با متن کاربر را از کاتالوگ واقعی پیدا می‌کنیم
+        // تا مشاور مجبور نباشد بین کل کاتالوگ حدس بزند.
+        $matchedProducts = $this->matchProducts($message, $allProducts);
+        $matchedText = $matchedProducts->isNotEmpty()
+            ? "\n\nمحصولات مرتبط با پیام فعلی کاربر از کاتالوگ واقعی:\n"
+                .$matchedProducts->map(fn ($p) => implode(' | ', array_filter([
+                    'شناسه: '.($p['id'] ?? ''),
+                    'نام: '.($p['name'] ?? ''),
+                    'دسته: '.($p['category'] ?? ''),
+                    'مدل/آلبوم: '.($p['model'] ?? ''),
+                    'کد: '.($p['code'] ?? ''),
+                    'قیمت پایه: '.($p['price'] !== null ? number_format((float)$p['price']).' تومان' : 'استعلامی'),
+                    'واحد: '.($p['unit'] ?? ''),
+                    'رنگ/تون: '.($p['tone'] ?? ''),
+                ])))->implode("\n")
+            : '';
 
         $apiKey = (string) config('services.openrouter.key');
 
@@ -44,7 +62,7 @@ final class PalazAdvisorAgent
 اگر سؤال خارج از حوزه پالاز است ولی پاسخ عمومی و قابل‌اعتمادش را می‌دانی، پاسخ مفید و کوتاه بده و اگر برای آن حوزه تخصصی نیستی این محدودیت را شفاف بگو؛ گفتگو را بی‌دلیل قطع نکن. برای موضوعات حساس یا نیازمند اطلاعات به‌روز، ادعای قطعی نکن و کاربر را به منبع مناسب راهنمایی کن.
 کاتالوگ فعلی:
 PROMPT;
-            $contextText = $this->contextText($context);
+            $contextText = $this->contextText($context).$matchedText;
             $payload = array_merge(
                 [['role' => 'system', 'content' => $system."\n".$catalog.$contextText]],
                 $history,
@@ -214,6 +232,58 @@ REVIEW;
 
         return ['ok' => false, 'message' => 'تشخیص خودکار کف انجام نشد. می‌توانیم تصویر را نگه داریم و نمایش اولیه را ادامه دهیم.', 'floor_polygon' => null];
     }
+    private function matchProducts(string $message, $products)
+    {
+        $query = $this->normalizeSearchText($message);
+        if ($query === '') {
+            return collect();
+        }
+
+        $tokens = collect(preg_split('/\s+/u', $query))
+            ->filter(fn ($token) => mb_strlen($token) >= 2)
+            ->unique()
+            ->values();
+
+        return $products
+            ->map(function ($product) use ($query, $tokens) {
+                $haystack = $this->normalizeSearchText(implode(' ', array_filter([
+                    $product['name'] ?? '',
+                    $product['model'] ?? '',
+                    $product['code'] ?? '',
+                    $product['tone'] ?? '',
+                    $product['category'] ?? '',
+                    $product['description'] ?? '',
+                ])));
+                $score = 0;
+                if ($haystack !== '' && str_contains($haystack, $query)) {
+                    $score += 20;
+                }
+                foreach ($tokens as $token) {
+                    if (str_contains($haystack, $token)) {
+                        $score += 2;
+                    }
+                }
+                if (($product['code'] ?? '') !== '' && str_contains($query, $this->normalizeSearchText($product['code']))) {
+                    $score += 30;
+                }
+                if (($product['model'] ?? '') !== '' && str_contains($query, $this->normalizeSearchText($product['model']))) {
+                    $score += 15;
+                }
+                return ['product' => $product, 'score' => $score];
+            })
+            ->filter(fn ($item) => $item['score'] > 0)
+            ->sortByDesc('score')
+            ->take(8)
+            ->pluck('product')
+            ->values();
+    }
+
+    private function normalizeSearchText(string $text): string
+    {
+        $text = mb_strtolower(trim($text));
+        return str_replace(['ي','ى','ك','ة','ۀ','ؤ','إ','أ','ٱ'], ['ی','ی','ک','ه','ه','و','ا','ا','ا'], $text);
+    }
+
     private function contextText(array $context): string
     {
         $parts = [];

@@ -50,6 +50,9 @@ class StoreController extends Controller
                 'model' => $product['model'],
                 'code' => $product['code'],
                 'category' => $product['category'],
+                'price' => $product['price'],
+                'unit' => $product['unit'],
+                'calculation_type' => $product['calculation_type'],
                 'image' => $product['image'] ?: $fallbackImages[$category],
             ])
             ->values();

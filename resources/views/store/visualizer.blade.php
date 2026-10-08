@@ -422,11 +422,12 @@
                 const rect = preview.getBoundingClientRect();
                 const width = Math.max(1, rect.width);
                 const height = Math.max(1, rect.height);
-                const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-                const renderedWidth = image.naturalWidth * scale;
-                const renderedHeight = image.naturalHeight * scale;
-                const offsetX = (width - renderedWidth) / 2;
-                const offsetY = (height - renderedHeight) / 2;
+                const stretchToFrame = uploadedUrl && sourceUrl === uploadedUrl;
+                const scale = stretchToFrame ? 1 : Math.max(width / image.naturalWidth, height / image.naturalHeight);
+                const renderedWidth = stretchToFrame ? width : image.naturalWidth * scale;
+                const renderedHeight = stretchToFrame ? height : image.naturalHeight * scale;
+                const offsetX = stretchToFrame ? 0 : (width - renderedWidth) / 2;
+                const offsetY = stretchToFrame ? 0 : (height - renderedHeight) / 2;
                 const mapped = points.map(([x, y]) => {
                   const px = (x / 100) * image.naturalWidth;
                   const py = (y / 100) * image.naturalHeight;
@@ -944,7 +945,9 @@
               preview.style.backgroundSize = '100% 100%';
               preview.style.backgroundRepeat = 'no-repeat';
               empty.style.display = 'none';
-              floorPolygon = null;
+              // تا وقتی Vision پاسخ بدهد، یک محدوده اولیه فقط برای کف پایین تصویر داریم.
+              // پاسخ Vision بلافاصله این محدوده را با مرز واقعی کف جایگزین می‌کند.
+              floorPolygon = [[3, 42], [97, 42], [100, 100], [0, 100]];
               setStatus('در حال دیدن فضای شما…', 'هوش مصنوعی در حال تشخیص محدوده کف است.');
               const formData = new FormData();
               formData.append('image', file);

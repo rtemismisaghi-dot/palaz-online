@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [StoreController::class, 'home'])->name('home');
 Route::get('/shop', [StoreController::class, 'shop'])->name('shop');
+Route::view('/visualizer', 'store.visualizer')->name('visualizer');
 
 Route::get('/dev/import-carpet-catalog', function () {
     abort_unless(app()->environment('local'), 404);

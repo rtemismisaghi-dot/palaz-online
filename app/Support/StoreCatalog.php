@@ -96,7 +96,14 @@ final class StoreCatalog
     {
         $query = self::productQuery()
             ->where('is_active', true)
-            ->when($category, fn ($q) => $q->whereHas('category', fn ($cq) => $cq->where('slug', $category)))
+            ->when($category, function ($q) use ($category) {
+                if ($category === 'carpet_tile') {
+                    $q->whereHas('category', fn ($cq) => $cq->whereIn('slug', ['carpet_tile', 'carpet-tile', 'tile-carpet']));
+                    return;
+                }
+
+                $q->whereHas('category', fn ($cq) => $cq->where('slug', $category));
+            })
             ->latest('id');
 
         return self::mapProducts($query->get());

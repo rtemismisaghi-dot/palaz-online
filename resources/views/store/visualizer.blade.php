@@ -15,7 +15,7 @@
 .palaz-visualizer-page .px-page-head h1{font-size:clamp(30px,4vw,52px);margin:8px 0 10px}
 
 .palaz-visualizer-page .px-tool-shell{display:grid;grid-template-columns:1.15fr .85fr;min-height:410px;border-radius:28px;overflow:hidden;background:#f3f1ee}
-.palaz-visualizer-page .px-tool-image{position:relative;
+.palaz-visualizer-page .px-tool-image{position:relative;overflow:hidden;min-height:560px}
 .palaz-visualizer-page .px-tool-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
 .palaz-visualizer-page .px-tool-copy{padding:46px 42px;display:flex;flex-direction:column;justify-content:center}
 .palaz-visualizer-page .px-tool-copy .px-title{font-size:clamp(28px,3.5vw,42px)}
@@ -91,6 +91,37 @@
 .palaz-visualizer-page .px-connected-card{min-height:250px;border-radius:24px;padding:30px;position:relative;overflow:hidden;background:#202327;color:#fff}
 .palaz-visualizer-page .px-tool-shell{grid-template-columns:1.15fr .85fr}
 @media(max-width:900px){.palaz-visualizer-page .px-tool-shell{grid-template-columns:1fr}.palaz-visualizer-page .px-page-head{display:block}.palaz-visualizer-page .px-page-head .px-btn{margin-top:16px}}
+
+.palaz-visualizer-page{position:relative;overflow:hidden}
+.palaz-visualizer-page:before{content:"";position:absolute;top:0;right:-180px;width:520px;height:520px;border-radius:50%;background:rgba(183,25,41,.055);pointer-events:none}
+.palaz-visualizer-page:after{content:"VISUALIZER";position:absolute;top:245px;left:-70px;transform:rotate(-90deg);font-size:74px;font-weight:900;letter-spacing:.18em;color:rgba(37,40,44,.035);pointer-events:none}
+.palaz-visualizer-page .px-page-head{position:relative;z-index:2}
+.palaz-visualizer-page .px-tool-shell{position:relative;z-index:2;border:1px solid rgba(215,210,204,.75);box-shadow:0 28px 80px rgba(37,40,44,.10)}
+.palaz-visualizer-page .px-tool-image{background:#d8d2cb}
+.palaz-visualizer-page .px-tool-image:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.08) 48%,rgba(0,0,0,.38));z-index:1;pointer-events:none}
+.palaz-visualizer-page .px-preview-empty{z-index:5;align-self:flex-end;margin-bottom:30px;width:min(390px,calc(100% - 48px));padding:18px 20px;text-align:right;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;border-radius:18px;background:rgba(255,255,255,.91);backdrop-filter:blur(14px);box-shadow:0 18px 45px rgba(0,0,0,.20)}
+.palaz-visualizer-page .px-preview-empty>span{margin:0;width:44px;height:44px}
+.palaz-visualizer-page .px-preview-empty strong{font-size:14px;margin:0}
+.palaz-visualizer-page .px-preview-empty small{font-size:9px;margin:3px 0 0;line-height:1.7}
+.palaz-visualizer-page .px-upload-btn{min-height:38px;padding:0 13px;font-size:10px;white-space:nowrap}
+.palaz-visualizer-page .px-sample-note{position:absolute;z-index:5;top:22px;right:22px;display:flex;flex-direction:column;gap:2px;padding:10px 13px;border-radius:12px;background:rgba(25,26,28,.72);color:#fff;backdrop-filter:blur(10px);direction:rtl}
+.palaz-visualizer-page .px-sample-note b{font-size:10px}
+.palaz-visualizer-page .px-sample-note span{font-size:8px;color:rgba(255,255,255,.72)}
+.palaz-visualizer-page .px-tool-copy{background:linear-gradient(145deg,#fff 0%,#f7f4f0 100%);position:relative}
+.palaz-visualizer-page .px-tool-copy:before{content:"";position:absolute;top:42px;right:0;width:3px;height:88px;background:#b71929;border-radius:4px 0 0 4px}
+.palaz-visualizer-page .px-tool-copy>*{position:relative}
+.palaz-visualizer-page .px-quick a{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.palaz-visualizer-page .px-quick a:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(37,40,44,.08);border-color:#d4cec7}
+@media(max-width:900px){
+  .palaz-visualizer-page:after{display:none}
+  .palaz-visualizer-page .px-tool-image{min-height:430px}
+}
+@media(max-width:560px){
+  .palaz-visualizer-page .px-preview-empty{grid-template-columns:38px 1fr;gap:9px;margin-bottom:18px;width:calc(100% - 28px)}
+  .palaz-visualizer-page .px-preview-empty>span{width:38px;height:38px}
+  .palaz-visualizer-page .px-upload-btn{grid-column:1/-1;width:100%}
+  .palaz-visualizer-page .px-sample-note{top:12px;right:12px}
+}
 </style>
 <div class="palaz-reference-home palaz-experience palaz-visualizer-page">
   <div class="px-wrap">
@@ -107,11 +138,12 @@
           <div class="px-tool-shell px-visualizer-shell">
             <div class="px-tool-image px-visualizer-preview" role="img" aria-label="پیش‌نمایش فضای انتخابی">
               <div class="px-preview-empty">
-                <span>＋</span>
-                <strong>عکس فضای خودت را اضافه کن</strong>
-                <small>یک عکس از پذیرایی، اتاق یا دفترت انتخاب کن</small>
-                <label class="px-upload-btn">انتخاب عکس<input id="px-space-upload" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+                <span>⌂</span>
+                <strong>فضای نمونه پالاز</strong>
+                <small>برای شروع، این فضای آماده را ببین یا عکس فضای خودت را وارد کن.</small>
+                <label class="px-upload-btn">عکس فضای خودم<input id="px-space-upload" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
               </div>
+              <div class="px-sample-note"><b>فضای الهام‌بخش</b><span>یک نمونه واقعی برای شروع Visualizer</span></div>
               <div class="px-preview-badge">PALAZ VISUALIZER</div>
               <div class="px-visualizer-compare" hidden>
                 <button type="button" data-compare="0"></button>
@@ -177,7 +209,7 @@
 
         <script>
           (() => {
-            const root = document.querySelector('.palaz-reference-home #visualizer');
+            const root = document.querySelector('.palaz-visualizer-page');
             if (!root) return;
 
             const preview = root.querySelector('.px-visualizer-preview');

@@ -1004,12 +1004,15 @@
             });
 
             advisorButton?.addEventListener('click', () => {
+              const context = window.palazVisualizerState?.() || {};
+              try {
+                sessionStorage.setItem('palaz_advisor_visualizer_context', JSON.stringify(context));
+              } catch (_) {}
               if (typeof window.palazOpenAdvisorWithContext === 'function') {
                 window.palazOpenAdvisorWithContext();
                 return;
               }
-              const opener = document.querySelector('.palaz-advisor-shortcut, .px-open-advisor');
-              opener?.click();
+              window.location.href = @json(route('home')) + '#advisor';
             });
 
             loadProducts();

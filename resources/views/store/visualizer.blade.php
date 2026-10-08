@@ -421,18 +421,29 @@
 
             const renderProducts = () => {
               if (!products.length) {
-                productsEl.innerHTML = '<div class="px-product-loading">برای این دسته هنوز مدلی در کاتالوگ ثبت نشده است.</div>';
+                productsEl.innerHTML = '<div class="px-product-loading">برای این دسته هنوز محصولی در کاتالوگ ثبت نشده است.</div>';
                 return;
               }
 
-              productsEl.innerHTML = products.map((product, index) => {
-                const active = selectedProduct?.id === product.id;
-                const compared = compareProducts.some(item => item.id === product.id);
-                return '<button type="button" class="px-product-chip' + (active ? ' active' : '') + (compared ? ' compared' : '') + '" data-product-index="' + index + '">' +
-                  '<img src="' + imageUrl(product.image) + '" alt="" loading="lazy">' +
-                  '<span><b>' + product.name + '</b><small>' + (product.tone || 'مدل پالاز') + '</small></span>' +
-                  '<i>' + (compared ? '✓' : '＋') + '</i>' +
-                '</button>';
+              const grouped = new Map();
+              products.forEach((product, index) => {
+                const model = product.model || product.name || 'مدل پالاز';
+                if (!grouped.has(model)) grouped.set(model, []);
+                grouped.get(model).push({ product, index });
+              });
+
+              productsEl.innerHTML = Array.from(grouped.entries()).map(([model, items]) => {
+                const cards = items.map(({product, index}) => {
+                  const active = selectedProduct?.id === product.id;
+                  const compared = compareProducts.some(item => item.id === product.id);
+                  const code = product.code ? 'کد ' + product.code : 'بدون کد';
+                  return '<button type="button" class="px-product-chip' + (active ? ' active' : '') + (compared ? ' compared' : '') + '" data-product-index="' + index + '">' +
+                    '<img src="' + (product.image ? imageUrl(product.image) : '') + '" alt="' + code + '" loading="lazy">' +
+                    '<span><b>' + code + '</b><small>' + (product.tone || 'موکت') + '</small></span>' +
+                    '<i>' + (compared ? '✓' : '＋') + '</i>' +
+                  '</button>';
+                }).join('');
+                return '<div class="px-product-model"><div class="px-product-model-title"><b>' + model + '</b><small>' + items.length + ' کد</small></div><div class="px-product-model-grid">' + cards + '</div></div>';
               }).join('');
 
               productsEl.querySelectorAll('[data-product-index]').forEach(button => {
@@ -449,7 +460,7 @@
                     window.setTimeout(() => preview.classList.remove('visualizer-switching'), 700);
                   }
                   if (!compareProducts.some(item => item.id === product.id)) {
-                    compareProducts = [product, ...compareProducts].slice(0, 2);
+                    compareProducts = [...compareProducts, selectedProduct].slice(-2);
                   }
                   renderProducts();
                   renderCompare();
@@ -457,7 +468,6 @@
                 });
               });
             };
-
             const renderCompare = () => {
               if (compareProducts.length < 2) {
                 compare.hidden = true;

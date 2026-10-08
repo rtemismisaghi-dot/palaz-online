@@ -153,6 +153,46 @@
 .palaz-visualizer-page .px-compare-tag.left{left:16px}.palaz-visualizer-page .px-compare-tag.right{right:16px}
 .palaz-visualizer-page .px-compare-slider{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:8;cursor:ew-resize}
 @media(max-width:700px){.palaz-visualizer-page .px-room-picker-head{display:block}.palaz-visualizer-page .px-room-picker-head small{display:block;margin-top:5px}.palaz-visualizer-page .px-compare-split{min-height:390px}}
+
+.palaz-visualizer-page{background:#fff;padding:24px 0 64px}
+.palaz-visualizer-page .px-wrap{width:min(1320px,calc(100% - 32px))}
+.palaz-visualizer-page .px-page-head{padding:4px 0 18px;margin-bottom:0;border-bottom:1px solid #e9e6e2}
+.palaz-visualizer-page .px-page-head h1{font-size:clamp(25px,3vw,38px);margin:5px 0 7px}
+.palaz-visualizer-page .px-page-head .px-sub{font-size:11px;line-height:1.8}
+.palaz-visualizer-page .px-room-picker{background:#f7f5f2;padding:18px 18px 12px;border:1px solid #e9e5df;border-radius:18px 18px 0 0;margin-top:18px}
+.palaz-visualizer-page .px-room-picker-head{align-items:center;margin-bottom:12px}
+.palaz-visualizer-page .px-room-picker-head strong{font-size:14px}
+.palaz-visualizer-page .px-room-picker-head small{font-size:9px}
+.palaz-visualizer-page .px-room-options{gap:8px}
+.palaz-visualizer-page .px-room-option{flex-basis:128px;height:76px;border-radius:10px}
+.palaz-visualizer-page .px-tool-shell{grid-template-columns:minmax(0,1fr) 330px;min-height:650px;border-radius:0 0 18px 18px;border:1px solid #e5e1dc;border-top:0;box-shadow:0 14px 40px rgba(35,35,35,.07);background:#f4f2ef}
+.palaz-visualizer-page .px-tool-image{min-height:650px}
+.palaz-visualizer-page .px-tool-copy{padding:22px 18px;justify-content:flex-start;overflow:hidden}
+.palaz-visualizer-page .px-tool-copy:before{display:none}
+.palaz-visualizer-page .px-tool-copy .px-title{font-size:23px;margin:5px 0 8px}
+.palaz-visualizer-page .px-tool-copy>.px-sub{font-size:10px;line-height:1.8;margin-bottom:8px}
+.palaz-visualizer-page .px-visualizer-surface-tabs{margin:8px 0 10px}
+.palaz-visualizer-page .px-surface-tab{padding:8px 13px;font-size:10px}
+.palaz-visualizer-page .px-visualizer-status{margin-bottom:9px;padding:9px 10px}
+.palaz-visualizer-page .px-visualizer-products{display:grid!important;grid-template-columns:1fr 1fr;gap:7px;overflow-y:auto;overflow-x:hidden;max-height:260px;min-height:0;padding:2px}
+.palaz-visualizer-page .px-product-chip{min-width:0;width:100%;max-width:none;padding:6px;border-radius:10px}
+.palaz-visualizer-page .px-product-chip img{width:38px;height:38px;flex-basis:38px}
+.palaz-visualizer-page .px-product-chip b{font-size:9px}
+.palaz-visualizer-page .px-product-chip small{font-size:8px}
+.palaz-visualizer-page .px-visualizer-actions{margin-top:10px}
+.palaz-visualizer-page .px-visualizer-actions .px-btn{min-height:38px;font-size:10px}
+.palaz-visualizer-page .px-quick{grid-template-columns:1fr 1fr;margin-top:10px}
+.palaz-visualizer-page .px-quick a{padding:10px;border-radius:11px}
+.palaz-visualizer-page .px-quick b{font-size:10px}.palaz-visualizer-page .px-quick span{font-size:9px}
+.palaz-visualizer-page .px-preview-empty{width:min(420px,calc(100% - 50px));margin-bottom:25px}
+.palaz-visualizer-page .px-preview-badge{left:18px;top:18px}
+.palaz-visualizer-page .px-sample-note{top:18px;right:18px}
+@media(max-width:900px){
+ .palaz-visualizer-page .px-tool-shell{grid-template-columns:1fr;border-top:0}
+ .palaz-visualizer-page .px-tool-image{min-height:500px}
+ .palaz-visualizer-page .px-tool-copy{overflow:visible}
+ .palaz-visualizer-page .px-visualizer-products{max-height:230px}
+}
 </style>
 <div class="palaz-reference-home palaz-experience palaz-visualizer-page">
   <div class="px-wrap">
@@ -173,7 +213,25 @@
               <small>مثل VOX: از اتاق آماده شروع کن یا عکس مشتری را وارد کن.</small>
             </div>
             <div class="px-room-options" role="listbox" aria-label="انتخاب فضای نمونه">
-              <button type="button" class="px-room-option active" data-demo-room="1"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 01</span></button><button type="button" class="px-room-option" data-demo-room="2"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 02</span></button><button type="button" class="px-room-option" data-demo-room="3"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 03</span></button><button type="button" class="px-room-option" data-demo-room="4"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 04</span></button><button type="button" class="px-room-option" data-demo-room="5"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 05</span></button><button type="button" class="px-room-option" data-demo-room="6"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 06</span></button><button type="button" class="px-room-option" data-demo-room="7"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 07</span></button><button type="button" class="px-room-option" data-demo-room="8"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 08</span></button><button type="button" class="px-room-option" data-demo-room="9"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 09</span></button><button type="button" class="px-room-option" data-demo-room="10"><img src="https://palazonline.com/storage/uploads/005-1-2.jpg" alt="" loading="lazy"><span>اتاق آماده 10</span></button>
+              @php
+                $visualizerDemoRooms = [
+                  'https://www.voxflor.com/wp-content/uploads/2020/07/step3-3-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2020/07/step3-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2020/07/step4-room-visualizer-voxflor.jpg',
+                  'https://www.voxflor.com/wp-content/uploads/2020/07/step5-room-visualizer-voxflor.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                  'https://palazonline.com/storage/uploads/005-1-2.jpg',
+                ];
+              @endphp
+              @foreach($visualizerDemoRooms as $index => $room)
+                <button type="button" class="px-room-option{{ $index === 0 ? ' active' : '' }}" data-demo-room="{{ $index + 1 }}" data-room-image="{{ $room }}">
+                  <img src="{{ $room }}" alt="اتاق نمونه {{ $index + 1 }}" loading="lazy"><span>اتاق {{ str_pad($index + 1,2,'0',STR_PAD_LEFT) }}</span>
+                </button>
+              @endforeach
               <button type="button" class="px-room-option customer" data-customer-room><span>＋ عکس فضای من</span></button>
             </div>
           </div>
@@ -484,8 +542,12 @@
                 URL.revokeObjectURL(uploadedUrl);
                 uploadedUrl = '';
               }
-              empty.style.display = '';
+              empty.style.display = 'none';
               floorPolygon = null;
+              const roomImage = option.dataset.roomImage || fallbackImages[surface];
+              preview.style.backgroundImage = 'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.12)),url("' + roomImage + '")';
+              preview.classList.remove('has-product');
+              preview.style.removeProperty('--palaz-texture');
               setStatus('اتاق آماده انتخاب شد', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
               paintPreview();
             }));

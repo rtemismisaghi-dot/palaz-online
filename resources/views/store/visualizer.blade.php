@@ -73,7 +73,7 @@
 .palaz-visualizer-page .px-visualizer-preview.visualizer-switching:after{animation:palazFloorReveal .6s cubic-bezier(.2,.75,.25,1)}
 .palaz-visualizer-page .px-visualizer-preview.visualizer-switching{box-shadow:0 18px 55px rgba(0,0,0,.12)}
 @keyframes palazFloorReveal{0%{opacity:.15;transform:scale(1.035);filter:saturate(.72) blur(.7px)}55%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.001);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02) blur(0)}100%{opacity:var(--palaz-floor-opacity,.82);transform:scale(1.002)}}
-@media(prefers-reduced-motion:reduce){.palaz-visualizer-page .px-visualizer-preview.has-product:after,.palaz-visualizer-page .px-visualizer-preview.visualizer-switching:after{animation:none;transition:none}}.palaz-visualizer-page .px-visualizer-preview.has-product:after{opacity:var(--palaz-floor-opacity,.78)!important;mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02);clip-path:var(--palaz-floor-clip,polygon(4% 18%,96% 18%,100% 100%,0 100%));transform:scale(1.002);transform-origin:center}
+@media(prefers-reduced-motion:reduce){.palaz-visualizer-page .px-visualizer-preview.has-product:after,.palaz-visualizer-page .px-visualizer-preview.visualizer-switching:after{animation:none;transition:none}}.palaz-visualizer-page .px-visualizer-preview.has-product:after{display:none!important}
 .palaz-visualizer-page .px-visualizer-preview.has-product:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent 38%,rgba(0,0,0,.08));opacity:.72}
 .palaz-visualizer-page .px-floor-overlay{position:absolute;inset:0;z-index:2;background-image:none;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:0;clip-path:polygon(4% 18%,96% 18%,100% 100%,0 100%);pointer-events:none;transition:opacity .45s ease,filter .45s ease,transform .55s cubic-bezier(.2,.75,.25,1);transform:scale(1.002);transform-origin:center;box-shadow:0 0 35px rgba(0,0,0,.08) inset}.palaz-visualizer-page .px-visualizer-preview.has-product .px-floor-overlay{opacity:var(--palaz-floor-opacity,.84);mix-blend-mode:var(--palaz-floor-blend,multiply);filter:saturate(var(--palaz-floor-saturation,.94)) contrast(1.02)}
 @media(max-width:900px){.palaz-visualizer-page .px-product-chip{min-width:165px}.palaz-visualizer-page .px-visualizer-preview.has-product:after{left:6%;right:6%;bottom:8%;height:48%}}
@@ -380,6 +380,32 @@
               status.querySelector('small').textContent = detail;
             };
 
+            const applyFloorPolygon = (sourceUrl, points) => {
+              if (!floorOverlay || !sourceUrl || !Array.isArray(points) || points.length < 4) return;
+              const image = new Image();
+              image.onload = () => {
+                if (sourceUrl !== uploadedUrl || !selectedProduct) return;
+                const rect = preview.getBoundingClientRect();
+                const width = Math.max(1, rect.width);
+                const height = Math.max(1, rect.height);
+                const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+                const renderedWidth = image.naturalWidth * scale;
+                const renderedHeight = image.naturalHeight * scale;
+                const offsetX = (width - renderedWidth) / 2;
+                const offsetY = (height - renderedHeight) / 2;
+                const mapped = points.map(([x, y]) => {
+                  const px = (x / 100) * image.naturalWidth;
+                  const py = (y / 100) * image.naturalHeight;
+                  return [
+                    Math.max(0, Math.min(100, ((px * scale + offsetX) / width) * 100)),
+                    Math.max(0, Math.min(100, ((py * scale + offsetY) / height) * 100))
+                  ];
+                });
+                floorOverlay.style.clipPath = 'polygon(' + mapped.map(point => point[0] + '% ' + point[1] + '%').join(', ') + ')';
+              };
+              image.src = sourceUrl;
+            };
+
             const paintPreview = () => {
               if (!floorOverlay) return;
               const base = uploadedUrl || demoRoomUrl || fallbackImages[surface] || fallbackImages.carpet;
@@ -388,46 +414,43 @@
                 ? floorPolygon.map(point => [(Number(point[0]) || 0), (Number(point[1]) || 0)])
                 : null;
 
-              if (texture) {
+              preview.classList.remove('has-product');
+              floorOverlay.style.backgroundImage = 'none';
+
+              if (texture && floorPoints) {
                 preview.style.backgroundImage =
                   'linear-gradient(rgba(20,20,20,.04),rgba(20,20,20,.04)),url("' + base + '")';
                 preview.dataset.texture = texture;
-
-                if (floorPoints) {
-                  const points = floorPoints.map(point => point[0] + '% ' + point[1] + '%').join(', ');
-                  floorOverlay.style.backgroundImage = 'url("' + texture + '")';
-                  floorOverlay.style.clipPath = 'polygon(' + points + ')';
-                  preview.style.setProperty('--palaz-floor-opacity', surface === 'carpet' ? '0.84' : '0.72');
-                  preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
-                  preview.style.setProperty('--palaz-floor-saturation', surface === 'carpet' ? '0.94' : '0.88');
-                  preview.classList.add('has-product');
-                } else {
-                  preview.classList.remove('has-product');
-                  floorOverlay.style.backgroundImage = 'none';
-                  floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
-                  preview.style.removeProperty('--palaz-floor-opacity');
-                  preview.style.removeProperty('--palaz-floor-blend');
-                  preview.style.removeProperty('--palaz-floor-saturation');
-                }
+                floorOverlay.style.backgroundImage = 'url("' + texture + '")';
+                floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
+                preview.style.setProperty('--palaz-floor-opacity', surface === 'carpet' ? '0.84' : '0.72');
+                preview.style.setProperty('--palaz-floor-blend', surface === 'carpet' ? 'multiply' : 'soft-light');
+                preview.style.setProperty('--palaz-floor-saturation', surface === 'carpet' ? '0.94' : '0.88');
+                preview.classList.add('has-product');
+                applyFloorPolygon(uploadedUrl, floorPoints);
               } else {
                 preview.style.backgroundImage =
                   'linear-gradient(rgba(0,0,0,.04),rgba(0,0,0,.18)),url("' + base + '")';
-                preview.classList.remove('has-product');
-                floorOverlay.style.backgroundImage = 'none';
+                preview.style.removeProperty('--palaz-floor-opacity');
+                preview.style.removeProperty('--palaz-floor-blend');
+                preview.style.removeProperty('--palaz-floor-saturation');
                 floorOverlay.style.clipPath = 'polygon(4% 18%,96% 18%,100% 100%,0 100%)';
-                preview.style.removeProperty('--palaz-texture');
-                preview.style.removeProperty('--palaz-floor-clip');
               }
 
-              if (selectedProduct) {
+              if (selectedProduct && uploadedUrl && floorPoints) {
                 setStatus(
-                  selectedProduct.name + ' روی فضای شما',
-                  'برای مقایسه، یک مدل دیگر را انتخاب کن.'
+                  selectedProduct.name + ' روی کف شناسایی‌شده',
+                  'فقط محدوده کف عکس شما با این مدل پوشانده شده است.'
+                );
+              } else if (selectedProduct && !uploadedUrl) {
+                setStatus(
+                  selectedProduct.name + ' انتخاب شد',
+                  'برای اجرای واقعی روی کف، عکس فضای خودتان را اضافه کنید.'
                 );
               } else if (uploadedUrl) {
-                setStatus('عکس شما آماده است', 'حالا یک مدل واقعی از کاتالوگ پالاز انتخاب کن.');
+                setStatus('عکس شما آماده است', 'کف در حال بررسی است؛ بعد از انتخاب مدل، فقط سطح کف اجرا می‌شود.');
               } else {
-                setStatus('عکس فضا را اضافه کن', 'بعد از انتخاب عکس، مدل‌های واقعی کاتالوگ پالاز نمایش داده می‌شوند.');
+                setStatus('عکس فضا را اضافه کن', 'مدل‌های دمو فقط برای انتخاب هستند و روی آن‌ها موکت اجرا نمی‌شود.');
               }
             };
 

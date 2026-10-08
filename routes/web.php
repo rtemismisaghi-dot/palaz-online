@@ -305,6 +305,7 @@ Route::get('/checkout/installation/{quote}/success', [InstallationController::cl
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');
+Route::post('/advisor/analyze-demo', [AdvisorController::class, 'analyzeDemo'])->name('advisor.analyze-demo');
 
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'submit'])->name('login.submit');

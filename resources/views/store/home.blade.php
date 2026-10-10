@@ -1046,10 +1046,14 @@
 
         const speakNow = () => {
           synth.cancel();
-          const utterance = new SpeechSynthesisUtterance(welcomeText);
           const persianVoice = getPersianFemaleVoice();
+          if (!persianVoice) {
+            if (voiceStatus) voiceStatus.textContent = 'برای شنیدن خوش‌آمدگویی، صدای زن فارسی باید در Chrome/Windows فعال باشد.';
+            return false;
+          }
+          const utterance = new SpeechSynthesisUtterance(welcomeText);
           utterance.lang = 'fa-IR';
-          if (persianVoice) utterance.voice = persianVoice;
+          utterance.voice = persianVoice;
           utterance.rate = .9;
           utterance.pitch = 1.06;
           utterance.volume = 1;

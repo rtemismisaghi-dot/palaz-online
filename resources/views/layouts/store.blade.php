@@ -129,4 +129,13 @@ document.addEventListener('DOMContentLoaded',function(){
 <div><h4>راهنمای مشتری</h4><a href="{{ route('cart') }}">سبد خرید</a><a href="{{ route('services') }}">پیگیری خدمات</a><a href="{{ route('home') }}">درباره پالاز</a><a href="{{ route('home') }}">تماس با ما</a></div>
 <div class="footer-news"><h4>عضویت در خبرنامه</h4><p>از جدیدترین محصولات و پیشنهادها باخبر شوید.</p><form><input placeholder="ایمیل خود را وارد کنید"><button>→</button></form></div>
 </div><div class="container footer-bottom"><span>© {{ date('Y') }} PALAZ ONLINE. All rights reserved.</span><span>طراحی و توسعه برای یک تجربه متصل</span></div></footer>
+
+<nav class="palaz-mobile-dock" aria-label="دسترسی سریع موبایل">
+  <a href="{{ route('home') }}" class="{{ request()->routeIs('home')?'active':'' }}"><span aria-hidden="true">⌂</span><small>خانه</small></a>
+  <a href="{{ route('shop') }}" class="{{ request()->routeIs('shop','product')?'active':'' }}"><span aria-hidden="true">▦</span><small>فروشگاه</small></a>
+  <a href="{{ route('visualizer') }}"><span aria-hidden="true">◫</span><small>VISUALIZER</small></a>
+  <a href="/advisor"><span aria-hidden="true">✧</span><small>مشاور پالاز</small></a>
+  <a href="{{ route('cart') }}" class="{{ request()->routeIs('cart')?'active':'' }}"><span aria-hidden="true">🛒</span><small>سبد خرید</small></a>
+</nav>
+
 </body></html>

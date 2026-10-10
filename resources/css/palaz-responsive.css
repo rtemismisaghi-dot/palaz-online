@@ -224,3 +224,18 @@ button,a{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+/* Mobile-only bottom navigation */
+.palaz-mobile-dock{display:none}
+@media(max-width:700px){
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  .palaz-mobile-dock{position:fixed;z-index:1100;inset:auto 0 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;padding:7px 5px calc(7px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #e8e1dc;box-shadow:0 -8px 25px rgba(35,27,22,.07);backdrop-filter:blur(14px)}
+  .palaz-mobile-dock a{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#77716c;text-decoration:none;padding:3px 0}
+  .palaz-mobile-dock a>span{font-size:20px;line-height:1.2}
+  .palaz-mobile-dock a>small{font-size:9px;white-space:nowrap;line-height:1.5}
+  .palaz-mobile-dock a.active{color:#a51f32;font-weight:800}
+  .palaz-mobile-dock a.active>span{transform:translateY(-1px)}
+  .palaz-ai-trigger{bottom:calc(78px + env(safe-area-inset-bottom))!important}
+  .palaz-ai-panel{bottom:calc(68px + env(safe-area-inset-bottom))!important;height:min(78dvh,720px)!important;max-height:calc(100dvh - 90px - env(safe-area-inset-top))!important}
+  .advisor .composer{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+}

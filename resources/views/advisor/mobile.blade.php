@@ -22,13 +22,11 @@
         .dot{width:6px;height:6px;border-radius:50%;background:#35a36a}
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
         .stage{padding:10px 16px 4px;display:flex;flex-direction:column;align-items:center}
-        .character{width:min(82vw,365px);height:min(82vw,365px);max-height:365px;display:grid;place-items:center;position:relative}
-        .character:before,.character:after{content:"";position:absolute;border-radius:50%;inset:8%;border:1px solid rgba(183,25,41,.12);transform:scale(.9);opacity:.55;animation:halo 3.2s ease-in-out infinite}
-        .character:after{inset:2%;border-color:rgba(183,25,41,.06);transform:scale(.8);animation-delay:.45s}
-        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:float 2.8s ease-in-out infinite;transform-origin:50% 82%}
-        .listening .character:before,.listening .character:after{animation:ring-listen 1.2s ease-out infinite}
-        .thinking .character:before{animation:halo-think .8s ease-in-out infinite}
-        .speaking .character:before,.speaking .character:after{animation:ring-speak 1s ease-in-out infinite}
+        /* Use the approved advisor image as-is: preserve her face, scarf, pose and original background. */
+        .character{width:min(92vw,420px);height:min(92vw,420px);max-height:420px;display:grid;place-items:center;position:relative;overflow:hidden}
+        .character:before,.character:after{content:none!important;display:none!important}
+        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:none!important;transform:none!important}
+        .listening .character img,.thinking .character img,.speaking .character img{animation:none!important;transform:none!important}
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
@@ -83,8 +81,7 @@
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
     <main class="messages" id="messages" aria-live="polite">
-        <div class="message assistant"><div class="bubble">سلام 👋 من مشاور هوشمند پالاز هستم.
-هر سؤالی دارید بپرسید؛ برای انتخاب کفپوش، مقایسه، طراحی فضا و مسیر اجرا تخصصی راهنمایی‌تان می‌کنم.</div></div>
+        <div class="message assistant"><div class="bubble">سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.</div></div>
     </main>
     <div class="quick" id="quick">
         <button data-message="برای پذیرایی چه کفپوشی پیشنهاد می‌دهید؟">برای پذیرایی</button>
@@ -193,7 +190,7 @@
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
     quick.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.message)));
 
-    const welcomeText='سلام 👋 من مشاور هوشمند پالاز هستم. خوش آمدید. هر سؤالی دارید بپرسید؛ برای انتخاب کفپوش، مقایسه، طراحی فضا و مسیر اجرا تخصصی راهنمایی‌تان می‌کنم.';
+    const welcomeText='سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
     let welcomePlayed=false;
 
     const startVoice=async()=>{

@@ -985,17 +985,22 @@
         synth.cancel();
         synth.resume();
 
-        const voices = synth.getVoices();
         const voice = getPersianFemaleVoice();
+        if (!voice) {
+          // صدای مردانه یا صدای پیش‌فرض نامشخص را به‌جای مشاور زن پخش نکن.
+          if (voiceStatus) voiceStatus.textContent = 'برای پخش پاسخ، صدای زن فارسی باید در Chrome/Windows فعال باشد.';
+          const retryWithFemaleVoice = () => {
+            if (!getPersianFemaleVoice()) return;
+            synth.removeEventListener('voiceschanged', retryWithFemaleVoice);
+            speakText(text);
+          };
+          synth.addEventListener('voiceschanged', retryWithFemaleVoice);
+          window.setTimeout(() => synth.removeEventListener('voiceschanged', retryWithFemaleVoice), 5000);
+          return false;
+        }
         const utterance = new SpeechSynthesisUtterance(String(text));
         utterance.lang = 'fa-IR';
-        if (voice) utterance.voice = voice;
-        else {
-          // صدای مردانه را هرگز به عنوان صدای مشاور انتخاب نکن.
-          // اگر صدای زن فارسی هنوز توسط مرورگر بارگذاری نشده باشد، صدا بعد از voiceschanged دوباره تلاش می‌شود.
-          const fallbackPersian = getAnyPersianVoice();
-          if (fallbackPersian) utterance.voice = fallbackPersian;
-        }
+        utterance.voice = voice;
         utterance.rate = .9;
         utterance.pitch = 1.05;
         utterance.volume = 1;

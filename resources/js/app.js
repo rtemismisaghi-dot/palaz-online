@@ -1,5 +1,6 @@
 import './bootstrap';
 import '../css/palaz-dynamic.css';
+import '../css/palaz-responsive.css';
 
 // PALAZ micro-interactions
 window.addEventListener('DOMContentLoaded', () => {

@@ -599,7 +599,7 @@
       </div>
       <button class="palaz-advisor-shortcut" type="button" aria-label="باز کردن مشاور هوشمند پالاز" aria-controls="palaz-advisor-panel" aria-expanded="false">
         <span class="palaz-advisor-shortcut-icon palaz-advisor-character" aria-hidden="true">
-          <img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="" loading="eager">
+          <img src="{{ asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png?v=20261011-3') }}" alt="" loading="eager">
         </span>
         <span>مشاور هوشمند</span>
       </button>
@@ -742,7 +742,7 @@
         <section class="palaz-advisor-panel" role="dialog" aria-modal="true" aria-labelledby="palaz-advisor-title">
           <header class="palaz-advisor-header">
             <div class="palaz-advisor-brand">
-              <img class="palaz-advisor-header-character" src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="مشاور هوشمند پالاز">
+              <img class="palaz-advisor-header-character" src="{{ asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png?v=20261011-3') }}" alt="مشاور هوشمند پالاز">
               <div><strong id="palaz-advisor-title">مشاور هوشمند پالاز</strong><span><i></i> آماده گفتگو</span></div>
             </div>
             <button class="palaz-advisor-close" type="button" aria-label="بستن مشاور">×</button>
@@ -750,7 +750,7 @@
 
           <div class="palaz-advisor-voice-intro" aria-live="polite">
             <div class="palaz-advisor-voice-orb" aria-hidden="true">
-              <img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="">
+              <img src="{{ asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png?v=20261011-3') }}" alt="">
             </div>
             <strong>مشاور هوشمند پالاز</strong>
             <span class="palaz-advisor-voice-status">در حال آماده‌سازی گفتگو...</span>
@@ -761,7 +761,7 @@
 
           <div class="palaz-advisor-messages" aria-live="polite">
             <div class="palaz-advisor-message assistant">
-              <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
+              <div class="palaz-advisor-avatar"><img src="{{ asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png?v=20261011-3') }}" alt="مشاور هوشمند پالاز" loading="lazy"></div>
               <div class="palaz-advisor-bubble">سلام، وقت شما بخیر. من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.</div>
             </div>
           </div>
@@ -1176,7 +1176,7 @@
         avatar.className = 'palaz-advisor-avatar';
         if (role === 'assistant') {
           const image = document.createElement('img');
-          image.src = "{{ asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png') }}";
+          image.src = "{{ asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png?v=20261011-3') }}";
           image.alt = 'مشاور هوشمند پالاز';
           image.loading = 'lazy';
           avatar.appendChild(image);

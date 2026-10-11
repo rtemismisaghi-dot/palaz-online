@@ -15,15 +15,15 @@
         html,body{margin:0;min-height:100%;background:#f4f1ee;color:var(--ink);font-family:Tahoma,"Segoe UI",sans-serif}
         body{overflow:hidden}
         button,input{font:inherit}
-        .advisor{height:100dvh;min-height:100svh;display:flex;flex-direction:column;max-width:680px;margin:auto;background:var(--paper);position:relative;overflow:hidden}
+        .advisor{height:100dvh;height:100svh;min-height:0;display:flex;flex-direction:column;width:100%;max-width:680px;margin:auto;background:var(--paper);position:relative;overflow:hidden}
         .top{padding:calc(12px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee9e5;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);z-index:5}
         .brand{display:flex;align-items:center;gap:10px}
                 .brand strong{display:block;font-size:14px}.brand small{display:flex;gap:5px;align-items:center;color:#8b8d91;font-size:9px;margin-top:4px}
         .dot{width:6px;height:6px;border-radius:50%;background:#35a36a}
         .close{width:38px;height:38px;border:1px solid #e8e2de;background:#fff;border-radius:50%;font-size:24px;color:#555}
-        .stage{padding:10px 16px 4px;display:flex;flex-direction:column;align-items:center}
+        .stage{flex:0 0 auto;padding:clamp(4px,1.2svh,10px) 16px 2px;display:flex;flex-direction:column;align-items:center;min-height:0}
         /* Use the approved advisor image as-is: preserve her face, scarf, pose and original background. */
-        .character{width:min(92vw,420px);height:min(92vw,420px);max-height:420px;display:grid;place-items:center;position:relative;overflow:hidden}
+        .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
         .character:before,.character:after{content:none!important;display:none!important}
         .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:none!important;transform:none!important}
         .listening .character img,.thinking .character img,.speaking .character img{animation:none!important;transform:none!important}
@@ -32,7 +32,7 @@
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
         .bars i{width:3px;height:5px;background:var(--red);border-radius:4px;animation:bars .75s ease-in-out infinite;opacity:.55}
         .bars i:nth-child(2){animation-delay:.1s}.bars i:nth-child(3){animation-delay:.2s}.bars i:nth-child(4){animation-delay:.3s}.bars i:nth-child(5){animation-delay:.4s}
-        .messages{flex:1;overflow:auto;padding:8px 16px 10px;scroll-behavior:smooth}
+        .messages{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:8px 16px 10px;scroll-behavior:smooth}
         .message{display:flex;gap:8px;align-items:flex-end;margin:8px 0}
         .message.user{flex-direction:row-reverse}
         .bubble{max-width:82%;padding:11px 13px;border-radius:17px 17px 3px 17px;background:#fff;border:1px solid #eee8e3;box-shadow:0 5px 18px rgba(30,25,20,.045);font-size:12px;line-height:1.9;white-space:pre-wrap}
@@ -62,7 +62,9 @@
         @keyframes bars{50%{height:15px;opacity:1}}
         @keyframes pulse{50%{transform:scale(1.035)}} @keyframes ring{to{transform:scale(1.18);opacity:0}}
         @keyframes typing{50%{transform:translateY(-3px)}}
-        @media(min-width:681px){body{display:grid;place-items:center}.advisor{height:min(900px,100dvh);border-left:1px solid #e9e2dd;border-right:1px solid #e9e2dd;box-shadow:0 20px 80px rgba(30,25,20,.12)}}
+        @media(min-width:681px){body{display:grid;place-items:center;min-height:100dvh}.advisor{height:min(900px,100dvh);height:min(900px,100svh);border:1px solid #e9e2dd;border-radius:22px;box-shadow:0 20px 80px rgba(30,25,20,.12)}}
+        @media(max-height:720px){.character{width:min(60vw,28svh,250px);height:min(60vw,28svh,250px)}.stage{padding-top:3px}.bars{height:10px;margin-top:0}.status{font-size:10px}.quick{padding-bottom:5px}.composer{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom))}}
+        @media(max-width:380px){.top{padding-inline:12px}.stage{padding-inline:8px}.character{width:min(72vw,34svh,260px);height:min(72vw,34svh,260px)}.messages{padding-inline:12px}.quick{padding-inline:12px}.bubble{font-size:11px}.mic{width:48px;height:48px;flex-basis:48px;border-radius:16px}}
         @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
             /* Final cleanup: no duplicate avatar or secondary controls in advisor messages */
         .message .avatar,.message .palaz-ai-avatar,.message img.avatar,.message .speak,.message .speak-btn,.message .voice-btn,.message .consultation-btn,.message .advisor-btn{display:none!important}
@@ -206,10 +208,10 @@
         if(recognition){try{recognition.stop()}catch(e){} recognition=null}
         recognition=new SR(); recognition.lang='fa-IR';recognition.interimResults=false;recognition.maxAlternatives=1;
         mic.classList.add('listening');setState('listening','گوش می‌دهم... 🎙');
-        try{recognition.start()}catch(e){mic.classList.remove('listening');setState('','برای شروع دوباره روی میکروفن بزنید.');return}
         recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){input.value=text;send(text)}};
         recognition.onerror=e=>{mic.classList.remove('listening');setState('','دوباره امتحان کنید 🎙');hint.textContent=e.error==='not-allowed'?'اجازه میکروفن داده نشد؛ دسترسی Microphone مرورگر را فعال کنید.':'گفتگو با صدا در دسترس نبود؛ دوباره بزنید.'};
         recognition.onend=()=>{mic.classList.remove('listening');if(!busy&&!speaking)setState('','آماده شنیدن شما 🎙')};
+        try{recognition.start()}catch(e){mic.classList.remove('listening');setState('','برای شروع دوباره روی میکروفن بزنید.');return}
     };
     mic.addEventListener('click',startVoice);
 

@@ -25,8 +25,10 @@
         /* Use the approved advisor image as-is: preserve her face, scarf, pose and original background. */
         .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
         .character:before,.character:after{content:none!important;display:none!important}
-        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;animation:none!important;transform:none!important}
-        .listening .character img,.thinking .character img,.speaking .character img{animation:none!important;transform:none!important}
+        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:advisorIdle 4.8s ease-in-out infinite;will-change:transform;backface-visibility:hidden}
+        .listening .character img{animation:advisorListen 1.8s ease-in-out infinite}
+        .thinking .character img{animation:advisorThink 2.2s ease-in-out infinite}
+        .speaking .character img{animation:advisorSpeak .95s ease-in-out infinite}
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
         .bars{height:17px;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:3px}
@@ -50,15 +52,16 @@
         .hint{text-align:center;font-size:8px;color:#aaa;padding:0 16px 4px;background:#fff}
         .back{border:0;background:transparent;color:#777;font-size:11px;padding:8px}
         .typing{display:inline-flex;gap:3px;padding:13px 15px}.typing i{width:5px;height:5px;background:#aaa;border-radius:50%;animation:typing .8s infinite}.typing i:nth-child(2){animation-delay:.12s}.typing i:nth-child(3){animation-delay:.24s}
-        .speaking .character img{animation:speak 1.1s ease-in-out infinite}.listening .character img{animation:listen 1s ease-in-out infinite}.thinking .character img{animation:think .75s ease-in-out infinite}
+        /* Portrait stays unchanged; subtle motion follows the conversation state. */
         @keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
         @keyframes halo{0%,100%{opacity:.42;transform:scale(.9)}50%{opacity:.72;transform:scale(.96)}}
         @keyframes ring-listen{0%{opacity:.7;transform:scale(.86)}70%,100%{opacity:.08;transform:scale(1.08)}}
         @keyframes halo-think{0%,100%{opacity:.3;transform:scale(.9)}50%{opacity:.75;transform:scale(.98)}}
         @keyframes ring-speak{0%,100%{opacity:.25;transform:scale(.9)}50%{opacity:.8;transform:scale(1.03)}}
-        @keyframes listen{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.035)}}
-        @keyframes think{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(1deg) scale(1.025)}}
-        @keyframes speak{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-3px) scale(1.03)}70%{transform:translateY(1px) scale(.995)}}
+        @keyframes advisorIdle{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.006)}}
+        @keyframes advisorListen{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(-2px) rotate(-.35deg) scale(1.008)}}
+        @keyframes advisorThink{0%,100%{transform:translateY(0) rotate(0) scale(1)}50%{transform:translateY(-1px) rotate(.45deg) scale(1.006)}}
+        @keyframes advisorSpeak{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-2px) scale(1.009)}70%{transform:translateY(1px) scale(.998)}}
         @keyframes bars{50%{height:15px;opacity:1}}
         @keyframes pulse{50%{transform:scale(1.035)}} @keyframes ring{to{transform:scale(1.18);opacity:0}}
         @keyframes typing{50%{transform:translateY(-3px)}}

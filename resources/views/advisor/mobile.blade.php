@@ -24,9 +24,7 @@
         .stage{flex:0 0 auto;padding:clamp(4px,1.2svh,10px) 16px 2px;display:flex;flex-direction:column;align-items:center;min-height:0}
         /* Use the approved advisor image as-is: preserve her face, scarf, pose and original background. */
         .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
-        .character:before,.character:after{content:"";display:block;position:absolute;z-index:4;pointer-events:none;left:39%;top:31.5%;width:8.5%;height:2.8%;border-radius:50% 50% 42% 42%;background:#dca991;opacity:0;transform:scaleY(.08);transform-origin:center;animation:advisorBlink 5.2s infinite}
-        .character:after{left:52.5%;animation-delay:.06s}
-        @keyframes advisorBlink{0%,44%,46%,78%,80%,100%{opacity:0;transform:scaleY(.08)}45%,79%{opacity:.96;transform:scaleY(1)}}
+        .character:before,.character:after{content:none!important;display:none!important}
         .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important}
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}

@@ -1,5 +1,5 @@
 @php
-    $character = asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png');
+    $character = asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png') . '?v=20261011-2';
 @endphp
 <!doctype html>
 <html lang="fa" dir="rtl">

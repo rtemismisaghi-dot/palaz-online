@@ -1,5 +1,5 @@
 @php
-    $character = asset('images/ai-advisor/ChatGPT Image Sep 29, 2026, 03_52_25 PM.png');
+    $character = asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png');
 @endphp
 <!doctype html>
 <html lang="fa" dir="rtl">

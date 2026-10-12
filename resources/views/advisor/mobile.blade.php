@@ -190,11 +190,16 @@
         return voices;
     };
     const persianVoice=()=>{
+        // Never choose a non-Persian voice merely because its name mentions Iran/Persian.
         const voices=loadVoices();
-        if(!voices.length) return null;
-        return voices.find(v=>/^fa(-|_)?IR$/i.test(v.lang))
-            || voices.find(v=>/^fa/i.test(v.lang))
-            || voices.find(v=>/persian|farsi|iran/i.test(v.name))
+        const faVoices=voices.filter(v=>/^fa(?:[-_]|$)/i.test(v.lang||''));
+        if(!faVoices.length) return null;
+
+        // Prefer a voice explicitly marked female by the platform, if such metadata is exposed in its name.
+        const feminine=faVoices.find(v=>/female|woman|lady|زن/i.test(v.name||''));
+        return feminine
+            || faVoices.find(v=>/^fa[-_]IR$/i.test(v.lang||''))
+            || faVoices[0]
             || null;
     };
     const speak=async(text)=>{
@@ -202,21 +207,36 @@
         speechSynthesis.cancel();
         try{speechSynthesis.resume()}catch(e){}
 
+        // Let Chrome finish populating its voice list before checking for Persian.
         if(!voicesReady){
             loadVoices();
-            await new Promise(resolve=>setTimeout(resolve,120));
+            await new Promise(resolve=>setTimeout(resolve,180));
+        }
+
+        const v=persianVoice();
+        if(!v){
+            // Critical: no voice fallback. That fallback was reading Persian responses in an English voice.
+            speaking=false;
+            setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای فارسی روی این دستگاه در دسترس نیست.');
+            hint.textContent='برای جلوگیری از پخش صدای انگلیسی، پاسخ صوتی غیرفعال شد. برای صدای فارسی باید یک صدای فارسی به دستگاه اضافه شود.';
+            return false;
         }
 
         const u=new SpeechSynthesisUtterance(text);
-        const v=persianVoice();
-        u.lang=v?.lang||'fa-IR';
-        if(v) u.voice=v;
+        u.lang=v.lang||'fa-IR';
+        u.voice=v;
         u.rate=.92;
         u.pitch=1.03;
         u.volume=1;
 
         return await new Promise(resolve=>{
             let started=false;
+            let settled=false;
+            const finish=(value)=>{
+                if(settled)return;
+                settled=true;
+                resolve(value);
+            };
             u.onstart=()=>{
                 started=true;
                 speaking=true;
@@ -225,21 +245,22 @@
             u.onend=()=>{
                 speaking=false;
                 setState('','آماده شنیدن شما 🎙');
-                resolve(true);
+                finish(true);
             };
             u.onerror=()=>{
                 speaking=false;
-                setState('','برای پخش صدا، یک بار روی صفحه لمس کنید و دوباره امتحان کنید.');
-                resolve(false);
+                setState('','پاسخ به‌صورت متنی نمایش داده شد؛ پخش صدای فارسی موفق نبود.');
+                finish(false);
             };
             speechSynthesis.speak(u);
             try{speechSynthesis.resume()}catch(e){}
             setTimeout(()=>{
                 if(!started && !speechSynthesis.speaking){
-                    setState('','برای فعال کردن صدای مشاور یک بار روی صفحه لمس کنید.');
-                    resolve(false);
+                    speaking=false;
+                    setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای فارسی پخش نشد.');
+                    finish(false);
                 }
-            },900);
+            },1200);
         });
     };
 

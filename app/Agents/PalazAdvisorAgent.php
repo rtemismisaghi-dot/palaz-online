@@ -289,9 +289,12 @@ REVIEW;
 
         // پس از پرسیدن بودجه، پاسخ مشتری نباید دوباره به سؤال عمومی شروع مشاوره برگردد.
         if (preg_match('/بودجه|هزینه|مبلغ/u', $assistantText)) {
+            // پیام فعلی عمداً در history نیست؛ آن را هم وارد بررسی کنیم تا
+            // وقتی مشتری متراژ را همین الان می‌گوید، دوباره همان متراژ را نپرسیم.
             $priorUserText = $normalize(collect($history)
                 ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
                 ->pluck('content')
+                ->push($message)
                 ->implode(' '));
             $missing = [];
             $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $priorUserText);

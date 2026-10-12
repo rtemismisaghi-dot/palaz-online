@@ -817,7 +817,7 @@ PROMPT;
                 ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
                 ->take(3)
                 ->values();
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             report($e);
             return collect();
         }

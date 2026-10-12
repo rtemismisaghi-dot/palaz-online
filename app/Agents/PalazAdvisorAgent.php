@@ -284,86 +284,77 @@ REVIEW;
 
     private function guidedConversationReply(string $message, array $history): ?string
     {
-        $normalize = function (string $text): string {
-            $text = mb_strtolower(trim($text));
-            return str_replace(['ي','ى','ك','ة','ۀ','ؤ','إ','أ','ٱ'], ['ی','ی','ک','ه','ه','و','ا','ا','ا'], $text);
-        };
-
+        $normalize = fn (string $text) => $this->normalizeSearchText($text);
         $current = $normalize($message);
         $previousAssistant = collect($history)
             ->filter(fn ($item) => ($item['role'] ?? '') === 'assistant')
             ->last();
-        $previousUser = collect($history)
-            ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
-            ->last();
         $assistantText = $normalize((string) ($previousAssistant['content'] ?? ''));
+        $conversationText = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
+            ->pluck('content')
+            ->push($message)
+            ->implode(' ');
+        $all = $normalize($conversationText);
 
-        // پس از پرسیدن بودجه، پاسخ مشتری نباید دوباره به سؤال عمومی شروع مشاوره برگردد.
+        // سؤال بودجه نباید باعث شود اطلاعاتی را که مشتری همین حالا گفته دوباره بپرسیم.
         if (preg_match('/بودجه|هزینه|مبلغ/u', $assistantText)) {
-            // پیام فعلی عمداً در history نیست؛ آن را هم وارد بررسی کنیم تا
-            // وقتی مشتری متراژ را همین الان می‌گوید، دوباره همان متراژ را نپرسیم.
-            $priorUserText = $normalize(collect($history)
-                ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
-                ->pluck('content')
-                ->push($message)
-                ->implode(' '));
             $missing = [];
-            $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $priorUserText);
-            $hasArea = $this->extractAdvisorArea($priorUserText) !== null;
-            $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس پی سی|spc|پارکت|چمن|کاغذ دیواری|گارد/u', $priorUserText);
+            $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $all);
+            $hasArea = $this->extractAdvisorArea($conversationText) !== null;
+            $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
 
-            if (!$hasSpace) {
-                $missing[] = 'برای چه فضایی است';
-            }
-            if (!$hasArea) {
-                $missing[] = 'حدوداً چه متراژی دارید';
-            }
-            if (!$hasCovering) {
-                $missing[] = 'چه نوع پوششی مدنظر دارید';
-            }
-
-            if ($missing !== []) {
-                return 'ممنون، بودجه‌تان را در نظر می‌گیرم. برای اینکه گزینه‌ها را دقیق بررسی کنم، فقط این مورد را هم بفرمایید: '.implode(' و ', $missing).'.';
-            }
-
-            // همه اطلاعات اصلی جمع شده‌اند؛ پاسخ را به موتور پیشنهاد محصول واقعی بسپار.
-            return null;
+            if (!$hasSpace) $missing[] = 'فضای موردنظر';
+            if (!$hasArea) $missing[] = 'متراژ تقریبی';
+            if (!$hasCovering) $missing[] = 'نوع پوشش';
+            return $missing
+                ? 'ممنون. برای پیشنهاد دقیق، فقط این موردها هنوز مشخص نشده‌اند: '.implode('، ', $missing).'.'
+                : null;
         }
 
-        // فقط وقتی پیام واقعاً یک سلام کوتاه است، مسیر شروع مشاوره را فعال کن.
-        // اگر مشتری همراه سلام سؤال محصولی پرسیده، سؤالش باید به پاسخ‌گوی هوشمند برسد.
+        // فقط سلامِ تنها شروع گفت‌وگو را فعال می‌کند.
         if (preg_match('/^(?:(?:سلام|درود)(?:\\s+وقت(?:\\s+بخیر)?)?|وقت\\s+بخیر)[.!؟،\\s]*$/u', $current)) {
             return 'برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
         }
 
-        // پاسخ به سؤال نوع فضا.
-        $isHome = preg_match('/خانه|خانگی|منزل/u', $current);
-        $isOffice = preg_match('/محل کار|اداری|اداره|دفتر|دفتر کار/u', $current);
-        $isHotel = preg_match('/هتل/u', $current);
-        $isPrayer = preg_match('/نمازخانه/u', $current);
-        $wasAskingSpace =
-            str_contains($assistantText, 'برای چه فضایی')
+        $isHome = preg_match('/خانه|خانگی|منزل/u', $all);
+        $isOffice = preg_match('/محل کار|اداری|اداره|دفتر|دفتر کار/u', $all);
+        $isHotel = preg_match('/هتل/u', $all);
+        $isPrayer = preg_match('/نمازخانه/u', $all);
+        $hasArea = $this->extractAdvisorArea($conversationText) !== null;
+        $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
+        $hasHomePart = preg_match('/پذیرایی|اتاق خواب|اتاق کودک|اتاق|راهرو|آشپزخانه|بالکن/u', $all);
+        $hasHotelPart = preg_match('/اتاق|راهرو|لابی|سالن|پذیرش|رستوران/u', $all);
+        $wasAskingSpace = str_contains($assistantText, 'برای چه فضایی')
             || str_contains($assistantText, 'چه فضایی')
             || (str_contains($assistantText, 'فضا') && str_contains($assistantText, 'نوع پوشش'));
 
         if ($wasAskingSpace && ($isHome || $isOffice || $isHotel || $isPrayer)) {
-            if ($isHome) {
-                return 'برای خانه، بفرمایید برای کدام قسمت است؟ مثلاً پذیرایی، اتاق خواب، راهرو، آشپزخانه یا فضای دیگری؟';
+            if ($isHome && !$hasHomePart) {
+                return 'برای خانه، کدام قسمت را در نظر دارید؟ مثلاً پذیرایی، اتاق خواب، راهرو یا آشپزخانه؟';
             }
-            if ($isHotel) {
-                return 'برای هتل، بفرمایید برای کدام قسمت است؟ مثلاً اتاق، راهرو، لابی، سالن یا فضای دیگری؟';
+            if ($isHotel && !$hasHotelPart) {
+                return 'برای هتل، کدام بخش است؟ اتاق، راهرو، لابی یا سالن؟';
             }
-            return 'برای این فضا حدوداً چه متراژی دارید؟';
+            if (!$hasArea) {
+                return 'حدوداً چند مترمربع است؟ اگر دقیق نمی‌دانید، متراژ تقریبی هم کافی است.';
+            }
+            if (!$hasCovering) {
+                return 'چه نوع پوششی مدنظر دارید؛ موکت، لمینت، SPC یا گزینه دیگری؟';
+            }
+            return null;
         }
 
-        // اگر برای خانه یا هتل قسمت فضا گفته شد، مرحله بعد فقط متراژ است.
         $wasAskingPart = str_contains($assistantText, 'کدام قسمت') || str_contains($assistantText, 'کدام بخش');
-        $hasArea = $this->extractAdvisorArea($message) !== null;
-        if ($wasAskingPart && !$hasArea && mb_strlen($current) >= 2) {
-            return 'ممنون. حدوداً چه متراژی دارید؟';
+        if ($wasAskingPart) {
+            if (!$hasArea) {
+                return 'ممنون. حدوداً چند مترمربع است؟';
+            }
+            if (!$hasCovering) {
+                return 'برای این فضا چه نوع پوششی مدنظر دارید؟';
+            }
         }
 
-        // اگر کاربر مستقیماً در پاسخ به سؤال اولیه متراژ را هم گفته باشد، اجازه بده مسیر عادی ادامه پیدا کند.
         return null;
     }
 

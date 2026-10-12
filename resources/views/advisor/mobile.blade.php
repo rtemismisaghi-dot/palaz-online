@@ -195,12 +195,10 @@
         const faVoices=voices.filter(v=>/^fa(?:[-_]|$)/i.test(v.lang||''));
         if(!faVoices.length) return null;
 
-        // Prefer a voice explicitly marked female by the platform, if such metadata is exposed in its name.
-        const feminine=faVoices.find(v=>/female|woman|lady|زن/i.test(v.name||''));
-        return feminine
-            || faVoices.find(v=>/^fa[-_]IR$/i.test(v.lang||''))
-            || faVoices[0]
-            || null;
+        // SpeechSynthesis exposes no reliable gender field. Only allow voices explicitly
+        // marked female or matching a known feminine name; never guess and risk a male voice.
+        const feminine=faVoices.find(v=>/female|woman|lady|زن|niloofar|نیلوفر|darya|دریا|ava|آوا|sara|سارا|shirin|شیرین|maryam|مریم|mahsa|مهسا|parisa|پریسا|hoda|هدا|tara|تارا|nazanin|نازنین|yasaman|یاسمن|bahar|بهار|sahar|سحر|roya|رویا|nika|نیکا|dorsa|درسا/i.test(v.name||''));
+        return feminine || null;
     };
     const speak=async(text)=>{
         if(!('speechSynthesis' in window)||!text) return false;
@@ -217,8 +215,8 @@
         if(!v){
             // Critical: no voice fallback. That fallback was reading Persian responses in an English voice.
             speaking=false;
-            setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای فارسی روی این دستگاه در دسترس نیست.');
-            hint.textContent='برای جلوگیری از پخش صدای انگلیسی، پاسخ صوتی غیرفعال شد. برای صدای فارسی باید یک صدای فارسی به دستگاه اضافه شود.';
+            setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای زن فارسی روی این دستگاه در دسترس نیست.');
+            hint.textContent='برای جلوگیری از پخش صدای مردانه یا انگلیسی، پاسخ صوتی غیرفعال شد. برای پخش صوتی باید یک صدای زن فارسی در مرورگر فعال باشد.';
             return false;
         }
 

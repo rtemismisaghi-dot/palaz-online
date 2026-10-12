@@ -577,6 +577,10 @@ REVIEW;
         if ($hasSpace && $hasArea && $hasCovering && $products instanceof \Illuminate\Support\Collection) {
             $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $products);
             $matches = $this->matchProducts($conversationText, $advisorProducts)->take(3);
+            // اگر نام یا کد محصول در گفتگو نیامده، از همان دسته محصول واقعی پیشنهاد بده.
+            if ($matches->isEmpty()) {
+                $matches = $advisorProducts->take(3);
+            }
             if ($matches->isNotEmpty()) {
                 $lines = $matches->map(function ($product) {
                     $details = array_filter([

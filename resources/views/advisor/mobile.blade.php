@@ -31,6 +31,8 @@
         .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;visibility:visible}
         .video-sound{position:absolute;z-index:4;bottom:8px;right:8px;border:1px solid rgba(255,255,255,.7);background:rgba(32,35,39,.82);color:#fff;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.16)}
         .video-sound:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+        .video-sound:disabled{opacity:.65;cursor:wait}
+
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
@@ -101,6 +103,7 @@
             <video class="advisor-video" id="advisorVideo" autoplay muted loop playsinline preload="auto" poster="{{ $character }}" aria-label="ویدیوی متحرک مشاور پالاز">
                 <source src="{{ $characterVideo }}" type="video/mp4">
             </video>
+            <button class="video-sound" id="voiceTest" type="button" aria-label="تست صدای زنده مشاور">🔊 تست صدای مشاور</button>
         </div>
         <div class="status" id="status">برای گفتگو تایپ کنید یا روی میکروفن بزنید 🎙</div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
@@ -120,7 +123,7 @@
 (() => {
     const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), hint=document.getElementById('hint');
-    const advisorVideo=document.getElementById('advisorVideo');
+    const advisorVideo=document.getElementById('advisorVideo'), voiceTest=document.getElementById('voiceTest');
     const character=@json($character); let history=[{role:'assistant',content:'سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.'}]; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
@@ -322,6 +325,22 @@
     };
 
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
+
+    const welcomeText='سلام وقت شما بخیر، من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
+    let voiceTestBusy=false;
+    voiceTest.addEventListener('click',async()=>{
+        if(voiceTestBusy)return;
+        voiceTestBusy=true;
+        voiceTest.disabled=true;
+        voiceTest.textContent='در حال آماده‌سازی صدا...';
+        try{
+            await speak(welcomeText);
+        }finally{
+            voiceTest.disabled=false;
+            voiceTest.textContent='🔊 تست صدای مشاور';
+            voiceTestBusy=false;
+        }
+    });
 
     const startVoice=()=>{
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;

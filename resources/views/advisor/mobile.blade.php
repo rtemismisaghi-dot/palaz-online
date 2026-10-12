@@ -64,6 +64,8 @@
         .product-card-name{font-size:11px;font-weight:700;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
         .product-card-meta{font-size:9px;color:#85888d;line-height:1.8;margin-top:4px;min-height:16px}
         .product-card-price{font-size:10px;color:var(--red);font-weight:700;margin-top:6px;line-height:1.7}
+        .advisor-actions{display:flex;flex-wrap:wrap;gap:7px;width:100%;margin:2px 0 10px}
+        .advisor-action{display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5d9d3;border-radius:999px;background:#fff;color:#8e1825;text-decoration:none;font-size:10px;padding:8px 12px}
         /* Portrait stays unchanged; subtle motion follows the conversation state. */
         @keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
         @keyframes halo{0%,100%{opacity:.42;transform:scale(.9)}50%{opacity:.72;transform:scale(.96)}}
@@ -174,6 +176,16 @@
         messages.appendChild(row);scroll();
     };
     const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
+    const addActions=(actions)=>{
+        if(!Array.isArray(actions)||!actions.length)return;
+        const wrap=document.createElement('div');wrap.className='advisor-actions';
+        actions.slice(0,3).forEach(action=>{
+            if(!action||!action.url||!action.label)return;
+            const link=document.createElement('a');link.className='advisor-action';link.href=action.url;link.textContent=action.label;wrap.appendChild(link);
+        });
+        if(!wrap.children.length)return;
+        const row=document.createElement('div');row.className='message assistant';row.appendChild(wrap);messages.appendChild(row);scroll();
+    };
     const removeTyping=()=>document.getElementById('typing')?.remove();
 
     let voicesReady=false;
@@ -242,7 +254,7 @@
         try{
             const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-10),context:{surface:'mobile_advisor'}})});
             const data=await r.json(); if(!r.ok||!data.reply)throw new Error('advisor');
-            removeTyping(); add(data.reply,'assistant'); addProducts(data.products); history.push({role:'assistant',content:data.reply});
+            removeTyping(); add(data.reply,'assistant'); addProducts(data.products); addActions(data.actions); history.push({role:'assistant',content:data.reply});
             setState('speaking','پاسخ شما آماده است...'); speak(data.reply);
         }catch(e){removeTyping();const msg='ارتباط با مشاور برقرار نشد. لطفاً یک بار دیگر امتحان کنید.';add(msg,'assistant');setState('','آماده شنیدن شما 🎙') }
         finally{busy=false}

@@ -890,7 +890,7 @@ PROMPT;
             }
 
             $byIndex = collect($candidates)->keyBy('index');
-            return collect($items)
+            $matched = collect($items)
                 ->filter(function ($item) {
                     return is_array($item)
                         && is_numeric($item['index'] ?? null)
@@ -920,6 +920,18 @@ PROMPT;
                 })
                 ->filter()
                 ->values();
+
+            if ($matched->isEmpty()) {
+                Log::warning('Palaz office color vision had no verified matching products', [
+                    'batch' => $batchNumber,
+                    'model' => $model,
+                    'returned_item_count' => count($items),
+                    'returned_codes' => collect($items)->pluck('code')->take(8)->all(),
+                    'candidate_codes' => collect($candidates)->map(fn ($candidate) => $candidate['product']['code'] ?? null)->filter()->values()->all(),
+                ]);
+            }
+
+            return $matched;
         } catch (\Throwable $e) {
             Log::warning('Palaz office color vision exception', [
                 'batch' => $batchNumber,

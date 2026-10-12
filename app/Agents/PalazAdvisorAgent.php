@@ -142,14 +142,14 @@ PROMPT;
                         }
                     }
 
-                    return ['reply' => $text, 'mode' => 'ai', 'actions' => $this->actions($message)];
+                    return ['reply' => $text, 'mode' => 'ai', 'actions' => $this->actions($message), 'products' => $this->productCards($matchedProducts, $conversationText)];
                 }
             } catch (\Throwable $e) {
                 report($e);
             }
         }
 
-        return ['reply' => $this->fallback($message, $history, $allProducts), 'mode' => 'catalog', 'actions' => $this->actions($message)];
+        return ['reply' => $this->fallback($message, $history, $allProducts), 'mode' => 'catalog', 'actions' => $this->actions($message), 'products' => $this->productCards($matchedProducts, $conversationText)];
     }
 
     public function analyzeSpace(string $imageDataUrl): array
@@ -682,6 +682,34 @@ REVIEW;
             return 'حتماً. برای لمینت، متراژ و سبک موردنظرتان را بگویید تا گزینه مناسب را بررسی کنیم.';
         }
         return 'حتماً. بگویید برای چه فضایی، با چه متراژی و چه نوع پوششی دنبال گزینه مناسب هستید.';
+    }
+
+    private function productCards($products, string $conversationText): array
+    {
+        $query = $this->normalizeSearchText($conversationText);
+        // کارت محصول فقط وقتی نمایش داده شود که مشتری نوع پوشش را واقعاً مشخص کرده باشد.
+        if (!preg_match('/موکت|لمینت|پارکت|کفپوش|اس\\s*پی\\s*سی|spc|فرش[\\s‌-]*گونه|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $query)) {
+            return [];
+        }
+
+        return $products->take(3)->map(function ($product) {
+            $id = (string) ($product['id'] ?? '');
+            if ($id === '') return null;
+
+            return [
+                'id' => $id,
+                'name' => (string) ($product['name'] ?? 'محصول پالاز'),
+                'model' => (string) ($product['model'] ?? ''),
+                'code' => (string) ($product['code'] ?? ''),
+                'price' => ($product['price'] ?? null) !== null ? (float) $product['price'] : null,
+                'price_label' => ($product['price'] ?? null) !== null
+                    ? number_format((float) $product['price']).' تومان / '.((string) ($product['unit'] ?? 'واحد فروش'))
+                    : 'قیمت نیازمند استعلام',
+                'unit' => (string) ($product['unit'] ?? ''),
+                'image' => $product['image'] ?? null,
+                'url' => route('product', ['id' => $id]),
+            ];
+        })->filter()->values()->all();
     }
 
     private function actions(string $message): array

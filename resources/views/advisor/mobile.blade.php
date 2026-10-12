@@ -121,7 +121,7 @@
     const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), hint=document.getElementById('hint');
     const advisorVideo=document.getElementById('advisorVideo'), videoSound=document.getElementById('videoSound');
-    const character=@json($character); let history=[]; let recognition=null; let speaking=false; let busy=false;
+    const character=@json($character); let history=[{role:'assistant',content:'سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.'}]; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
         root.classList.remove('listening','thinking','speaking'); if(state) root.classList.add(state);

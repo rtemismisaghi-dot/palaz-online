@@ -41,6 +41,7 @@ final class PalazAdvisorAgent
             ->pluck('content')
             ->push($message)
             ->implode(' ');
+        $conversationText = $this->appendImpliedAreaAnswer($conversationText, $message, $history);
         $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $allProducts);
         $matchedProducts = $this->matchProducts($conversationText, $advisorProducts);
         $hasSpaceForRecommendation = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $this->normalizeSearchText($conversationText));
@@ -301,6 +302,44 @@ REVIEW;
         return null;
     }
 
+    /**
+     * Interpret a bare number as an area only when the immediately preceding advisor turn asked for area.
+     * This avoids treating standalone product codes or other numbers as square metres.
+     */
+    private function areaForCurrentTurn(string $message, array $history): ?float
+    {
+        $normalized = $this->normalizeSearchText($message);
+        if (!preg_match('/^\\s*(\\d+(?:[.,]\\d+)?)\\s*$/u', $normalized, $matches)) {
+            return null;
+        }
+
+        $previousAssistant = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'assistant')
+            ->last();
+        $question = $this->normalizeSearchText((string) ($previousAssistant['content'] ?? ''));
+        if (!preg_match('/متراژ|مساحت|زیربنا|مترمربع|متر مربع|چند متر|چه متراژی/u', $question)) {
+            return null;
+        }
+
+        $area = (float) str_replace(',', '.', $matches[1]);
+        return $area > 0 && $area <= 100000 ? $area : null;
+    }
+
+    private function appendImpliedAreaAnswer(string $conversationText, string $message, array $history): string
+    {
+        if ($this->extractAdvisorArea($conversationText) !== null) {
+            return $conversationText;
+        }
+
+        $area = $this->areaForCurrentTurn($message, $history);
+        if ($area === null) {
+            return $conversationText;
+        }
+
+        $areaLabel = rtrim(rtrim(number_format($area, 2, '.', ''), '0'), '.');
+        return $conversationText.' متراژ '.$areaLabel.' مترمربع';
+    }
+
     private function guidedConversationReply(string $message, array $history): ?string
     {
         $normalize = fn (string $text) => $this->normalizeSearchText($text);
@@ -314,6 +353,7 @@ REVIEW;
             ->pluck('content')
             ->push($message)
             ->implode(' ');
+        $conversationText = $this->appendImpliedAreaAnswer($conversationText, $message, $history);
         $all = $normalize($conversationText);
 
         // سؤال بودجه نباید باعث شود اطلاعاتی را که مشتری همین حالا گفته دوباره بپرسیم.
@@ -347,6 +387,36 @@ REVIEW;
         $wasAskingSpace = str_contains($assistantText, 'برای چه فضایی')
             || str_contains($assistantText, 'چه فضایی')
             || (str_contains($assistantText, 'فضا') && str_contains($assistantText, 'نوع پوشش'));
+        $wasAskingArea = (bool) preg_match('/متراژ|مساحت|زیربنا|مترمربع|متر مربع|چند متر|چه متراژی/u', $assistantText);
+        $bareAreaAnswer = $this->areaForCurrentTurn($message, $history);
+
+        // پاسخ عددی کوتاه را فقط وقتی متراژ بدان که مشاور نوبت قبل درباره مساحت پرسیده باشد.
+        // سپس فقط اطلاعات واقعاً نامشخص را سؤال می‌کنیم؛ نه اینکه پرسش آغازین را تکرار کنیم.
+        if ($bareAreaAnswer !== null && $wasAskingArea) {
+            $areaLabel = rtrim(rtrim(number_format($bareAreaAnswer, 2, '.', ''), '0'), '.').' مترمربع';
+            if (!$hasSpace) {
+                return !$hasCovering
+                    ? 'متراژ '.$areaLabel.' را ثبت کردم. برای چه فضایی است و چه نوع پوششی مدنظر دارید؟'
+                    : 'متراژ '.$areaLabel.' را ثبت کردم. این متراژ برای چه فضایی است؟';
+            }
+            if ($isHome && !$hasHomePart) {
+                return !$hasCovering
+                    ? 'متراژ '.$areaLabel.' را ثبت کردم. کدام قسمت خانه است و چه نوع پوششی مدنظر دارید؟'
+                    : 'متراژ '.$areaLabel.' را ثبت کردم. برای کدام قسمت خانه است؛ پذیرایی، اتاق خواب، راهرو یا آشپزخانه؟';
+            }
+            if ($isHotel && !$hasHotelPart) {
+                return !$hasCovering
+                    ? 'متراژ '.$areaLabel.' را ثبت کردم. کدام بخش هتل است و چه نوع پوششی مدنظر دارید؟'
+                    : 'متراژ '.$areaLabel.' را ثبت کردم. برای کدام بخش هتل است؛ اتاق، راهرو، لابی یا سالن؟';
+            }
+            if (!$hasCovering) {
+                return 'متراژ '.$areaLabel.' را ثبت کردم. برای این فضا چه نوع پوششی مدنظر دارید؛ موکت، لمینت، SPC یا گزینه دیگری؟';
+            }
+            $hasPreference = preg_match('/اقتصادی|ارزان|گران|بودجه|قیمت|دوام|رفت\\s*و\\s*آمد|پرتردد|نرمی|راحتی|شست\\s*و\\s*شو|ضدلک|ضد\\s*لک|رنگ|طرح|لوکس|ساده/u', $all);
+            if (!$hasPreference) {
+                return 'متراژ '.$areaLabel.' را ثبت کردم. اولویت اصلی‌تان چیست: قیمت اقتصادی، دوام، نرمی و راحتی یا طرح و رنگ؟';
+            }
+        }
 
         if ($wasAskingSpace && ($isHome || $isOffice || $isHotel || $isPrayer)) {
             if ($isHome && !$hasHomePart) {
@@ -722,6 +792,7 @@ REVIEW;
             ->pluck('content')
             ->push($message)
             ->implode(' ');
+        $conversationText = $this->appendImpliedAreaAnswer($conversationText, $message, $history);
         $normalizedConversation = $this->normalizeSearchText($conversationText);
         $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $normalizedConversation);
         $hasArea = $this->extractAdvisorArea($conversationText) !== null;

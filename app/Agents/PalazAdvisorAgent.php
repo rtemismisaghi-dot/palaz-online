@@ -413,7 +413,9 @@ REVIEW;
         $hasHotelPart = preg_match('/اتاق|راهرو|لابی|سالن|پذیرش|رستوران/u', $all);
         $wasAskingSpace = str_contains($assistantText, 'برای چه فضایی')
             || str_contains($assistantText, 'چه فضایی')
-            || (str_contains($assistantText, 'فضا') && str_contains($assistantText, 'نوع پوشش'));
+            || (str_contains($assistantText, 'فضا') && str_contains($assistantText, 'نوع پوشش'))
+            // حتی اگر مشتری بدون سلام و بدون انتظار سؤال قبلی مستقیماً نام فضا را بگوید، مسیر راهنما را ادامه بده.
+            || $hasSpace;
         $wasAskingArea = (bool) preg_match('/متراژ|مساحت|زیربنا|مترمربع|متر مربع|چند متر|چه متراژی/u', $assistantText);
         $bareAreaAnswer = $this->areaForCurrentTurn($message, $history);
 

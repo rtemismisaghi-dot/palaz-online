@@ -144,7 +144,7 @@ PROMPT;
             }
         }
 
-        return ['reply' => $this->fallback($message, $history), 'mode' => 'catalog', 'actions' => $this->actions($message)];
+        return ['reply' => $this->fallback($message, $history, $allProducts), 'mode' => 'catalog', 'actions' => $this->actions($message)];
     }
 
     public function analyzeSpace(string $imageDataUrl): array
@@ -524,9 +524,39 @@ REVIEW;
         return $letters > 20 && $latin / max(1, $letters) > 0.55;
     }
 
-    private function fallback(string $message, array $history = []): string
+    private function fallback(string $message, array $history = [], $products = null): string
     {
         $t = mb_strtolower($message);
+        $conversationText = collect($history)
+            ->filter(fn ($m) => ($m['role'] ?? '') === 'user')
+            ->pluck('content')
+            ->push($message)
+            ->implode(' ');
+        $normalizedConversation = $this->normalizeSearchText($conversationText);
+        $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $normalizedConversation);
+        $hasArea = $this->extractAdvisorArea($conversationText) !== null;
+        $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس پی سی|spc|پارکت|چمن|کاغذ دیواری|گارد/u', $normalizedConversation);
+
+        // حتی اگر سرویس هوش مصنوعی در دسترس نباشد، پس از تکمیل نیاز مشتری
+        // از کاتالوگ واقعی چند گزینه پیشنهاد بده؛ پاسخ عمومی را تکرار نکن.
+        if ($hasSpace && $hasArea && $hasCovering && $products instanceof \\Illuminate\\Support\\Collection) {
+            $matches = $this->matchProducts($conversationText, $products)->take(3);
+            if ($matches->isNotEmpty()) {
+                $lines = $matches->map(function ($product) {
+                    $details = array_filter([
+                        $product['name'] ?? null,
+                        !empty($product['model']) ? 'مدل/آلبوم '.$product['model'] : null,
+                        !empty($product['code']) ? 'کد '.$product['code'] : null,
+                        ($product['price'] ?? null) !== null
+                            ? 'قیمت ثبت‌شده '.number_format((float) $product['price']).' تومان به ازای '.($product['unit'] ?? 'واحد فروش')
+                            : 'قیمت استعلامی',
+                    ]);
+                    return '• '.implode('؛ ', $details);
+                })->implode("\\n");
+
+                return 'با توجه به اطلاعاتی که فرمودید، این گزینه‌ها از کاتالوگ فعلی پالاز برای بررسی اولیه در دسترس‌اند:\\n'.$lines.'\\nبرای انتخاب نهایی، طرح/رنگ و شرایط اجرا را هم بررسی می‌کنیم. قیمت‌های ثبت‌شده ممکن است نیاز به تأیید نهایی داشته باشند.';
+            }
+        }
         $lastAssistant = collect($history)
             ->filter(fn ($m) => ($m['role'] ?? '') === 'assistant')
             ->last();

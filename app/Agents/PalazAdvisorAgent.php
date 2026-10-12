@@ -835,7 +835,11 @@ PROMPT;
             ];
         }
 
-        $model = (string) config('services.openrouter.vision_model', 'google/gemma-4-31b-it:free');
+        $model = trim((string) config('services.openrouter.vision_model', 'google/gemma-4-31b-it:free'));
+        // Ignore an older cached/explicit generic free-router setting for vision: use a known image-capable model.
+        if ($model === '' || $model === 'openrouter/free') {
+            $model = 'google/gemma-4-31b-it:free';
+        }
 
         try {
             $response = Http::withToken($apiKey)

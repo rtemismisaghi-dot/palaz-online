@@ -43,6 +43,21 @@ final class PalazAdvisorAgent
             ->implode(' ');
         $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $allProducts);
         $matchedProducts = $this->matchProducts($conversationText, $advisorProducts);
+        $hasSpaceForRecommendation = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $this->normalizeSearchText($conversationText));
+        $hasAreaForRecommendation = $this->extractAdvisorArea($conversationText) !== null;
+        $hasSpecificCovering = preg_match('/موکت|لمینت|پارکت|اس\\s*پی\\s*سی|spc|فرش[\\s‌-]*گونه|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $this->normalizeSearchText($conversationText));
+
+        // وقتی نیاز اصلی کامل است اما در دیتابیس گزینه مرتبط وجود ندارد،
+        // پیش از فراخوانی مدل جلوی ساختن نام یا مشخصات خیالی را می‌گیریم.
+        if ($hasSpaceForRecommendation && $hasAreaForRecommendation && $hasSpecificCovering && $matchedProducts->isEmpty()) {
+            return [
+                'reply' => 'نیازتان را متوجه شدم، اما در کاتالوگ فعلی محصول مرتبطی برای تأیید پیدا نکردم. نمی‌خواهم مدل، کد یا قیمت حدسی به شما بدهم. اگر بخواهید، می‌توانیم دسته‌بندی محصولات را بررسی کنیم یا با نام آلبوم/کد دقیق‌تر جست‌وجو کنیم.',
+                'mode' => 'catalog',
+                'actions' => $this->actions($message),
+                'products' => [],
+            ];
+        }
+
         $catalog = $matchedProducts
             ->map(fn ($p) => implode(' | ', array_filter([
                 'شناسه: '.($p['id'] ?? ''),

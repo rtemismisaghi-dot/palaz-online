@@ -26,11 +26,14 @@ final class PalazAdvisorAgent
         $prioritizeChildSoftnessCatalog = (bool) preg_match('/اتاق خواب کودک|اتاق کودک|اتاق بچه|اتاق فرزند/u', $normalizedRoutingText)
             && (bool) preg_match('/موکت/u', $normalizedRoutingText)
             && (bool) preg_match('/نرمی|نرم|لطافت/u', $normalizedRoutingText);
+        $prioritizeOfficeTrafficCatalog = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedRoutingText)
+            && (bool) preg_match('/موکت/u', $normalizedRoutingText)
+            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedRoutingText);
 
-        // مسیر مرحله‌ای گفتگو؛ اما پس از کامل شدن درخواست نرمی موکت کودک، مسیر انتخاب کاتالوگ
-        // باید اجرا شود و سؤال‌های راهنما نباید پاسخ نهایی را متوقف کنند.
+        // وقتی درخواست نرمی موکت کودک یا موکت اداری پرتردد کامل است، باید مستقیم به
+        // تطبیق کاتالوگ برسیم؛ سؤال‌های مرحله‌ای نباید پیشنهاد را قطع کنند.
         $guidedReply = $this->guidedConversationReply($message, $history);
-        if ($guidedReply !== null && !$prioritizeChildSoftnessCatalog) {
+        if ($guidedReply !== null && !$prioritizeChildSoftnessCatalog && !$prioritizeOfficeTrafficCatalog) {
             return ['reply' => $guidedReply, 'mode' => 'guided', 'actions' => []];
         }
 
@@ -90,6 +93,47 @@ final class PalazAdvisorAgent
 
             return [
                 'reply' => 'برای اتاق خواب کودک، چون نرمی برایتان مهم است، این مدل‌های موکت را برای بررسی مقایسه‌ای پیشنهاد می‌کنم. ترتیب زیر بر اساس ارتفاع پرزِ ثبت‌شده است؛ ارتفاع پرز به‌تنهایی تضمین‌کننده حس نرمی نهایی نیست و بهتر است نمونه را هم لمس کنید:'.PHP_EOL.$lines,
+                'mode' => 'catalog',
+                'actions' => [],
+                'products' => $this->productCards($matchedProducts, $conversationText),
+            ];
+        }
+
+        $hasOfficeTrafficRequest = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedConversation)
+            && (bool) preg_match('/موکت/u', $normalizedConversation)
+            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedConversation);
+
+        if ($hasOfficeTrafficRequest) {
+            $matchedProducts = $this->officeTrafficProducts($advisorProducts);
+            if ($matchedProducts->isEmpty()) {
+                return [
+                    'reply' => 'برای محیط اداری پرتردد، آلبوم‌های موکت اداریِ ثبت‌شده را در کاتالوگ فعال پیدا نکردم؛ بنابراین موکت خانگی را به‌جای آن پیشنهاد نمی‌دهم. اگر کد یا نام آلبوم اداری خاصی دارید، بفرمایید تا همان را بررسی کنم.',
+                    'mode' => 'catalog',
+                    'actions' => [],
+                    'products' => [],
+                ];
+            }
+
+            $area = $this->extractAdvisorArea($conversationText);
+            $areaText = $area !== null
+                ? ' برای متراژ اعلام‌شده شما، '.rtrim(rtrim(number_format($area, 2, '.', ''), '0'), '.').' مترمربع،'
+                : '';
+            $lines = $matchedProducts->map(function ($product) {
+                $album = (string) ($product['model'] ?? '');
+                $fiber = $this->fiberTypeForAlbum($album) ?? 'جنس نخ در داده فعلی تأیید نشده';
+                $pile = $this->pileTypeForAlbum($album) ?? 'نوع بافت در داده فعلی تأیید نشده';
+                $price = ($product['price'] ?? null) !== null
+                    ? number_format((float) $product['price']).' تومان به ازای '.($product['unit'] ?? 'واحد فروش')
+                    : 'قیمت استعلامی';
+                return '• آلبوم '.$album
+                    .(!empty($product['code']) ? '، کد '.$product['code'] : '')
+                    .'؛ جنس نخ ثبت‌شده: '.$fiber
+                    .'؛ بافت ثبت‌شده: '.$pile
+                    .'؛ '.$price;
+            })->implode(PHP_EOL);
+
+            return [
+                'reply' => 'برای موکت محیط اداری با تردد بالا،'.$areaText.' این نمونه‌ها از آلبوم‌های ثبت‌شده برای کاربرد اداری در کاتالوگ فعال پیدا شدند:'.PHP_EOL.$lines.PHP_EOL.'طبق اطلاعات فعلی، آلبوم‌های اداری نام‌برده‌شده بافت لوپ پایل دارند؛ اما داده مقایسه‌ای کافی برای رتبه‌بندی دوام این مدل‌ها در برابر یکدیگر ندارم، پس آن‌ها را به‌عنوان گزینه‌های قابل‌بررسی معرفی می‌کنم، نه رتبه‌بندی قطعی. برای انتخاب نهایی می‌توانیم کد، رنگ و قیمت هر مدل را بررسی کنیم.',
                 'mode' => 'catalog',
                 'actions' => [],
                 'products' => $this->productCards($matchedProducts, $conversationText),
@@ -591,6 +635,26 @@ REVIEW;
                 return $model !== ''
                     && isset($rank[$model])
                     && $this->pileHeightForChildSoftness($model) !== null;
+            })
+            ->sortBy(fn ($product) => $rank[$this->normalizeSearchText((string) ($product['model'] ?? ''))])
+            ->unique(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
+            ->take(3)
+            ->values();
+    }
+
+    /**
+     * Return only catalog items from the explicitly registered office/high-traffic carpet albums.
+     * Order is for stable presentation only, not a durability ranking.
+     */
+    private function officeTrafficProducts($products)
+    {
+        $order = ['پونه', 'آسا', 'نعنا', 'پتینه', 'نیلوفر', 'راش', 'شبنم'];
+        $rank = array_flip(array_map(fn ($name) => $this->normalizeSearchText($name), $order));
+
+        return $products
+            ->filter(function ($product) use ($rank) {
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                return $model !== '' && isset($rank[$model]) && $this->pileTypeForAlbum($model) === 'لوپ پایل';
             })
             ->sortBy(fn ($product) => $rank[$this->normalizeSearchText((string) ($product['model'] ?? ''))])
             ->unique(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))

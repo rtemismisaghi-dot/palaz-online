@@ -4,7 +4,9 @@ namespace App\Support;
 
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 final class StoreCatalog
 {
@@ -151,6 +153,81 @@ final class StoreCatalog
             'code' => $product->attributes['code'] ?? null,
         ];
     }
+    /**
+     * Return a product's exact-code image as a data URL for server-side visual classification.
+     * Only local stored images or known Palaz Online source URLs are accepted.
+     */
+    public static function imageDataUrlForProduct(string $slug): ?string
+    {
+        if (! Schema::hasTable('product_media')) {
+            return null;
+        }
+
+        $product = self::productQuery()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->first();
+
+        $media = $product?->media?->first();
+        if (! $media || ! $media->path) {
+            return null;
+        }
+
+        $path = trim((string) $media->path);
+        $bytes = null;
+        $mime = null;
+
+        try {
+            if (preg_match('/^https?:\\/\\//i', $path)) {
+                $host = strtolower((string) parse_url($path, PHP_URL_HOST));
+                if (! in_array($host, ['palazonline.com', 'www.palazonline.com', 'cdn.palazonline.com'], true)) {
+                    return null;
+                }
+
+                $response = Http::timeout(8)->accept('image/*')->get($path);
+                if (! $response->successful()) {
+                    return null;
+                }
+
+                $mime = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+                $bytes = $response->body();
+            } else {
+                $disk = trim((string) ($media->disk ?: 'public'));
+                $storage = Storage::disk($disk);
+                if (! $storage->exists($path)) {
+                    return null;
+                }
+
+                $bytes = $storage->get($path);
+                $mime = strtolower((string) ($storage->mimeType($path) ?: ''));
+            }
+        } catch (\\Throwable $e) {
+            report($e);
+            return null;
+        }
+
+        if (! is_string($bytes) || $bytes === '' || strlen($bytes) > 3 * 1024 * 1024) {
+            return null;
+        }
+
+        if (! is_string($mime) || ! str_starts_with($mime, 'image/')) {
+            $extension = strtolower(pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_EXTENSION));
+            $mime = match ($extension) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'webp' => 'image/webp',
+                'gif' => 'image/gif',
+                default => '',
+            };
+        }
+
+        if ($mime === '') {
+            return null;
+        }
+
+        return 'data:'.$mime.';base64,'.base64_encode($bytes);
+    }
+
     private static function productImageUrl(Product $product): ?string
     {
         if (! Schema::hasTable('product_media')) {

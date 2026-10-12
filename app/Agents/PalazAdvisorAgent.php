@@ -44,6 +44,46 @@ final class PalazAdvisorAgent
         $conversationText = $this->appendImpliedAreaAnswer($conversationText, $message, $history);
         $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $allProducts);
         $matchedProducts = $this->matchProducts($conversationText, $advisorProducts);
+        $normalizedConversation = $this->normalizeSearchText($conversationText);
+        $hasChildSoftnessRequest = (bool) preg_match('/اتاق خواب کودک|اتاق کودک|اتاق بچه|اتاق فرزند/u', $normalizedConversation)
+            && (bool) preg_match('/نرمی|نرم|لطافت/u', $normalizedConversation)
+            && (bool) preg_match('/موکت/u', $normalizedConversation);
+
+        // پیشنهاد نرمی برای اتاق کودک باید از ترتیب ارتفاع پرز ثبت‌شده استفاده کند،
+        // نه از تصادفِ ترتیب کاتالوگ یا رتبه‌بندی براساس قیمت و عکس.
+        if ($hasChildSoftnessRequest) {
+            $matchedProducts = $this->childRoomSoftnessProducts($advisorProducts);
+            if ($matchedProducts->isEmpty()) {
+                return [
+                    'reply' => 'متوجه شدم؛ برای نرمی موکت اتاق کودک، اما مدل‌های دارای ارتفاع پرزِ ثبت‌شده را در کاتالوگ فعال پیدا نکردم. نمی‌خواهم گزینه نامطمئن معرفی کنم. می‌توانیم نام آلبوم یا کدهای موجود را با هم بررسی کنیم.',
+                    'mode' => 'catalog',
+                    'actions' => [],
+                    'products' => [],
+                ];
+            }
+
+            $lines = $matchedProducts->map(function ($product) {
+                $album = (string) ($product['model'] ?? '');
+                $height = $this->pileHeightForChildSoftness($album);
+                $fiber = $this->fiberTypeForAlbum($album) ?? 'جنس نخ در داده فعلی تأیید نشده';
+                $price = ($product['price'] ?? null) !== null
+                    ? number_format((float) $product['price']).' تومان به ازای '.($product['unit'] ?? 'واحد فروش')
+                    : 'قیمت استعلامی';
+                return '• آلبوم '.$album
+                    .(!empty($product['code']) ? '، کد '.$product['code'] : '')
+                    .'؛ جنس نخ ثبت‌شده: '.$fiber
+                    .($height !== null ? '؛ ارتفاع پرز ثبت‌شده: '.$height.' سانتی‌متر' : '')
+                    .'؛ '.$price;
+            })->implode("\\n");
+
+            return [
+                'reply' => 'برای اتاق خواب کودک، چون نرمی برایتان مهم است، این مدل‌های موکت را برای بررسی مقایسه‌ای پیشنهاد می‌کنم. ترتیب زیر بر اساس ارتفاع پرزِ ثبت‌شده است؛ ارتفاع پرز به‌تنهایی تضمین‌کننده حس نرمی نهایی نیست و بهتر است نمونه را هم لمس کنید:\\n'.$lines,
+                'mode' => 'catalog',
+                'actions' => [],
+                'products' => $this->productCards($matchedProducts, $conversationText),
+            ];
+        }
+
         $hasSpaceForRecommendation = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $this->normalizeSearchText($conversationText));
         $hasAreaForRecommendation = $this->extractAdvisorArea($conversationText) !== null;
         $hasSpecificCovering = preg_match('/موکت|لمینت|پارکت|اس\\s*پی\\s*سی|spc|فرش[\\s‌-]*گونه|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $this->normalizeSearchText($conversationText));
@@ -331,12 +371,50 @@ REVIEW;
             return $conversationText;
         }
 
-        $area = $this->areaForCurrentTurn($message, $history);
-        if ($area === null) {
+        // First prefer a numeric reply from the current turn, if the last advisor question asked for area.
+        $currentArea = $this->areaForCurrentTurn($message, $history);
+        if ($currentArea !== null) {
+            $areaLabel = rtrim(rtrim(number_format($currentArea, 2, '.', ''), '0'), '.');
+            return $conversationText.' متراژ '.$areaLabel.' مترمربع';
+        }
+
+        // Remember earlier bare-number replies (for example "15") by checking what the advisor asked immediately before them.
+        // Without this, the area disappears from context as soon as the customer answers "موکت" or "نرمی".
+        $lastAssistantText = '';
+        $rememberedArea = null;
+        foreach ($history as $entry) {
+            $role = $entry['role'] ?? '';
+            $text = trim((string) ($entry['content'] ?? ''));
+
+            if ($role === 'assistant') {
+                $lastAssistantText = $this->normalizeSearchText($text);
+                continue;
+            }
+
+            if ($role !== 'user') {
+                continue;
+            }
+
+            $normalized = $this->normalizeSearchText($text);
+            if (!preg_match('/^\\s*(\\d+(?:[.,]\\d+)?)\\s*$/u', $normalized, $matches)) {
+                continue;
+            }
+
+            if (!preg_match('/متراژ|مساحت|زیربنا|مترمربع|متر مربع|چند متر|چه متراژی/u', $lastAssistantText)) {
+                continue;
+            }
+
+            $area = (float) str_replace(',', '.', $matches[1]);
+            if ($area > 0 && $area <= 100000) {
+                $rememberedArea = $area;
+            }
+        }
+
+        if ($rememberedArea === null) {
             return $conversationText;
         }
 
-        $areaLabel = rtrim(rtrim(number_format($area, 2, '.', ''), '0'), '.');
+        $areaLabel = rtrim(rtrim(number_format($rememberedArea, 2, '.', ''), '0'), '.');
         return $conversationText.' متراژ '.$areaLabel.' مترمربع';
     }
 
@@ -488,6 +566,37 @@ REVIEW;
         }
 
         return null;
+    }
+
+    private function childRoomSoftnessProducts($products)
+    {
+        $order = ['الماس', 'نیکاس', 'یاس', 'افرا', 'کات بی'];
+        $rank = array_flip(array_map(fn ($name) => $this->normalizeSearchText($name), $order));
+
+        return $products
+            ->filter(function ($product) use ($rank) {
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                return $model !== ''
+                    && isset($rank[$model])
+                    && $this->pileHeightForChildSoftness($model) !== null;
+            })
+            ->sortBy(fn ($product) => $rank[$this->normalizeSearchText((string) ($product['model'] ?? ''))])
+            ->unique(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
+            ->take(3)
+            ->values();
+    }
+
+    private function pileHeightForChildSoftness(string $album): ?float
+    {
+        $album = $this->normalizeSearchText($album);
+        return match ($album) {
+            $this->normalizeSearchText('الماس') => 2.5,
+            $this->normalizeSearchText('نیکاس') => 2.0,
+            $this->normalizeSearchText('یاس') => 1.5,
+            $this->normalizeSearchText('افرا') => 1.2,
+            $this->normalizeSearchText('کات بی') => 1.0,
+            default => null,
+        };
     }
 
     private function calculationContext($products, float $area): string

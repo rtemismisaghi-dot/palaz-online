@@ -79,7 +79,7 @@ final class PalazAdvisorAgent
 تو «مشاور هوشمند پالاز» هستی؛ یک مشاور فارسی‌زبان برای انتخاب، مقایسه و برنامه‌ریزی خرید و اجرای محصولات پالاز.
 لحن: صمیمی، حرفه‌ای، کوتاه و طبیعی؛ فروشنده اصراری نباش.
 اول نیاز مشتری را بفهم: فضا، متراژ، سبک/اولویت، بودجه و محدودیت‌ها. تاریخچه گفتگو را کامل بخوان و اطلاعاتی را که مشتری قبلاً گفته دوباره نپرس. در هر نوبت حداکثر دو سؤال ضروری بپرس.
-وقتی فضا، متراژ و نوع پوشش مشخص است، دیگر پاسخ کلی مثل «بررسی می‌کنم» نده؛ از محصولات واقعی کاتالوگ ۲ تا ۳ گزینه مشخص پیشنهاد کن و برای هرکدام نام، مدل/آلبوم، کد و قیمت موجود در کاتالوگ را ذکر کن. اگر قیمت ثبت نشده، صریحاً بگو استعلامی است. دلیل تناسب هر گزینه را کوتاه و بر اساس نیاز مشتری توضیح بده.
+وقتی فضا، متراژ و نوع پوشش مشخص است، دیگر پاسخ کلی مثل «بررسی می‌کنم» نده. ابتدا محصولات بخش «گزینه‌های مرتبطِ فیلترشده» را بررسی کن و فقط اگر واقعاً مرتبط‌اند، حداکثر ۳ گزینه از همان فهرست پیشنهاد بده. هر گزینه باید نام، مدل/آلبوم، کد، قیمت ثبت‌شده یا عبارت «استعلامی» و دلیل تناسب داشته باشد. اگر فهرست مرتبط خالی است یا محصول کافی وجود ندارد، هرگز از محصولات نامرتبط یا اولین ردیف‌های کاتالوگ جایگزین نساز؛ شفاف بگو در داده فعلی گزینه قابل‌تأیید پیدا نشد و فقط یک سؤال هدفمند برای محدود کردن انتخاب بپرس.
 فقط درباره محصول و قیمت از کاتالوگ داده‌شده استفاده کن و هرگز قیمت، موجودی یا مشخصات را حدس نزن. اطلاعات قبلی مشتری را از تاریخچه گفتگو استخراج کن؛ پیام فعلی ممکن است فقط پاسخ یک سؤال باشد.
 مهم: زبان خروجی همیشه فارسی باشد. حتی اگر پیام کاربر با صدا تشخیص داده شده، پاسخ را فارسی و با خط فارسی تولید کن؛ از انگلیسی استفاده نکن مگر برای نام خاص محصول، برند یا کد.
 اگر اطلاعات کافی است، 2 تا 3 گزینه را با دلیل کوتاه مقایسه کن.
@@ -429,33 +429,32 @@ REVIEW;
         $query = $this->normalizeSearchText($text);
         $categorySlugs = [];
 
+        // دسته درخواست‌شده باید واقعاً در کاتالوگ موجود باشد؛ در غیر این صورت
+        // هرگز کل کاتالوگ را به‌عنوان جایگزینِ نامرتبط برنمی‌گردانیم.
         if (preg_match('/موکت\\s*(?:تایل|تایلی)|تایل\\s*موکت/u', $query)) {
             $categorySlugs = ['carpet_tile', 'carpet-tile', 'tile-carpet'];
         } elseif (preg_match('/موکت/u', $query)) {
             $categorySlugs = ['carpet'];
         } elseif (preg_match('/لمینت|پارکت/u', $query)) {
-            $categorySlugs = ['laminate'];
+            $categorySlugs = ['laminate', 'laminate_flooring', 'parquet'];
         } elseif (preg_match('/\\bspc\\b|اس\\s*پی\\s*سی/u', $query)) {
             $categorySlugs = ['spc'];
         } elseif (preg_match('/کاغذ\\s*دیواری/u', $query)) {
             $categorySlugs = ['wallpaper'];
-        } elseif (preg_match('/چمن/u', $query)) {
-            $categorySlugs = ['grass'];
+        } elseif (preg_match('/چمن(?:\\s*مصنوعی)?/u', $query)) {
+            $categorySlugs = ['grass', 'artificial_grass'];
         } elseif (preg_match('/گارد|اسپاگتی/u', $query)) {
             $categorySlugs = ['garde', 'spaghetti'];
         }
 
         if ($categorySlugs === []) {
-            return $products;
+            return $products->values();
         }
 
-        $filtered = $products->filter(fn ($product) => in_array(
-            $this->normalizeSearchText((string) ($product['category'] ?? '')),
-            $categorySlugs,
-            true
-        ))->values();
-
-        return $filtered->isNotEmpty() ? $filtered : $products;
+        return $products->filter(function ($product) use ($categorySlugs) {
+            $category = $this->normalizeSearchText((string) ($product['category'] ?? ''));
+            return in_array($category, $categorySlugs, true);
+        })->values();
     }
 
     private function matchProducts(string $message, $products)
@@ -577,10 +576,7 @@ REVIEW;
         if ($hasSpace && $hasArea && $hasCovering && $products instanceof \Illuminate\Support\Collection) {
             $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $products);
             $matches = $this->matchProducts($conversationText, $advisorProducts)->take(3);
-            // اگر نام یا کد محصول در گفتگو نیامده، از همان دسته محصول واقعی پیشنهاد بده.
-            if ($matches->isEmpty()) {
-                $matches = $advisorProducts->take(3);
-            }
+            // اگر تطبیق قابل‌اتکا نداریم، محصول تصادفی پیشنهاد نمی‌دهیم.
             if ($matches->isNotEmpty()) {
                 $lines = $matches->map(function ($product) {
                     $details = array_filter([
@@ -596,6 +592,8 @@ REVIEW;
 
                 return "با توجه به اطلاعاتی که فرمودید، این گزینه‌ها از کاتالوگ فعلی پالاز برای بررسی اولیه در دسترس‌اند:\n".$lines."\nبرای انتخاب نهایی، طرح/رنگ و شرایط اجرا را هم بررسی می‌کنیم. قیمت‌های ثبت‌شده ممکن است نیاز به تأیید نهایی داشته باشند.";
             }
+
+            return 'نیازتان را متوجه شدم، اما در فهرست فعلی محصولی که بتوانم با اطمینان به همین درخواست مرتبط کنم پیدا نکردم. اگر نام آلبوم، کد محصول یا اولویت اصلی‌تان مثل دوام، نرمی یا شست‌وشوی آسان را بفرمایید، دقیق‌تر محدودش می‌کنم؛ قیمت یا مشخصات تأییدنشده را حدس نمی‌زنم.';
         }
         $lastAssistant = collect($history)
             ->filter(fn ($m) => ($m['role'] ?? '') === 'assistant')

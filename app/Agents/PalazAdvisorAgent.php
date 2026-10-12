@@ -302,7 +302,7 @@ REVIEW;
             $missing = [];
             $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $all);
             $hasArea = $this->extractAdvisorArea($conversationText) !== null;
-            $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
+            $hasCovering = preg_match('/موکت|لمینت|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
 
             if (!$hasSpace) $missing[] = 'فضای موردنظر';
             if (!$hasArea) $missing[] = 'متراژ تقریبی';
@@ -322,7 +322,7 @@ REVIEW;
         $isHotel = preg_match('/هتل/u', $all);
         $isPrayer = preg_match('/نمازخانه/u', $all);
         $hasArea = $this->extractAdvisorArea($conversationText) !== null;
-        $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
+        $hasCovering = preg_match('/موکت|لمینت|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
         $hasHomePart = preg_match('/پذیرایی|اتاق خواب|اتاق کودک|اتاق|راهرو|آشپزخانه|بالکن/u', $all);
         $hasHotelPart = preg_match('/اتاق|راهرو|لابی|سالن|پذیرش|رستوران/u', $all);
         $wasAskingSpace = str_contains($assistantText, 'برای چه فضایی')
@@ -630,7 +630,7 @@ REVIEW;
         $normalizedConversation = $this->normalizeSearchText($conversationText);
         $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $normalizedConversation);
         $hasArea = $this->extractAdvisorArea($conversationText) !== null;
-        $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس پی سی|spc|پارکت|چمن|کاغذ دیواری|گارد/u', $normalizedConversation);
+        $hasCovering = preg_match('/موکت|لمینت|اس پی سی|spc|پارکت|چمن|کاغذ دیواری|گارد/u', $normalizedConversation);
 
         // حتی اگر سرویس هوش مصنوعی در دسترس نباشد، پس از تکمیل نیاز مشتری
         // از کاتالوگ واقعی چند گزینه پیشنهاد بده؛ پاسخ عمومی را تکرار نکن.
@@ -688,7 +688,7 @@ REVIEW;
     {
         $query = $this->normalizeSearchText($conversationText);
         // کارت محصول فقط وقتی نمایش داده شود که مشتری نوع پوشش را واقعاً مشخص کرده باشد.
-        if (!preg_match('/موکت|لمینت|پارکت|کفپوش|اس\\s*پی\\s*سی|spc|فرش[\\s‌-]*گونه|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $query)) {
+        if (!preg_match('/موکت|لمینت|پارکت|اس\\s*پی\\s*سی|spc|فرش[\\s‌-]*گونه|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $query)) {
             return [];
         }
 

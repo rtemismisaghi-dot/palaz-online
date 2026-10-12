@@ -1,5 +1,6 @@
 @php
     $character = asset('images/ai-advisor/a_polished_studio_like_promotional_brand_styled (1).png') . '?v=20261011-2';
+    $characterVideo = asset('videos/ai-advisor/palaz-advisor.mp4') . '?v=20261012-1';
 @endphp
 <!doctype html>
 <html lang="fa" dir="rtl">
@@ -25,7 +26,7 @@
         /* Use the approved advisor image as-is: preserve her face, scarf, pose and original background. */
         .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
         .character:before,.character:after{content:none!important;display:none!important}
-        .character img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important}
+        .character img,.character video{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important;display:block}
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
@@ -79,7 +80,12 @@
         <button class="close" type="button" onclick="history.length>1?history.back():location.href='{{ route('home') }}'" aria-label="بازگشت">×</button>
     </header>
     <section class="stage" id="stage">
-        <div class="character"><img src="{{ $character }}" alt="مشاور پالاز"></div>
+        <div class="character">
+            <video autoplay muted loop playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
+                <source src="{{ $characterVideo }}" type="video/mp4">
+                <img src="{{ $character }}" alt="مشاور پالاز">
+            </video>
+        </div>
         <div class="status" id="status">برای گفت‌وگوی صوتی، روی میکروفن بزنید <b>🎙</b></div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>

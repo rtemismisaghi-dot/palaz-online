@@ -410,6 +410,9 @@ REVIEW;
             } elseif ($hasBasePrice && $vatPercent !== null) {
                 $unitPrice = (float) $attributes['base_unit_price'] * (1 + $vatPercent / 100);
                 $priceLabel = 'برآورد با '.$vatPercent.'٪ مالیات ثبت‌شده';
+            } elseif ($hasBasePrice) {
+                $unitPrice = (float) $attributes['base_unit_price'];
+                $priceLabel = 'قیمت پایه ثبت‌شده؛ وضعیت مالیات در داده موجود مشخص نیست';
             } else {
                 $unitPrice = (float) $recordedPrice;
                 $priceLabel = 'بر اساس قیمت ثبت‌شده؛ وضعیت مالیات در داده موجود مشخص نیست';

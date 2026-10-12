@@ -287,6 +287,34 @@ REVIEW;
             ->last();
         $assistantText = $normalize((string) ($previousAssistant['content'] ?? ''));
 
+        // پس از پرسیدن بودجه، پاسخ مشتری نباید دوباره به سؤال عمومی شروع مشاوره برگردد.
+        if (str_contains($assistantText, 'بودجه')) {
+            $priorUserText = $normalize(collect($history)
+                ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
+                ->pluck('content')
+                ->implode(' '));
+            $missing = [];
+            $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $priorUserText);
+            $hasArea = $this->extractAdvisorArea($priorUserText) !== null;
+            $hasCovering = preg_match('/موکت|لمینت|کفپوش|اس پی سی|spc|پارکت|چمن|کاغذ دیواری|گارد/u', $priorUserText);
+
+            if (!$hasSpace) {
+                $missing[] = 'برای چه فضایی است';
+            }
+            if (!$hasArea) {
+                $missing[] = 'حدوداً چه متراژی دارید';
+            }
+            if (!$hasCovering) {
+                $missing[] = 'چه نوع پوششی مدنظر دارید';
+            }
+
+            if ($missing !== []) {
+                return 'ممنون، بودجه‌تان را در نظر می‌گیرم. برای اینکه گزینه‌ها را دقیق بررسی کنم، فقط این مورد را هم بفرمایید: '.implode(' و ', $missing).'.';
+            }
+
+            return 'ممنون، بودجه‌تان را در نظر می‌گیرم. با توجه به فضا، متراژ و نوع پوششی که گفتید، گزینه‌های متناسب را بررسی می‌کنم.';
+        }
+
         // فقط وقتی پیام واقعاً یک سلام کوتاه است، مسیر شروع مشاوره را فعال کن.
         // اگر مشتری همراه سلام سؤال محصولی پرسیده، سؤالش باید به پاسخ‌گوی هوشمند برسد.
         if (preg_match('/^(?:(?:سلام|درود)(?:\\s+وقت(?:\\s+بخیر)?)?|وقت\\s+بخیر)[.!؟،\\s]*$/u', $current)) {

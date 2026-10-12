@@ -108,12 +108,6 @@
     <main class="messages" id="messages" aria-live="polite">
         <div class="message assistant"><div class="bubble">سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.</div></div>
     </main>
-    <div class="quick" id="quick">
-        <button data-message="برای پذیرایی چه کفپوشی پیشنهاد می‌دهید؟">برای پذیرایی</button>
-        <button data-message="بین موکت و لمینت کمکم کنید انتخاب کنم.">مقایسه موکت و لمینت</button>
-        <button data-message="برای فضای من ایده طراحی بدهید.">ایده طراحی</button>
-        <a class="visualizer-cta" href="{{ route('visualizer.products') }}">مشاهده روی فضای خودم</a>
-    </div>
     <form class="composer" id="form" data-url="{{ route('advisor.chat') }}">
         <button class="mic" id="mic" type="button" aria-label="شروع گفتگو با صدا">
             <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V7a3.5 3.5 0 0 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
@@ -125,7 +119,7 @@
 <script>
 (() => {
     const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
-    const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), quick=document.getElementById('quick'), hint=document.getElementById('hint');
+    const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), hint=document.getElementById('hint');
     const advisorVideo=document.getElementById('advisorVideo'), videoSound=document.getElementById('videoSound');
     const character=@json($character); let history=[]; let recognition=null; let speaking=false; let busy=false;
 
@@ -250,7 +244,7 @@
     };
 
     const send=async(text)=>{
-        if(!text||busy)return; busy=true; add(text,'user'); history.push({role:'user',content:text}); quick.style.display='none'; typing(); setState('thinking','دارم فکر می‌کنم...');
+        if(!text||busy)return; busy=true; add(text,'user'); history.push({role:'user',content:text}); typing(); setState('thinking','دارم فکر می‌کنم...');
         try{
             const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-10),context:{surface:'mobile_advisor'}})});
             const data=await r.json(); if(!r.ok||!data.reply)throw new Error('advisor');
@@ -261,7 +255,6 @@
     };
 
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
-    quick.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>send(b.dataset.message)));
 
     const welcomeText='سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
     let welcomePlayed=false;

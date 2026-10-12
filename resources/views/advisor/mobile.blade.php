@@ -28,7 +28,7 @@
         .character:before,.character:after{content:none!important;display:none!important}
         .character img,.character video{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important;display:block}
         .character .advisor-idle-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;opacity:1;transition:opacity .12s ease}
-        .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;visibility:hidden}
+        .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;visibility:visible}
         .video-sound{position:absolute;z-index:4;bottom:8px;right:8px;border:1px solid rgba(255,255,255,.7);background:rgba(32,35,39,.82);color:#fff;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.16)}
         .video-sound:focus-visible{outline:2px solid var(--red);outline-offset:2px}
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
@@ -98,7 +98,7 @@
     <section class="stage" id="stage">
         <div class="character">
             <img class="advisor-idle-image" id="advisorIdleImage" src="{{ $character }}" alt="مشاور پالاز">
-            <video class="advisor-video" id="advisorVideo" muted playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی متحرک مشاور پالاز">
+            <video class="advisor-video" id="advisorVideo" autoplay muted loop playsinline preload="auto" poster="{{ $character }}" aria-label="ویدیوی متحرک مشاور پالاز">
                 <source src="{{ $characterVideo }}" type="video/mp4">
             </video>
         </div>
@@ -193,10 +193,11 @@
         }
         if(activeSpeechUrl){URL.revokeObjectURL(activeSpeechUrl);activeSpeechUrl=null}
         speaking=false;root.classList.remove('speaking');
-        advisorVideo.loop=false;advisorVideo.pause();advisorVideo.style.visibility='hidden';
+        advisorVideo.muted=true;advisorVideo.loop=true;advisorVideo.style.visibility='visible';
         const idleImage=document.getElementById('advisorIdleImage');
-        if(idleImage)idleImage.style.opacity='1';
-        try{advisorVideo.currentTime=0}catch(e){}
+        if(idleImage)idleImage.style.opacity='0';
+        const videoPlay=advisorVideo.play();
+        if(videoPlay&&typeof videoPlay.catch==='function')videoPlay.catch(()=>{});
     };
 
     const finishSpeech=(generation,label)=>{
@@ -209,10 +210,11 @@
         }
         if(url)URL.revokeObjectURL(url);
         speaking=false;root.classList.remove('speaking');
-        advisorVideo.loop=false;advisorVideo.pause();advisorVideo.style.visibility='hidden';
+        advisorVideo.muted=true;advisorVideo.loop=true;advisorVideo.style.visibility='visible';
         const idleImage=document.getElementById('advisorIdleImage');
-        if(idleImage)idleImage.style.opacity='1';
-        try{advisorVideo.currentTime=0}catch(e){}
+        if(idleImage)idleImage.style.opacity='0';
+        const videoPlay=advisorVideo.play();
+        if(videoPlay&&typeof videoPlay.catch==='function')videoPlay.catch(()=>{});
         setState('',label);
     };
 
@@ -363,11 +365,21 @@
     // while the newly generated Persian voice is speaking.
     advisorVideo.muted=true;
     advisorVideo.loop=false;
-    // Do not autoplay the prerecorded clip or leave its last frame on screen.
-    // The still portrait stays visible until fresh speech audio starts.
-    advisorVideo.style.visibility='hidden';
+    // Keep the advisor video looping silently, independently of online speech synthesis.
+    advisorVideo.muted=true;
+    advisorVideo.loop=true;
+    advisorVideo.style.visibility='visible';
     const idleImage=document.getElementById('advisorIdleImage');
-    if(idleImage)idleImage.style.opacity='1';
+    if(idleImage)idleImage.style.opacity='0';
+    advisorVideo.addEventListener('error',()=>{
+        advisorVideo.style.visibility='hidden';
+        if(idleImage)idleImage.style.opacity='1';
+    });
+    const initialVideoPlay=advisorVideo.play();
+    if(initialVideoPlay&&typeof initialVideoPlay.catch==='function')initialVideoPlay.catch(()=>{
+        advisorVideo.style.visibility='hidden';
+        if(idleImage)idleImage.style.opacity='1';
+    });
     setState('','آماده شنیدن شما 🎙');
 })();
 </script>

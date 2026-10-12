@@ -539,7 +539,7 @@ REVIEW;
 
         // حتی اگر سرویس هوش مصنوعی در دسترس نباشد، پس از تکمیل نیاز مشتری
         // از کاتالوگ واقعی چند گزینه پیشنهاد بده؛ پاسخ عمومی را تکرار نکن.
-        if ($hasSpace && $hasArea && $hasCovering && $products instanceof \\Illuminate\\Support\\Collection) {
+        if ($hasSpace && $hasArea && $hasCovering && $products instanceof \Illuminate\Support\Collection) {
             $matches = $this->matchProducts($conversationText, $products)->take(3);
             if ($matches->isNotEmpty()) {
                 $lines = $matches->map(function ($product) {
@@ -552,9 +552,9 @@ REVIEW;
                             : 'قیمت استعلامی',
                     ]);
                     return '• '.implode('؛ ', $details);
-                })->implode("\\n");
+                })->implode("\n");
 
-                return 'با توجه به اطلاعاتی که فرمودید، این گزینه‌ها از کاتالوگ فعلی پالاز برای بررسی اولیه در دسترس‌اند:\\n'.$lines.'\\nبرای انتخاب نهایی، طرح/رنگ و شرایط اجرا را هم بررسی می‌کنیم. قیمت‌های ثبت‌شده ممکن است نیاز به تأیید نهایی داشته باشند.';
+                return "با توجه به اطلاعاتی که فرمودید، این گزینه‌ها از کاتالوگ فعلی پالاز برای بررسی اولیه در دسترس‌اند:\n".$lines."\nبرای انتخاب نهایی، طرح/رنگ و شرایط اجرا را هم بررسی می‌کنیم. قیمت‌های ثبت‌شده ممکن است نیاز به تأیید نهایی داشته باشند.";
             }
         }
         $lastAssistant = collect($history)

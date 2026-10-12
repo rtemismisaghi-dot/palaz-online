@@ -27,6 +27,9 @@
         .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
         .character:before,.character:after{content:none!important;display:none!important}
         .character img,.character video{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important;display:block}
+        .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2}
+        .video-sound{position:absolute;z-index:4;bottom:8px;right:8px;border:1px solid rgba(255,255,255,.7);background:rgba(32,35,39,.82);color:#fff;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.16)}
+        .video-sound:focus-visible{outline:2px solid var(--red);outline-offset:2px}
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
                 .status{text-align:center;margin-top:2px;font-size:11px;color:var(--muted);min-height:18px}
         .status b{color:var(--red)}
@@ -81,10 +84,11 @@
     </header>
     <section class="stage" id="stage">
         <div class="character">
-            <video autoplay muted loop playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
+            <video class="advisor-video" id="advisorVideo" autoplay muted loop playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
                 <source src="{{ $characterVideo }}" type="video/mp4">
                 <img src="{{ $character }}" alt="مشاور پالاز">
             </video>
+            <button class="video-sound" id="videoSound" type="button" aria-pressed="false">🔊 فعال‌کردن صدای ویدیو</button>
         </div>
         <div class="status" id="status">برای گفت‌وگوی صوتی، روی میکروفن بزنید <b>🎙</b></div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
@@ -110,6 +114,7 @@
 (() => {
     const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), quick=document.getElementById('quick'), hint=document.getElementById('hint');
+    const advisorVideo=document.getElementById('advisorVideo'), videoSound=document.getElementById('videoSound');
     const character=@json($character); let history=[]; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
@@ -221,6 +226,19 @@
         try{recognition.start()}catch(e){mic.classList.remove('listening');setState('','برای شروع دوباره روی میکروفن بزنید.');return}
     };
     mic.addEventListener('click',startVoice);
+
+    videoSound.addEventListener('click',async()=>{
+        advisorVideo.muted=!advisorVideo.muted;
+        if(!advisorVideo.muted){
+            advisorVideo.volume=1;
+            try{await advisorVideo.play()}catch(e){}
+            videoSound.textContent='🔇 بی‌صدا کردن ویدیو';
+            videoSound.setAttribute('aria-pressed','true');
+        }else{
+            videoSound.textContent='🔊 فعال‌کردن صدای ویدیو';
+            videoSound.setAttribute('aria-pressed','false');
+        }
+    });
 
     if('speechSynthesis' in window){
         loadVoices();

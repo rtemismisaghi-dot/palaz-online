@@ -11,5 +11,10 @@ return [
         'url' => env('DTZ_URL', 'http://127.0.0.1:8001'),
         'palaz_token' => env('DTZ_PALAZ_TOKEN'),
     ],
-    'openrouter' => ['key' => env('OPENROUTER_API_KEY'), 'model' => env('OPENROUTER_MODEL', 'openrouter/free'), 'vision_model' => env('OPENROUTER_VISION_MODEL', env('OPENROUTER_MODEL', 'openrouter/free'))],
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        // Color analysis must use an explicitly vision-capable model, independently of the chat model.
+        'vision_model' => env('OPENROUTER_VISION_MODEL', 'google/gemma-4-31b-it:free'),
+    ],
 ];

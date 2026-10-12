@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Agents\PalazAdvisorAgent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 final class AdvisorController extends Controller
 {
@@ -46,6 +47,74 @@ final class AdvisorController extends Controller
         $dataUrl = 'data:' . $mime . ';base64,' . base64_encode($response->body());
 
         return response()->json($agent->analyzeSpace($dataUrl));
+    }
+
+    /**
+     * Generate Persian speech on the server so customers do not need any local voice installed.
+     * The provider key and a Persian-capable female voice ID stay in server environment variables.
+     */
+    public function speech(Request $request)
+    {
+        $data = $request->validate([
+            'text' => ['required', 'string', 'max:1800'],
+        ]);
+
+        $apiKey = trim((string) config('services.elevenlabs.key', ''));
+        $voiceId = trim((string) config('services.elevenlabs.voice_id', ''));
+
+        if ($apiKey === '' || $voiceId === '') {
+            return response()->json(['message' => 'speech_service_not_configured'], 503);
+        }
+
+        $text = trim((string) preg_replace('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/u', '', $data['text']));
+        if ($text === '') {
+            return response()->json(['message' => 'speech_text_empty'], 422);
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'xi-api-key' => $apiKey,
+                'Accept' => 'audio/mpeg',
+            ])
+                ->connectTimeout(8)
+                ->timeout(45)
+                ->post(
+                    'https://api.elevenlabs.io/v1/text-to-speech/'.rawurlencode($voiceId).'?output_format=mp3_44100_128',
+                    [
+                        'text' => $text,
+                        'model_id' => (string) config('services.elevenlabs.model', 'eleven_v3'),
+                        'language_code' => 'fa',
+                    ]
+                );
+
+            $contentType = strtolower((string) $response->header('Content-Type'));
+            if (
+                ! $response->successful()
+                || (! str_contains($contentType, 'audio') && ! str_contains($contentType, 'octet-stream'))
+                || $response->body() === ''
+            ) {
+                Log::warning('Palaz advisor speech synthesis failed', [
+                    'http_status' => $response->status(),
+                    'provider_message' => mb_substr((string) $response->body(), 0, 350),
+                    'voice_configured' => $voiceId !== '',
+                ]);
+
+                return response()->json(['message' => 'speech_generation_failed'], 503);
+            }
+
+            return response($response->body(), 200, [
+                'Content-Type' => 'audio/mpeg',
+                'Cache-Control' => 'no-store',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        } catch (\\Throwable $e) {
+            Log::warning('Palaz advisor speech synthesis exception', [
+                'exception' => $e->getMessage(),
+            ]);
+            report($e);
+
+            return response()->json(['message' => 'speech_generation_failed'], 503);
+        }
     }
 
     public function chat(Request $request, PalazAdvisorAgent $agent)

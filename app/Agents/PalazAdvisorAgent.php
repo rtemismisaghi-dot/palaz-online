@@ -373,58 +373,67 @@ REVIEW;
         }
 
         $lines = $products->take(5)->map(function ($product) use ($area) {
-            if (($product['price'] ?? null) === null) {
-                return 'برآورد '.$product['name'].': قیمت استعلامی است؛ عدد قطعی اعلام نکن.';
-            }
-
-            $base = (float) $product['price'];
-            $vatUnit = $base * 1.10;
+            $attributes = is_array($product['attributes'] ?? null) ? $product['attributes'] : [];
             $type = strtolower((string) ($product['calculation_type'] ?? ''));
             $unit = mb_strtolower((string) ($product['unit'] ?? ''));
-            $quantity = $area;
-            $coverage = 'هر مترمربع';
+            $recordedPrice = $product['price'] ?? null;
 
-            if ($type === 'roll' || str_contains($unit, 'رول') || str_contains($unit, 'طاقه')) {
-                $coverage = 'رول عرض ۳ متر';
-                $rolls = (int) ceil($area / 3);
-                $estimated = $rolls * $base * 3;
-                return implode(' | ', [
-                    'برآورد '.$product['name'],
-                    'متراژ: '.number_format($area, 2).' مترمربع',
-                    'الگوی محاسبه: عرض ۳ متر، تعداد رول تقریبی: '.$rolls,
-                    'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
-                    'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
-                    'این فقط برآورد اولیه است و طول طاقه/پرت باید در سفارش نهایی بررسی شود.',
-                ]);
+            if ($recordedPrice === null && !isset($attributes['final_unit_price']) && !isset($attributes['base_unit_price'])) {
+                return 'برآورد '.$product['name'].': قیمت در کاتالوگ ثبت نشده و باید استعلام شود.';
+            }
+
+            // قیمت واردشده به‌عنوان final_unit_price شامل مالیات است؛ مالیات را دوباره اضافه نکن.
+            $vatPercent = is_numeric($attributes['vat_percent'] ?? null)
+                ? max(0, (float) $attributes['vat_percent'])
+                : null;
+            $hasFinalPrice = is_numeric($attributes['final_unit_price'] ?? null);
+            $hasBasePrice = is_numeric($attributes['base_unit_price'] ?? null);
+
+            if ($hasFinalPrice) {
+                $unitPrice = (float) $attributes['final_unit_price'];
+                $priceLabel = 'قیمت ثبت‌شده با مالیاتِ درج‌شده در کاتالوگ';
+            } elseif ($hasBasePrice && $vatPercent !== null) {
+                $unitPrice = (float) $attributes['base_unit_price'] * (1 + $vatPercent / 100);
+                $priceLabel = 'برآورد با '.$vatPercent.'٪ مالیات ثبت‌شده';
+            } else {
+                $unitPrice = (float) $recordedPrice;
+                $priceLabel = 'بر اساس قیمت ثبت‌شده؛ وضعیت مالیات در داده موجود مشخص نیست';
             }
 
             if ($type === 'carton' || str_contains($unit, 'کارتن')) {
                 $factor = (float) data_get($product, 'attributes.carton_factor', 1.777);
                 if ($factor <= 0) $factor = 1.777;
                 $cartons = (int) ceil($area / $factor);
-                $estimated = $cartons * $base;
+                $estimated = $cartons * $unitPrice;
                 return implode(' | ', [
                     'برآورد '.$product['name'],
                     'متراژ: '.number_format($area, 2).' مترمربع',
                     'پوشش هر کارتن: '.number_format($factor, 3).' مترمربع',
-                    'تعداد کارتن: '.$cartons,
-                    'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
-                    'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
+                    'تعداد تقریبی کارتن: '.$cartons,
+                    $priceLabel,
+                    'جمع تقریبی: '.number_format($estimated).' تومان',
+                    'تعداد نهایی با توجه به پرت و دستورالعمل نصب تأیید شود.',
                 ]);
             }
 
-            $estimated = $quantity * $base;
+            // برای موکت رولی، بدون انتخاب طول رول و بررسی موجودی، تعداد رول دقیق قابل محاسبه نیست.
+            $estimated = $area * $unitPrice;
+            $extra = ($type === 'roll' || str_contains($unit, 'رول') || str_contains($unit, 'طاقه'))
+                ? 'این فقط برآورد بر مبنای متراژ و قیمت واحد است؛ طول رول، برش، پرت و موجودی باید پیش از سفارش تأیید شود.'
+                : 'این برآورد بر مبنای متراژ و قیمت واحد است؛ پرت و شرایط اجرا ممکن است مبلغ نهایی را تغییر دهد.';
+
             return implode(' | ', [
                 'برآورد '.$product['name'],
                 'متراژ: '.number_format($area, 2).' مترمربع',
-                'قیمت واحد: '.number_format($base).' تومان',
-                'قیمت پایه تقریبی: '.number_format($estimated).' تومان',
-                'با ۱۰٪ مالیات: '.number_format($estimated * 1.10).' تومان',
+                'قیمت واحد مبنا: '.number_format($unitPrice).' تومان',
+                $priceLabel,
+                'جمع تقریبی: '.number_format($estimated).' تومان',
+                $extra,
             ]);
         })->implode("\n");
 
-        return "\n\nمحاسبه اولیه قطعی‌سازی‌شده از داده کاتالوگ (برای ".$area." مترمربع):\n".$lines
-            ."\nقانون: این اعداد برآورد اولیه‌اند؛ موجودی، پرت، برش و شرایط اجرای واقعی ممکن است مبلغ نهایی را تغییر دهد. اگر قیمت محصول استعلامی است عدد نساز.";
+        return "\n\nبرآورد اولیه برای ".$area." مترمربع بر اساس داده‌های ثبت‌شده کاتالوگ:\n".$lines
+            ."\nقانون: قیمت و مالیات را حدس نزن؛ قیمت نهایی، موجودی، پرت، برش و شرایط اجرا باید پیش از ثبت سفارش تأیید شود.";
     }
 
     private function filterProductsForAdvisorNeed(string $text, $products)

@@ -782,7 +782,7 @@ The customer's request is a dark, dirt-masking carpet for an office. Inspect onl
 Prefer medium-dark charcoal/grey, greige, taupe or muted brown tones with mixed/heathered or varied texture that can conceal ordinary dust and small marks. Do not automatically prefer a flat pure-black sample: lint and light dust may show on it. Avoid pale/cream/light samples.
 Do not infer durability or fiber quality from the color photo. Return a relative visual suitability score for hiding everyday dirt, a darkness score, a confidence score, and a concise Persian color label. If the image does not clearly show a carpet color/sample, set confidence low.
 Respond only with valid JSON in this exact shape:
-{"items":[{"index":1,"color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
+{"items":[{"index":1,"album":"پونه","code":"4252","color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
 All scores are numeric 0..1. Include only images you can judge from the visible sample.
 PROMPT;
 
@@ -840,6 +840,7 @@ PROMPT;
                 ->filter(function ($item) {
                     return is_array($item)
                         && is_numeric($item['index'] ?? null)
+                        && isset($item['code'])
                         && is_numeric($item['darkness_score'] ?? null)
                         && is_numeric($item['soil_masking_score'] ?? null)
                         && is_numeric($item['confidence'] ?? null)
@@ -850,6 +851,11 @@ PROMPT;
                 ->map(function ($item) use ($byIndex) {
                     $candidate = $byIndex->get((int) $item['index']);
                     if (!$candidate) return null;
+
+                    // Do not attach a visual result to the wrong product if the model mismatches an index and a code.
+                    $expectedCode = trim((string) ($candidate['product']['code'] ?? ''));
+                    $returnedCode = trim((string) ($item['code'] ?? ''));
+                    if ($expectedCode === '' || $returnedCode !== $expectedCode) return null;
 
                     $product = $candidate['product'];
                     $product['_visual_tone_fa'] = mb_substr(trim((string) ($item['color_fa'] ?? 'رنگ تیره/میانه')), 0, 80);

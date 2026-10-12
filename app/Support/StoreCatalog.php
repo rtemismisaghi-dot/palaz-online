@@ -194,12 +194,30 @@ final class StoreCatalog
             } else {
                 $disk = trim((string) ($media->disk ?: 'public'));
                 $storage = Storage::disk($disk);
-                if (! $storage->exists($path)) {
-                    return null;
-                }
+                if ($storage->exists($path)) {
+                    $bytes = $storage->get($path);
+                    $mime = strtolower((string) ($storage->mimeType($path) ?: ''));
+                } else {
+                    // Some migrated catalog rows retain the official source image URL even
+                    // if the local file was not copied successfully. Use only known Palaz hosts.
+                    $sourceUrl = trim((string) ($media->source_url ?? ''));
+                    $sourceHost = strtolower((string) parse_url($sourceUrl, PHP_URL_HOST));
+                    if (
+                        $sourceUrl === ''
+                        || ! preg_match('/^https:\\/\\//i', $sourceUrl)
+                        || ! in_array($sourceHost, ['palazonline.com', 'www.palazonline.com', 'cdn.palazonline.com'], true)
+                    ) {
+                        return null;
+                    }
 
-                $bytes = $storage->get($path);
-                $mime = strtolower((string) ($storage->mimeType($path) ?: ''));
+                    $response = Http::timeout(8)->accept('image/*')->get($sourceUrl);
+                    if (! $response->successful()) {
+                        return null;
+                    }
+
+                    $bytes = $response->body();
+                    $mime = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+                }
             }
         } catch (\Throwable $e) {
             report($e);

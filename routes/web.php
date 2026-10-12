@@ -304,6 +304,7 @@ Route::get('/checkout/installation/{quote}/success', [InstallationController::cl
     ->name('checkout.installation.success');
 Route::post('/services/request', [StoreController::class, 'serviceRequest'])->name('services.request');
 Route::post('/advisor/chat', [AdvisorController::class, 'chat'])->name('advisor.chat');
+Route::post('/advisor/speech', [AdvisorController::class, 'speech'])->middleware('throttle:20,1')->name('advisor.speech');
 Route::post('/advisor/analyze-space', [AdvisorController::class, 'analyzeSpace'])->name('advisor.analyze-space');
 Route::post('/advisor/analyze-demo', [AdvisorController::class, 'analyzeDemo'])->name('advisor.analyze-demo');
 

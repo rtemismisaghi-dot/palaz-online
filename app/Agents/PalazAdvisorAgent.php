@@ -356,7 +356,36 @@ REVIEW;
         $conversationText = $this->appendImpliedAreaAnswer($conversationText, $message, $history);
         $all = $normalize($conversationText);
 
-        // سؤال بودجه نباید باعث شود اطلاعاتی را که مشتری همین حالا گفته دوباره بپرسیم.
+        // مشتری ممکن است در هر مرحله دوباره سلام کند؛ همیشه سلام را پاسخ بده
+        // و پس از آن متناسب با اطلاعات قبلی فقط سؤال بعدیِ لازم را مطرح کن.
+        if (preg_match('/^(?:سلام|درود|وقت\\s*بخیر|صبح\\s*بخیر|عصر\\s*بخیر|شب\\s*بخیر)[.!؟،,\\s]*$/u', $current)) {
+            $greeting = 'سلام، وقت شما بخیر 🌷 خوش آمدید. ';
+            $hasSpaceBeforeGreeting = (bool) preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $all);
+            $hasAreaBeforeGreeting = $this->extractAdvisorArea($conversationText) !== null;
+            $hasCoveringBeforeGreeting = (bool) preg_match('/موکت|لمینت|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
+            $hasHomePartBeforeGreeting = (bool) preg_match('/پذیرایی|اتاق خواب|اتاق کودک|اتاق|راهرو|آشپزخانه|بالکن/u', $all);
+            $hasHotelPartBeforeGreeting = (bool) preg_match('/اتاق|راهرو|لابی|سالن|پذیرش|رستوران/u', $all);
+
+            if (!$hasSpaceBeforeGreeting) {
+                return $greeting.'برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
+            }
+            if (preg_match('/خانه|خانگی|منزل/u', $all) && !$hasHomePartBeforeGreeting) {
+                return $greeting.'برای کدام قسمت خانه است؛ پذیرایی، اتاق خواب، راهرو یا آشپزخانه؟';
+            }
+            if (preg_match('/هتل/u', $all) && !$hasHotelPartBeforeGreeting) {
+                return $greeting.'برای کدام بخش هتل است؛ اتاق، راهرو، لابی یا سالن؟';
+            }
+            if (!$hasAreaBeforeGreeting) {
+                return $greeting.'حدوداً چند مترمربع است؟ متراژ تقریبی هم کافی است.';
+            }
+            if (!$hasCoveringBeforeGreeting) {
+                return $greeting.'برای این فضا چه نوع پوششی مدنظر دارید؛ موکت، لمینت، SPC یا گزینه دیگری؟';
+            }
+
+            return $greeting.'در خدمتم. اولویت اصلی‌تان چیست: قیمت اقتصادی، دوام، نرمی و راحتی یا طرح و رنگ؟';
+        }
+
+        // سؤال بودجه نباید باعث شود اطلاعاتی را که مشتری همین حالا گفته دوباره نپرسیم.
         if (preg_match('/بودجه|هزینه|مبلغ/u', $assistantText)) {
             $missing = [];
             $hasSpace = preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $all);
@@ -369,11 +398,6 @@ REVIEW;
             return $missing
                 ? 'ممنون. برای پیشنهاد دقیق، فقط این موردها هنوز مشخص نشده‌اند: '.implode('، ', $missing).'.'
                 : null;
-        }
-
-        // فقط سلامِ تنها شروع گفت‌وگو را فعال می‌کند.
-        if (preg_match('/^(?:(?:سلام|درود)(?:\\s+وقت(?:\\s+بخیر)?)?|وقت\\s+بخیر)[.!؟،\\s]*$/u', $current)) {
-            return 'برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
         }
 
         $isHome = preg_match('/خانه|خانگی|منزل/u', $all);

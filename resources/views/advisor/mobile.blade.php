@@ -84,7 +84,7 @@
     </header>
     <section class="stage" id="stage">
         <div class="character">
-            <video class="advisor-video" id="advisorVideo" autoplay muted loop playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
+            <video class="advisor-video" id="advisorVideo" autoplay muted playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
                 <source src="{{ $characterVideo }}" type="video/mp4">
                 <img src="{{ $character }}" alt="مشاور پالاز">
             </video>
@@ -226,6 +226,11 @@
         try{recognition.start()}catch(e){mic.classList.remove('listening');setState('','برای شروع دوباره روی میکروفن بزنید.');return}
     };
     mic.addEventListener('click',startVoice);
+
+    advisorVideo.addEventListener('ended',()=>{
+        advisorVideo.pause();
+        try{advisorVideo.currentTime=0}catch(e){}
+    });
 
     videoSound.addEventListener('click',async()=>{
         advisorVideo.muted=!advisorVideo.muted;

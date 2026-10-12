@@ -575,17 +575,28 @@ REVIEW;
             })->values()
             : $ranked;
 
+        // کد دقیق بر نام آلبوم اولویت دارد؛ اگر کد گفته شده، فقط همان کد را برگردان.
+        $exactCodeMatches = $ranked->filter(function ($product) use ($query) {
+            $code = $this->normalizeSearchText((string) ($product['code'] ?? ''));
+            return $code !== '' && preg_match('/(?<![\\p{L}\\p{N}])'.preg_quote($code, '/').'(?![\\p{L}\\p{N}])/u', $query);
+        })->values();
+        if ($exactCodeMatches->isNotEmpty()) {
+            return $exactCodeMatches->take(3)->values();
+        }
+
         // اگر کاربر نام آلبوم را گفته، کدهای مختلف همان آلبوم را نگه دار؛
-        // اگر کد دقیق گفته، همان کد در رتبه اول می‌ماند. تنوع آلبوم فقط برای جست‌وجوی عمومی است.
+        // مرزبندی واژه مانع اشتباه گرفتن «یاس» با «یاسمن» می‌شود.
         $albumRequested = $ranked->contains(function ($product) use ($query) {
             $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
-            return $model !== '' && mb_strlen($model) >= 2 && str_contains($query, $model);
+            return $model !== '' && mb_strlen($model) >= 2
+                && preg_match('/(?<![\\p{L}\\p{N}])'.preg_quote($model, '/').'(?![\\p{L}\\p{N}])/u', $query);
         });
         if ($albumRequested) {
             return $candidates
                 ->filter(function ($product) use ($query) {
                     $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
-                    return $model !== '' && str_contains($query, $model);
+                    return $model !== ''
+                        && preg_match('/(?<![\\p{L}\\p{N}])'.preg_quote($model, '/').'(?![\\p{L}\\p{N}])/u', $query);
                 })
                 ->unique(fn ($product) => (string) ($product['code'] ?? $product['id'] ?? $product['name'] ?? ''))
                 ->take(8)

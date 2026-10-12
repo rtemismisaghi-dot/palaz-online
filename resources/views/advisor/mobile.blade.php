@@ -113,7 +113,7 @@
         </button>
         <div class="input-wrap"><input id="input" autocomplete="off" placeholder="یا اینجا بنویسید..."><button class="send" type="submit" aria-label="ارسال">↑</button></div>
     </form>
-    <div class="hint" id="hint">پاسخ‌ها با صدای زن فارسی از سرویس آنلاین پخش می‌شوند؛ برای سؤال صوتی روی میکروفن بزنید.</div>
+    <div class="hint" id="hint">برای مکالمه روی میکروفن بزنید یا سؤال خود را تایپ کنید.</div>
 </div>
 <script>
 (() => {
@@ -230,13 +230,13 @@
             if(!r.ok){
                 const error=await r.json().catch(()=>({}));
                 console.warn('[Palaz Advisor speech]',error.message||r.status);
-                finishSpeech(generation,'پاسخ متنی آماده است؛ می‌توانید گفتگو را ادامه دهید.');
+                finishSpeech(generation,'آماده شنیدن شما 🎙');
                 return false;
             }
             const blob=await r.blob();
             if(generation!==speechGeneration)return false;
             if(blob.size<128){
-                finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+                finishSpeech(generation,'آماده شنیدن شما 🎙');
                 return false;
             }
 
@@ -256,18 +256,18 @@
                 if(videoPlay&&typeof videoPlay.catch==='function')videoPlay.catch(()=>{});
             };
             audio.onended=()=>finishSpeech(generation,'آماده شنیدن شما 🎙');
-            audio.onerror=()=>finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+            audio.onerror=()=>finishSpeech(generation,'آماده شنیدن شما 🎙');
             try{
                 await audio.play();
                 return true;
             }catch(e){
                 console.warn('[Palaz Advisor audio playback]',e?.name||'playback_error');
-                finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+                finishSpeech(generation,'آماده شنیدن شما 🎙');
                 return false;
             }
         }catch(e){
             console.warn('[Palaz Advisor speech request]',e?.message||'request_error');
-            finishSpeech(generation,'پاسخ متنی آماده است؛ می‌توانید گفتگو را ادامه دهید.');
+            finishSpeech(generation,'آماده شنیدن شما 🎙');
             return false;
         }
     };

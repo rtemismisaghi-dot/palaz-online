@@ -31,18 +31,8 @@ final class PalazAdvisorAgent
             $allProducts = collect();
         }
 
-        $catalog = $allProducts
-            ->map(fn ($p) => implode(' | ', array_filter([
-                'شناسه: '.($p['id'] ?? ''),
-                'نام: '.$p['name'],
-                'دسته: '.($p['category'] ?? ''),
-                'مدل/آلبوم: '.($p['model'] ?? ''),
-                'کد: '.($p['code'] ?? ''),
-                'قیمت پایه: '.($p['price'] !== null ? number_format((float)$p['price']).' تومان' : 'استعلامی'),
-                'واحد: '.($p['unit'] ?? ''),
-                'رنگ/تون: '.($p['tone'] ?? ''),
-                'توضیح: '.($p['description'] ?? ''),
-            ])))->take(250)->implode("\n");
+        // فهرست کامل را به مدل نمی‌دهیم؛ فقط گزینه‌هایی که موتور تطبیق پیدا کرده اجازه ورود به پاسخ دارند.
+        $catalog = '';
 
         // قبل از ارسال به مدل، محصولات مرتبط با متن کاربر را از کاتالوگ واقعی پیدا می‌کنیم
         // تا مشاور مجبور نباشد بین کل کاتالوگ حدس بزند.
@@ -53,6 +43,20 @@ final class PalazAdvisorAgent
             ->implode(' ');
         $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $allProducts);
         $matchedProducts = $this->matchProducts($conversationText, $advisorProducts);
+        $catalog = $matchedProducts
+            ->map(fn ($p) => implode(' | ', array_filter([
+                'شناسه: '.($p['id'] ?? ''),
+                'نام: '.($p['name'] ?? ''),
+                'دسته: '.($p['category'] ?? ''),
+                'مدل/آلبوم: '.($p['model'] ?? ''),
+                'کد: '.($p['code'] ?? ''),
+                'قیمت: '.(($p['price'] ?? null) !== null ? number_format((float) $p['price']).' تومان' : 'استعلامی'),
+                'واحد: '.($p['unit'] ?? ''),
+                'رنگ/تون: '.($p['tone'] ?? ''),
+                'توضیح: '.($p['description'] ?? ''),
+            ])))
+            ->take(8)
+            ->implode("\n");
         $area = $this->extractAdvisorArea($conversationText);
         $matchedText = $matchedProducts->isNotEmpty()
             ? "\n\nمحصولات مرتبط با پیام فعلی کاربر از کاتالوگ واقعی:\n"

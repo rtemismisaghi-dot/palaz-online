@@ -17,4 +17,10 @@ return [
         // Color analysis must use an explicitly vision-capable model, independently of the chat model.
         'vision_model' => env('OPENROUTER_VISION_MODEL', 'google/gemma-4-31b-it:free'),
     ],
+    // Server-side Persian speech; does not depend on voices installed on a customer's device.
+    'elevenlabs' => [
+        'key' => env('ELEVENLABS_API_KEY'),
+        'voice_id' => env('ELEVENLABS_VOICE_ID'),
+        'model' => env('ELEVENLABS_TTS_MODEL', 'eleven_v3'),
+    ],
 ];

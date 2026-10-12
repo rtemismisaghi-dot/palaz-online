@@ -28,7 +28,7 @@ final class PalazAdvisorAgent
             && (bool) preg_match('/نرمی|نرم|لطافت/u', $normalizedRoutingText);
         $prioritizeOfficeTrafficCatalog = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedRoutingText)
             && (bool) preg_match('/موکت/u', $normalizedRoutingText)
-            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedRoutingText);
+            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد|چرک\\s*تاب|چرکتاب|تیره|رنگ/u', $normalizedRoutingText);
 
         // وقتی درخواست نرمی موکت کودک یا موکت اداری پرتردد کامل است، باید مستقیم به
         // تطبیق کاتالوگ برسیم؛ سؤال‌های مرحله‌ای نباید پیشنهاد را قطع کنند.
@@ -104,10 +104,24 @@ final class PalazAdvisorAgent
             && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedConversation);
 
         if ($hasOfficeTrafficRequest) {
-            $matchedProducts = $this->officeTrafficProducts($advisorProducts);
+            $officeCandidates = $this->officeTrafficProducts($advisorProducts);
+            if ($officeCandidates->isEmpty()) {
+                return [
+                    'reply' => 'برای این درخواست، آلبوم‌های موکت اداریِ ثبت‌شده را در کاتالوگ فعال پیدا نکردم؛ بنابراین موکت خانگی را به‌جای آن پیشنهاد نمی‌دهم. اگر کد یا نام آلبوم اداری خاصی دارید، بفرمایید تا همان را بررسی کنم.',
+                    'mode' => 'catalog',
+                    'actions' => [],
+                    'products' => [],
+                ];
+            }
+
+            $visionKey = (string) config('services.openrouter.key');
+            $matchedProducts = $visionKey !== ''
+                ? $this->rankOfficeColorVariants($officeCandidates, $visionKey)
+                : collect();
+
             if ($matchedProducts->isEmpty()) {
                 return [
-                    'reply' => 'برای محیط اداری پرتردد، آلبوم‌های موکت اداریِ ثبت‌شده را در کاتالوگ فعال پیدا نکردم؛ بنابراین موکت خانگی را به‌جای آن پیشنهاد نمی‌دهم. اگر کد یا نام آلبوم اداری خاصی دارید، بفرمایید تا همان را بررسی کنم.',
+                    'reply' => 'مدل و کدهای اداری را در کاتالوگ پیدا کردم، اما در حال حاضر نتوانستم رنگِ عکس کدها را با اطمینان تحلیل کنم. برای اینکه کد اشتباه ندهم، فعلاً رنگ تیره یا چرک‌تاب را حدس نمی‌زنم. لازم است عکس دقیق کدها و سرویس تحلیل تصویر در دسترس باشد.',
                     'mode' => 'catalog',
                     'actions' => [],
                     'products' => [],
@@ -125,8 +139,10 @@ final class PalazAdvisorAgent
                 $price = ($product['price'] ?? null) !== null
                     ? number_format((float) $product['price']).' تومان به ازای '.($product['unit'] ?? 'واحد فروش')
                     : 'قیمت استعلامی';
+                $visualTone = trim((string) ($product['_visual_tone_fa'] ?? ''));
                 return '• آلبوم '.$album
                     .(!empty($product['code']) ? '، کد '.$product['code'] : '')
+                    .($visualTone !== '' ? '؛ رنگ ظاهری تصویر: '.$visualTone : '')
                     .'؛ جنس نخ ثبت‌شده: '.$fiber
                     .'؛ بافت ثبت‌شده: '.$pile
                     .'؛ '.$price;
@@ -654,12 +670,157 @@ REVIEW;
         return $products
             ->filter(function ($product) use ($rank) {
                 $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
-                return $model !== '' && isset($rank[$model]) && $this->pileTypeForAlbum($model) === 'لوپ پایل';
+                $code = trim((string) ($product['code'] ?? ''));
+                return $model !== ''
+                    && $code !== ''
+                    && isset($rank[$model])
+                    && $this->pileTypeForAlbum($model) === 'لوپ پایل';
             })
-            ->sortBy(fn ($product) => $rank[$this->normalizeSearchText((string) ($product['model'] ?? ''))])
-            ->unique(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
-            ->take(3)
+            ->sortBy(function ($product) use ($rank) {
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                return sprintf('%02d-%s', $rank[$model] ?? 99, trim((string) ($product['code'] ?? '')));
+            })
+            ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
             ->values();
+    }
+
+    /**
+     * Compare actual, exact-code product images and return only visually suitable
+     * dark/mid-dark office carpet variants. Image-based claims are deliberately
+     * kept separate from verified fiber/pile facts.
+     */
+    private function rankOfficeColorVariants($products, string $apiKey)
+    {
+        $sampled = $products
+            ->groupBy(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
+            ->flatMap(function ($group) {
+                $group = $group->sortBy(fn ($product) => trim((string) ($product['code'] ?? '')))->values();
+                $count = $group->count();
+                if ($count <= 4) return $group;
+
+                $indexes = array_values(array_unique([
+                    0,
+                    (int) round(($count - 1) / 3),
+                    (int) round(2 * ($count - 1) / 3),
+                    $count - 1,
+                ]));
+
+                return collect($indexes)->map(fn ($index) => $group->get($index))->filter();
+            })
+            ->take(28)
+            ->values();
+
+        $visualCandidates = [];
+        foreach ($sampled as $product) {
+            $slug = trim((string) ($product['id'] ?? ''));
+            $code = trim((string) ($product['code'] ?? ''));
+            if ($slug === '' || $code === '') continue;
+
+            $image = StoreCatalog::imageDataUrlForProduct($slug);
+            if (!$image) continue;
+
+            $visualCandidates[] = [
+                'product' => $product,
+                'image' => $image,
+                'index' => count($visualCandidates) + 1,
+            ];
+        }
+
+        if ($visualCandidates === []) {
+            return collect();
+        }
+
+        $prompt = <<<'PROMPT'
+You are visually reviewing exact-code carpet swatch photos for a Persian flooring retailer.
+The customer's request is a dark, dirt-masking carpet for an office. Inspect only what is actually visible in each swatch image.
+Prefer medium-dark charcoal/grey, greige, taupe or muted brown tones with mixed/heathered or varied texture that can conceal ordinary dust and small marks. Do not automatically prefer a flat pure-black sample: lint and light dust may show on it. Avoid pale/cream/light samples.
+Do not infer durability or fiber quality from the color photo. Return a relative visual suitability score for hiding everyday dirt, a darkness score, a confidence score, and a concise Persian color label. If the image does not clearly show a carpet color/sample, set confidence low.
+Respond only with valid JSON in this exact shape:
+{"items":[{"index":1,"color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
+All scores are numeric 0..1. Include only images you can judge from the visible sample.
+PROMPT;
+
+        $parts = [['type' => 'text', 'text' => 'Analyze these carpet swatches. The number immediately before each image is its candidate index. Match every answer to that exact index, not to the apparent model name.']];
+        foreach ($visualCandidates as $candidate) {
+            $product = $candidate['product'];
+            $parts[] = [
+                'type' => 'text',
+                'text' => 'Candidate index '.$candidate['index']
+                    .' | Album: '.(string) ($product['model'] ?? '')
+                    .' | Exact product code: '.(string) ($product['code'] ?? ''),
+            ];
+            $parts[] = ['type' => 'image_url', 'image_url' => ['url' => $candidate['image']]];
+        }
+
+        try {
+            $response = Http::withToken($apiKey)
+                ->acceptJson()
+                ->withHeaders([
+                    'HTTP-Referer' => config('app.url'),
+                    'X-Title' => 'Palaz Office Carpet Color Advisor',
+                ])
+                ->timeout(45)
+                ->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model' => config('services.openrouter.vision_model', config('services.openrouter.model', 'openrouter/free')),
+                    'messages' => [
+                        ['role' => 'system', 'content' => $prompt],
+                        ['role' => 'user', 'content' => $parts],
+                    ],
+                    'max_tokens' => 1200,
+                    'temperature' => 0.1,
+                ]);
+
+            if (!$response->successful()) {
+                return collect();
+            }
+
+            $text = trim((string) data_get($response->json(), 'choices.0.message.content', ''));
+            $decoded = json_decode($text, true);
+            if (!is_array($decoded)) {
+                $first = strpos($text, '{');
+                $last = strrpos($text, '}');
+                if ($first !== false && $last !== false && $last > $first) {
+                    $decoded = json_decode(substr($text, $first, $last - $first + 1), true);
+                }
+            }
+
+            $items = data_get($decoded, 'items', []);
+            if (!is_array($items)) {
+                return collect();
+            }
+
+            $byIndex = collect($visualCandidates)->keyBy('index');
+            return collect($items)
+                ->filter(function ($item) {
+                    return is_array($item)
+                        && is_numeric($item['index'] ?? null)
+                        && is_numeric($item['darkness_score'] ?? null)
+                        && is_numeric($item['soil_masking_score'] ?? null)
+                        && is_numeric($item['confidence'] ?? null)
+                        && (float) $item['confidence'] >= 0.6
+                        && (float) $item['darkness_score'] >= 0.45
+                        && (float) $item['soil_masking_score'] >= 0.62;
+                })
+                ->map(function ($item) use ($byIndex) {
+                    $candidate = $byIndex->get((int) $item['index']);
+                    if (!$candidate) return null;
+
+                    $product = $candidate['product'];
+                    $product['_visual_tone_fa'] = mb_substr(trim((string) ($item['color_fa'] ?? 'رنگ تیره/میانه')), 0, 80);
+                    $product['_visual_darkness_score'] = (float) $item['darkness_score'];
+                    $product['_visual_soil_masking_score'] = (float) $item['soil_masking_score'];
+                    $product['_visual_confidence'] = (float) $item['confidence'];
+                    return $product;
+                })
+                ->filter()
+                ->sortByDesc(fn ($product) => $product['_visual_soil_masking_score'])
+                ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
+                ->take(3)
+                ->values();
+        } catch (\\Throwable $e) {
+            report($e);
+            return collect();
+        }
     }
 
     private function pileHeightForChildSoftness(string $album): ?float

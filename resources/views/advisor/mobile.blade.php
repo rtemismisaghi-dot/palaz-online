@@ -54,6 +54,16 @@
         .hint{text-align:center;font-size:8px;color:#aaa;padding:0 16px 4px;background:#fff}
         .back{border:0;background:transparent;color:#777;font-size:11px;padding:8px}
         .typing{display:inline-flex;gap:3px;padding:13px 15px}.typing i{width:5px;height:5px;background:#aaa;border-radius:50%;animation:typing .8s infinite}.typing i:nth-child(2){animation-delay:.12s}.typing i:nth-child(3){animation-delay:.24s}
+        .product-recommendations{width:100%;margin:8px 0 12px;padding:0 2px}
+        .product-recommendations-title{font-size:10px;font-weight:700;color:#555;margin:0 0 7px}
+        .product-recommendations-list{display:flex;gap:9px;overflow-x:auto;padding:1px 1px 8px;scrollbar-width:thin;overscroll-behavior-x:contain}
+        .product-card{display:block;flex:0 0 174px;min-width:0;overflow:hidden;border:1px solid #ebe4df;border-radius:15px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 4px 14px rgba(30,25,20,.045)}
+        .product-card img{display:block;width:100%;height:100px;object-fit:contain;background:#f7f4f1}
+        .product-card-no-image{height:100px;display:grid;place-items:center;background:#f7f4f1;color:#aaa;font-size:10px}
+        .product-card-body{padding:9px 10px 11px}
+        .product-card-name{font-size:11px;font-weight:700;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .product-card-meta{font-size:9px;color:#85888d;line-height:1.8;margin-top:4px;min-height:16px}
+        .product-card-price{font-size:10px;color:var(--red);font-weight:700;margin-top:6px;line-height:1.7}
         /* Portrait stays unchanged; subtle motion follows the conversation state. */
         @keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
         @keyframes halo{0%,100%{opacity:.42;transform:scale(.9)}50%{opacity:.72;transform:scale(.96)}}
@@ -126,6 +136,43 @@
         const row=document.createElement('div'); row.className='message '+role;
         const b=document.createElement('div');b.className='bubble';b.textContent=text;row.appendChild(b);messages.appendChild(row);scroll();return b;
     };
+    const addProducts=(products)=>{
+        if(!Array.isArray(products)||!products.length)return;
+        const section=document.createElement('section');
+        section.className='product-recommendations';
+        const title=document.createElement('div');
+        title.className='product-recommendations-title';
+        title.textContent='گزینه‌های مرتبط از کاتالوگ پالاز';
+        section.appendChild(title);
+        const list=document.createElement('div');
+        list.className='product-recommendations-list';
+        products.slice(0,3).forEach(product=>{
+            if(!product||!product.url)return;
+            const card=document.createElement('a');
+            card.className='product-card';
+            card.href=product.url;
+            const imageUrl=typeof product.image==='string'?product.image.trim():'';
+            if(imageUrl){
+                const img=document.createElement('img');
+                img.src=imageUrl;img.alt=product.name||'محصول پالاز';img.loading='lazy';
+                img.onerror=()=>{const fallback=document.createElement('div');fallback.className='product-card-no-image';fallback.textContent='تصویر در دسترس نیست';img.replaceWith(fallback)};
+                card.appendChild(img);
+            }else{
+                const placeholder=document.createElement('div');placeholder.className='product-card-no-image';placeholder.textContent='تصویر در دسترس نیست';card.appendChild(placeholder);
+            }
+            const body=document.createElement('div');body.className='product-card-body';
+            const name=document.createElement('div');name.className='product-card-name';name.textContent=product.name||'محصول پالاز';body.appendChild(name);
+            const meta=document.createElement('div');meta.className='product-card-meta';
+            meta.textContent=[product.model?'مدل '+product.model:'',product.code?'کد '+product.code:''].filter(Boolean).join(' · ')||'جزئیات محصول';
+            body.appendChild(meta);
+            const price=document.createElement('div');price.className='product-card-price';price.textContent=product.price_label||'قیمت نیازمند استعلام';body.appendChild(price);
+            card.appendChild(body);list.appendChild(card);
+        });
+        if(!list.children.length)return;
+        section.appendChild(list);
+        const row=document.createElement('div');row.className='message assistant';row.appendChild(section);
+        messages.appendChild(row);scroll();
+    };
     const typing=()=>{const row=document.createElement('div');row.className='message assistant';row.id='typing';row.innerHTML='<div class="bubble typing"><i></i><i></i><i></i></div>';messages.appendChild(row);scroll()};
     const removeTyping=()=>document.getElementById('typing')?.remove();
 
@@ -195,7 +242,7 @@
         try{
             const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-10),context:{surface:'mobile_advisor'}})});
             const data=await r.json(); if(!r.ok||!data.reply)throw new Error('advisor');
-            removeTyping(); add(data.reply,'assistant'); history.push({role:'assistant',content:data.reply});
+            removeTyping(); add(data.reply,'assistant'); addProducts(data.products); history.push({role:'assistant',content:data.reply});
             setState('speaking','پاسخ شما آماده است...'); speak(data.reply);
         }catch(e){removeTyping();const msg='ارتباط با مشاور برقرار نشد. لطفاً یک بار دیگر امتحان کنید.';add(msg,'assistant');setState('','آماده شنیدن شما 🎙') }
         finally{busy=false}

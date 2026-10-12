@@ -246,7 +246,7 @@
     const send=async(text)=>{
         if(!text||busy)return; busy=true; add(text,'user'); history.push({role:'user',content:text}); typing(); setState('thinking','دارم فکر می‌کنم...');
         try{
-            const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-10),context:{surface:'mobile_advisor'}})});
+            const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-20),context:{surface:'mobile_advisor'}})});
             const data=await r.json(); if(!r.ok||!data.reply)throw new Error('advisor');
             removeTyping(); add(data.reply,'assistant'); addProducts(data.products); addActions(data.actions); history.push({role:'assistant',content:data.reply});
             setState('speaking','پاسخ شما آماده است...'); speak(data.reply);

@@ -26,12 +26,27 @@ final class PalazAdvisorAgent
         $prioritizeChildSoftnessCatalog = (bool) preg_match('/اتاق خواب کودک|اتاق کودک|اتاق بچه|اتاق فرزند/u', $normalizedRoutingText)
             && (bool) preg_match('/موکت/u', $normalizedRoutingText)
             && (bool) preg_match('/نرمی|نرم|لطافت/u', $normalizedRoutingText);
-        $prioritizeOfficeTrafficCatalog = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedRoutingText)
-            && (bool) preg_match('/موکت/u', $normalizedRoutingText)
-            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد|چرک\\s*تاب|چرکتاب|تیره|رنگ/u', $normalizedRoutingText);
+        $lastAssistantForRouting = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'assistant')
+            ->last();
+        $lastAssistantForRoutingText = $this->normalizeSearchText((string) ($lastAssistantForRouting['content'] ?? ''));
+        $previousOfficeOptionsPresented = str_contains($lastAssistantForRoutingText, 'رنگ ظاهری تصویر')
+            || str_contains($lastAssistantForRoutingText, 'نمونه‌ها از آلبوم‌های ثبت‌شده برای کاربرد اداری');
+        $currentOfficePreferenceRequest = (bool) preg_match(
+            '/چرک\\s*تاب|چرکتاب|تیره|رنگ|دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u',
+            $this->normalizeSearchText($message)
+        );
+        $suppressOfficeReanalysis = $previousOfficeOptionsPresented && !$currentOfficePreferenceRequest;
+        $hasOfficeContext = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedRoutingText)
+            && (bool) preg_match('/موکت/u', $normalizedRoutingText);
+        $hasOfficePreference = (bool) preg_match(
+            '/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد|چرک\\s*تاب|چرکتاب|تیره|رنگ/u',
+            $normalizedRoutingText
+        );
+        $prioritizeOfficeTrafficCatalog = $hasOfficeContext && $hasOfficePreference && !$suppressOfficeReanalysis;
 
-        // وقتی درخواست نرمی موکت کودک یا موکت اداری پرتردد کامل است، باید مستقیم به
-        // تطبیق کاتالوگ برسیم؛ سؤال‌های مرحله‌ای نباید پیشنهاد را قطع کنند.
+        // وقتی درخواست نرمی موکت کودک یا یک فیلتر اداری مشخص کامل است، باید مستقیماً به کاتالوگ برسیم؛
+        // در پیام‌های پیگیری قیمت/کد، نتیجه رنگ را دوباره تحلیل نکن.
         $guidedReply = $this->guidedConversationReply($message, $history);
         if ($guidedReply !== null && !$prioritizeChildSoftnessCatalog && !$prioritizeOfficeTrafficCatalog) {
             return ['reply' => $guidedReply, 'mode' => 'guided', 'actions' => []];
@@ -99,9 +114,9 @@ final class PalazAdvisorAgent
             ];
         }
 
-        $hasOfficeTrafficRequest = (bool) preg_match('/محیط اداری|اداری|اداره|دفتر|محل کار/u', $normalizedConversation)
-            && (bool) preg_match('/موکت/u', $normalizedConversation)
-            && (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedConversation);
+        $hasOfficeTrafficRequest = $hasOfficeContext
+            && $hasOfficePreference
+            && !$suppressOfficeReanalysis;
 
         if ($hasOfficeTrafficRequest) {
             $officeCandidates = $this->officeTrafficProducts($advisorProducts);
@@ -114,18 +129,30 @@ final class PalazAdvisorAgent
                 ];
             }
 
-            $visionKey = (string) config('services.openrouter.key');
-            $matchedProducts = $visionKey !== ''
-                ? $this->rankOfficeColorVariants($officeCandidates, $visionKey)
-                : collect();
+            $hasOfficeDarkColorRequest = (bool) preg_match(
+                '/چرک\\s*تاب|چرکتاب|تیره|رنگ/u',
+                $this->normalizeSearchText($message)
+            ) || (!$previousOfficeOptionsPresented && (bool) preg_match(
+                '/چرک\\s*تاب|چرکتاب|تیره|رنگ/u',
+                $normalizedConversation
+            ));
 
-            if ($matchedProducts->isEmpty()) {
-                return [
-                    'reply' => 'مدل و کدهای اداری را در کاتالوگ پیدا کردم، اما در حال حاضر نتوانستم رنگِ عکس کدها را با اطمینان تحلیل کنم. برای اینکه کد اشتباه ندهم، فعلاً رنگ تیره یا چرک‌تاب را حدس نمی‌زنم. لازم است عکس دقیق کدها و سرویس تحلیل تصویر در دسترس باشد.',
-                    'mode' => 'catalog',
-                    'actions' => [],
-                    'products' => [],
-                ];
+            if ($hasOfficeDarkColorRequest) {
+                $visionKey = (string) config('services.openrouter.key');
+                $matchedProducts = $visionKey !== ''
+                    ? $this->rankOfficeColorVariants($officeCandidates, $visionKey)
+                    : collect();
+
+                if ($matchedProducts->isEmpty()) {
+                    return [
+                        'reply' => 'مدل و کدهای اداری را در کاتالوگ پیدا کردم، اما رنگِ عکس کدها را فعلاً با اطمینان نتوانستم تحلیل کنم. برای اینکه کد اشتباه ندهم، رنگ تیره یا چرک‌تاب را حدس نمی‌زنم؛ باید عکس دقیق کدها و سرویس تحلیل تصویر در دسترس باشد.',
+                        'mode' => 'catalog',
+                        'actions' => [],
+                        'products' => [],
+                    ];
+                }
+            } else {
+                $matchedProducts = $this->officeTrafficRepresentativeProducts($officeCandidates);
             }
 
             $area = $this->extractAdvisorArea($conversationText);
@@ -148,8 +175,15 @@ final class PalazAdvisorAgent
                     .'؛ '.$price;
             })->implode(PHP_EOL);
 
+            $hasHighTrafficNeed = (bool) preg_match('/دوام|تردد بالا|پرتردد|رفت و آمد|رفت\\s*و\\s*آمد/u', $normalizedConversation);
+            $officeNeedLabel = $hasOfficeDarkColorRequest
+                ? ($hasHighTrafficNeed ? 'موکت اداری پرتردد با رنگ تیره و چرک‌تاب' : 'موکت اداری با رنگ تیره و چرک‌تاب')
+                : 'موکت اداری برای بررسی کاربرد پرتردد';
+
             return [
-                'reply' => 'برای موکت محیط اداری با تردد بالا'.$areaText.'، این نمونه‌ها از آلبوم‌های ثبت‌شده برای کاربرد اداری در کاتالوگ فعال پیدا شدند:'.PHP_EOL.$lines.PHP_EOL.'طبق اطلاعات فعلی، آلبوم‌های اداری نام‌برده‌شده بافت لوپ پایل دارند؛ اما داده مقایسه‌ای کافی برای رتبه‌بندی دوام این مدل‌ها در برابر یکدیگر ندارم، پس آن‌ها را به‌عنوان گزینه‌های قابل‌بررسی معرفی می‌کنم، نه رتبه‌بندی قطعی. برای انتخاب نهایی می‌توانیم کد، رنگ و قیمت هر مدل را بررسی کنیم.',
+                'reply' => 'برای '.$officeNeedLabel.$areaText.'، این گزینه‌ها از آلبوم‌های ثبت‌شده برای کاربرد اداری در کاتالوگ فعال پیدا شدند:'.PHP_EOL.$lines.PHP_EOL
+                    .($hasOfficeDarkColorRequest ? 'رنگ‌ها از روی عکس کدهای قابل‌دسترس برآورد شده‌اند و ممکن است با نور محیط یا نمایشگر کمی تفاوت داشته باشند. ' : '')
+                    .'طبق اطلاعات فعلی، آلبوم‌های اداری نام‌برده‌شده بافت لوپ پایل دارند؛ اما داده مقایسه‌ای کافی برای رتبه‌بندی دوام این مدل‌ها در برابر یکدیگر ندارم، پس آن‌ها را به‌عنوان گزینه‌های قابل‌بررسی معرفی می‌کنم، نه رتبه‌بندی قطعی. برای انتخاب نهایی می‌توانیم کد، رنگ و قیمت هر مدل را بررسی کنیم.',
                 'mode' => 'catalog',
                 'actions' => [],
                 'products' => $this->productCards($matchedProducts, $conversationText),
@@ -681,6 +715,18 @@ REVIEW;
                 return sprintf('%02d-%s', $rank[$model] ?? 99, trim((string) ($product['code'] ?? '')));
             })
             ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
+            ->values();
+    }
+
+    /**
+     * For a general office/high-traffic request without a color preference, show distinct
+     * registered office albums and do not pretend that the selection is color-ranked.
+     */
+    private function officeTrafficRepresentativeProducts($products)
+    {
+        return $products
+            ->unique(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
+            ->take(3)
             ->values();
     }
 

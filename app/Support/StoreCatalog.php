@@ -225,6 +225,40 @@ final class StoreCatalog
             return null;
         }
 
+        // Compress large catalog swatches before sending them to the vision model.
+        // The product code and visible carpet texture remain readable at this size.
+        if (function_exists('imagecreatefromstring') && function_exists('imagejpeg')) {
+            $source = @imagecreatefromstring($bytes);
+            if ($source !== false) {
+                $sourceWidth = imagesx($source);
+                $sourceHeight = imagesy($source);
+                if ($sourceWidth > 320 || $sourceHeight > 320 || strlen($bytes) > 120 * 1024) {
+                    $scale = min(1, 320 / max(1, $sourceWidth), 320 / max(1, $sourceHeight));
+                    $targetWidth = max(1, (int) round($sourceWidth * $scale));
+                    $targetHeight = max(1, (int) round($sourceHeight * $scale));
+                    $target = imagecreatetruecolor($targetWidth, $targetHeight);
+                    if ($target !== false) {
+                        $white = imagecolorallocate($target, 255, 255, 255);
+                        imagefill($target, 0, 0, $white);
+                        imagecopyresampled($target, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $sourceWidth, $sourceHeight);
+                        ob_start();
+                        $encoded = imagejpeg($target, null, 74);
+                        $optimized = ob_get_clean();
+                        if ($encoded && is_string($optimized) && $optimized !== '') {
+                            $bytes = $optimized;
+                            $mime = 'image/jpeg';
+                        }
+                        imagedestroy($target);
+                    }
+                }
+                imagedestroy($source);
+            }
+        }
+
+        if (strlen($bytes) > 512 * 1024) {
+            return null;
+        }
+
         return 'data:'.$mime.';base64,'.base64_encode($bytes);
     }
 

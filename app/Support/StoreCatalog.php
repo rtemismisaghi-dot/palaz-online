@@ -201,7 +201,7 @@ final class StoreCatalog
                 $bytes = $storage->get($path);
                 $mime = strtolower((string) ($storage->mimeType($path) ?: ''));
             }
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             report($e);
             return null;
         }

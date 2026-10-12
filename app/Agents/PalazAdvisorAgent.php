@@ -520,7 +520,10 @@ REVIEW;
     private function fallback(string $message, array $history = []): string
     {
         $t = mb_strtolower($message);
-        $previousAssistantText = mb_strtolower((string) collect($history)->filter(fn ($m) => ($m['role'] ?? '') === 'assistant')->last()['content'] ?? '');
+        $lastAssistant = collect($history)
+            ->filter(fn ($m) => ($m['role'] ?? '') === 'assistant')
+            ->last();
+        $previousAssistantText = mb_strtolower((string) data_get($lastAssistant, 'content', ''));
         if (preg_match('/بودجه|هزینه|مبلغ/u', $previousAssistantText)) {
             return 'ممنون، بودجه‌تان را در نظر می‌گیرم. برای اینکه پاسخ تکراری ندهم، فقط موردی را بفرمایید که هنوز مشخص نشده است: فضا، متراژ یا نوع پوشش.';
         }

@@ -27,7 +27,8 @@
         .character{width:min(76vw, min(38svh, 330px));height:min(76vw, min(38svh, 330px));max-width:330px;max-height:330px;min-width:0;min-height:0;display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto}
         .character:before,.character:after{content:none!important;display:none!important}
         .character img,.character video{width:100%;height:100%;object-fit:contain;position:relative;z-index:2;transform-origin:50% 82%;animation:none!important;transform:none!important;display:block}
-        .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2}
+        .character .advisor-idle-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;opacity:1;transition:opacity .12s ease}
+        .character .advisor-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:3;visibility:hidden}
         .video-sound{position:absolute;z-index:4;bottom:8px;right:8px;border:1px solid rgba(255,255,255,.7);background:rgba(32,35,39,.82);color:#fff;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.16)}
         .video-sound:focus-visible{outline:2px solid var(--red);outline-offset:2px}
         /* Keep the portrait and its background fixed; animate only the character layer is not possible with a flattened image. */
@@ -96,9 +97,9 @@
     </header>
     <section class="stage" id="stage">
         <div class="character">
-            <video class="advisor-video" id="advisorVideo" autoplay muted playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی مشاور پالاز">
+            <img class="advisor-idle-image" id="advisorIdleImage" src="{{ $character }}" alt="مشاور پالاز">
+            <video class="advisor-video" id="advisorVideo" muted playsinline preload="metadata" poster="{{ $character }}" aria-label="ویدیوی متحرک مشاور پالاز">
                 <source src="{{ $characterVideo }}" type="video/mp4">
-                <img src="{{ $character }}" alt="مشاور پالاز">
             </video>
         </div>
         <div class="status" id="status">برای گفتگو تایپ کنید یا روی میکروفن بزنید 🎙</div>
@@ -192,7 +193,9 @@
         }
         if(activeSpeechUrl){URL.revokeObjectURL(activeSpeechUrl);activeSpeechUrl=null}
         speaking=false;root.classList.remove('speaking');
-        advisorVideo.loop=false;advisorVideo.pause();
+        advisorVideo.loop=false;advisorVideo.pause();advisorVideo.style.visibility='hidden';
+        const idleImage=document.getElementById('advisorIdleImage');
+        if(idleImage)idleImage.style.opacity='1';
         try{advisorVideo.currentTime=0}catch(e){}
     };
 
@@ -206,7 +209,9 @@
         }
         if(url)URL.revokeObjectURL(url);
         speaking=false;root.classList.remove('speaking');
-        advisorVideo.loop=false;advisorVideo.pause();
+        advisorVideo.loop=false;advisorVideo.pause();advisorVideo.style.visibility='hidden';
+        const idleImage=document.getElementById('advisorIdleImage');
+        if(idleImage)idleImage.style.opacity='1';
         try{advisorVideo.currentTime=0}catch(e){}
         setState('',label);
     };
@@ -252,6 +257,9 @@
                 advisorVideo.muted=true;
                 advisorVideo.loop=true;
                 try{advisorVideo.currentTime=0}catch(e){}
+                const idleImage=document.getElementById('advisorIdleImage');
+                if(idleImage)idleImage.style.opacity='0';
+                advisorVideo.style.visibility='visible';
                 const videoPlay=advisorVideo.play();
                 if(videoPlay&&typeof videoPlay.catch==='function')videoPlay.catch(()=>{});
             };
@@ -355,10 +363,11 @@
     // while the newly generated Persian voice is speaking.
     advisorVideo.muted=true;
     advisorVideo.loop=false;
-    advisorVideo.addEventListener('ended',()=>{
-        advisorVideo.pause();
-        try{advisorVideo.currentTime=0}catch(e){}
-    });
+    // Do not autoplay the prerecorded clip or leave its last frame on screen.
+    // The still portrait stays visible until fresh speech audio starts.
+    advisorVideo.style.visibility='hidden';
+    const idleImage=document.getElementById('advisorIdleImage');
+    if(idleImage)idleImage.style.opacity='1';
     setState('','آماده شنیدن شما 🎙');
 })();
 </script>

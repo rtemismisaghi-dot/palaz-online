@@ -51,7 +51,8 @@ final class PalazAdvisorAgent
             ->pluck('content')
             ->push($message)
             ->implode(' ');
-        $matchedProducts = $this->matchProducts($conversationText, $allProducts);
+        $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $allProducts);
+        $matchedProducts = $this->matchProducts($conversationText, $advisorProducts);
         $area = $this->extractAdvisorArea($conversationText);
         $matchedText = $matchedProducts->isNotEmpty()
             ? "\n\nمحصولات مرتبط با پیام فعلی کاربر از کاتالوگ واقعی:\n"
@@ -423,6 +424,40 @@ REVIEW;
             ."\nقانون: این اعداد برآورد اولیه‌اند؛ موجودی، پرت، برش و شرایط اجرای واقعی ممکن است مبلغ نهایی را تغییر دهد. اگر قیمت محصول استعلامی است عدد نساز.";
     }
 
+    private function filterProductsForAdvisorNeed(string $text, $products)
+    {
+        $query = $this->normalizeSearchText($text);
+        $categorySlugs = [];
+
+        if (preg_match('/موکت\\s*(?:تایل|تایلی)|تایل\\s*موکت/u', $query)) {
+            $categorySlugs = ['carpet_tile', 'carpet-tile', 'tile-carpet'];
+        } elseif (preg_match('/موکت/u', $query)) {
+            $categorySlugs = ['carpet'];
+        } elseif (preg_match('/لمینت|پارکت/u', $query)) {
+            $categorySlugs = ['laminate'];
+        } elseif (preg_match('/\\bspc\\b|اس\\s*پی\\s*سی/u', $query)) {
+            $categorySlugs = ['spc'];
+        } elseif (preg_match('/کاغذ\\s*دیواری/u', $query)) {
+            $categorySlugs = ['wallpaper'];
+        } elseif (preg_match('/چمن/u', $query)) {
+            $categorySlugs = ['grass'];
+        } elseif (preg_match('/گارد|اسپاگتی/u', $query)) {
+            $categorySlugs = ['garde', 'spaghetti'];
+        }
+
+        if ($categorySlugs === []) {
+            return $products;
+        }
+
+        $filtered = $products->filter(fn ($product) => in_array(
+            $this->normalizeSearchText((string) ($product['category'] ?? '')),
+            $categorySlugs,
+            true
+        ))->values();
+
+        return $filtered->isNotEmpty() ? $filtered : $products;
+    }
+
     private function matchProducts(string $message, $products)
     {
         $query = $this->normalizeSearchText($message);
@@ -540,7 +575,8 @@ REVIEW;
         // حتی اگر سرویس هوش مصنوعی در دسترس نباشد، پس از تکمیل نیاز مشتری
         // از کاتالوگ واقعی چند گزینه پیشنهاد بده؛ پاسخ عمومی را تکرار نکن.
         if ($hasSpace && $hasArea && $hasCovering && $products instanceof \Illuminate\Support\Collection) {
-            $matches = $this->matchProducts($conversationText, $products)->take(3);
+            $advisorProducts = $this->filterProductsForAdvisorNeed($conversationText, $products);
+            $matches = $this->matchProducts($conversationText, $advisorProducts)->take(3);
             if ($matches->isNotEmpty()) {
                 $lines = $matches->map(function ($product) {
                     $details = array_filter([

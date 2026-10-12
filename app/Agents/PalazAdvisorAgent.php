@@ -463,46 +463,95 @@ REVIEW;
     private function matchProducts(string $message, $products)
     {
         $query = $this->normalizeSearchText($message);
-        if ($query === '') {
+        if ($query === '' || $products->isEmpty()) {
             return collect();
         }
 
-        $tokens = collect(preg_split('/\s+/u', $query))
-            ->filter(fn ($token) => mb_strlen($token) >= 2)
+        // واژه‌های عمومی مکالمه نباید باعث شوند محصولات به‌ظاهر مرتبط امتیاز بگیرند.
+        $stopWords = [
+            'برای','میخوام','میخواهم','میخام','دنبال','مناسب','گزینه','انتخاب','پیشنهاد',
+            'خانه','خانگی','منزل','پذیرایی','اتاق','خواب','راهرو','آشپزخانه','دفتر',
+            'اداری','اداره','هتل','لابی','نمازخانه','فضا','محل','کار','متر','مترمربع',
+            'مربع','متراژ','مساحت','حدود','تقریبا','تقریباً','دارم','است','هست','باشه',
+            'موکت','لمینت','پارکت','کفپوش','کف','قیمت','بودجه','اقتصادی','ارزان',
+            'گران','دوام','پرتردد','نرمی','راحتی','رنگ','طرح','کیفیت','میباشد',
+        ];
+        $tokens = collect(preg_split('/\\s+/u', $query))
+            ->map(fn ($token) => preg_replace('/^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}]+$/u', '', $token))
+            ->filter(fn ($token) => mb_strlen($token) >= 3 && !in_array($token, $stopWords, true) && !is_numeric($token))
             ->unique()
             ->values();
 
-        return $products
+        $ranked = $products
             ->map(function ($product) use ($query, $tokens) {
-                $haystack = $this->normalizeSearchText(implode(' ', array_filter([
-                    $product['name'] ?? '',
-                    $product['model'] ?? '',
-                    $product['code'] ?? '',
-                    $product['tone'] ?? '',
-                    $product['category'] ?? '',
-                    $product['description'] ?? '',
-                ])));
+                $name = $this->normalizeSearchText((string) ($product['name'] ?? ''));
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                $code = $this->normalizeSearchText((string) ($product['code'] ?? ''));
+                $description = $this->normalizeSearchText((string) ($product['description'] ?? ''));
+                $tone = $this->normalizeSearchText((string) ($product['tone'] ?? ''));
+                $haystack = implode(' ', array_filter([$name, $model, $code, $description, $tone]));
                 $score = 0;
-                if ($haystack !== '' && str_contains($haystack, $query)) {
-                    $score += 20;
+
+                if ($code !== '' && preg_match('/(?<![\\p{L}\\p{N}])'.preg_quote($code, '/').'(?![\\p{L}\\p{N}])/u', $query)) {
+                    $score += 100;
                 }
+                if ($model !== '' && mb_strlen($model) >= 2 && str_contains($query, $model)) {
+                    $score += 70;
+                }
+                if ($name !== '' && str_contains($query, $name)) {
+                    $score += 50;
+                }
+
                 foreach ($tokens as $token) {
                     if (str_contains($haystack, $token)) {
-                        $score += 2;
+                        $score += 5;
                     }
                 }
-                if (($product['code'] ?? '') !== '' && str_contains($query, $this->normalizeSearchText($product['code']))) {
-                    $score += 30;
-                }
-                if (($product['model'] ?? '') !== '' && str_contains($query, $this->normalizeSearchText($product['model']))) {
-                    $score += 15;
-                }
+
+                // اطلاعات واقعی و قابل نمایش اولویت دارند؛ این امتیاز ادعای کیفیت محصول نیست.
+                if (!empty($product['image'])) $score += 2;
+                if (!empty($product['model'])) $score += 2;
+                if (!empty($product['code'])) $score += 1;
+                if (($product['price'] ?? null) !== null) $score += 1;
+
                 return ['product' => $product, 'score' => $score];
             })
-            ->filter(fn ($item) => $item['score'] > 0)
             ->sortByDesc('score')
-            ->take(8)
             ->pluck('product')
+            ->values();
+
+        // اگر مشتری اسم/کد خاصی نگفته، چند گزینه متنوع از همان دسته مجاز را نشان بده؛
+        // تکرار کدهای یک آلبوم را تا حد ممکن کم می‌کنیم.
+        $specificMatch = $tokens->isNotEmpty()
+            && $ranked->take(3)->contains(function ($product) use ($query) {
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                $code = $this->normalizeSearchText((string) ($product['code'] ?? ''));
+                $name = $this->normalizeSearchText((string) ($product['name'] ?? ''));
+                return ($code !== '' && str_contains($query, $code))
+                    || ($model !== '' && mb_strlen($model) >= 2 && str_contains($query, $model))
+                    || ($name !== '' && mb_strlen($name) >= 4 && str_contains($query, $name));
+            });
+
+        $candidates = $specificMatch
+            ? $ranked->filter(function ($product) use ($query, $tokens) {
+                $haystack = $this->normalizeSearchText(implode(' ', array_filter([
+                    $product['name'] ?? '', $product['model'] ?? '',
+                    $product['code'] ?? '', $product['description'] ?? '', $product['tone'] ?? '',
+                ])));
+                $code = $this->normalizeSearchText((string) ($product['code'] ?? ''));
+                $model = $this->normalizeSearchText((string) ($product['model'] ?? ''));
+                return ($code !== '' && str_contains($query, $code))
+                    || ($model !== '' && mb_strlen($model) >= 2 && str_contains($query, $model))
+                    || $tokens->contains(fn ($token) => str_contains($haystack, $token));
+            })->values()
+            : $ranked;
+
+        return $candidates
+            ->unique(function ($product) {
+                $model = trim((string) ($product['model'] ?? ''));
+                return $model !== '' ? 'model:'.$this->normalizeSearchText($model) : 'product:'.($product['id'] ?? $product['code'] ?? $product['name'] ?? '');
+            })
+            ->take(8)
             ->values();
     }
 

@@ -66,7 +66,7 @@ final class AdvisorController extends Controller
             return response()->json(['message' => 'speech_service_not_configured'], 503);
         }
 
-        $text = trim((string) preg_replace('/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]/u', '', $data['text']));
+        $text = trim((string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $data['text']));
         if ($text === '') {
             return response()->json(['message' => 'speech_text_empty'], 422);
         }
@@ -107,7 +107,7 @@ final class AdvisorController extends Controller
                 'Cache-Control' => 'no-store',
                 'X-Content-Type-Options' => 'nosniff',
             ]);
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::warning('Palaz advisor speech synthesis exception', [
                 'exception' => $e->getMessage(),
             ]);

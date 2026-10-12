@@ -138,7 +138,7 @@ PROMPT;
             }
         }
 
-        return ['reply' => $this->fallback($message), 'mode' => 'catalog', 'actions' => $this->actions($message)];
+        return ['reply' => $this->fallback($message, $history), 'mode' => 'catalog', 'actions' => $this->actions($message)];
     }
 
     public function analyzeSpace(string $imageDataUrl): array
@@ -288,7 +288,7 @@ REVIEW;
         $assistantText = $normalize((string) ($previousAssistant['content'] ?? ''));
 
         // پس از پرسیدن بودجه، پاسخ مشتری نباید دوباره به سؤال عمومی شروع مشاوره برگردد.
-        if (str_contains($assistantText, 'بودجه')) {
+        if (preg_match('/بودجه|هزینه|مبلغ/u', $assistantText)) {
             $priorUserText = $normalize(collect($history)
                 ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
                 ->pluck('content')
@@ -514,9 +514,13 @@ REVIEW;
         return $letters > 20 && $latin / max(1, $letters) > 0.55;
     }
 
-    private function fallback(string $message): string
+    private function fallback(string $message, array $history = []): string
     {
         $t = mb_strtolower($message);
+        $previousAssistantText = mb_strtolower((string) collect($history)->filter(fn ($m) => ($m['role'] ?? '') === 'assistant')->last()['content'] ?? '');
+        if (preg_match('/بودجه|هزینه|مبلغ/u', $previousAssistantText)) {
+            return 'ممنون، بودجه‌تان را در نظر می‌گیرم. برای اینکه پاسخ تکراری ندهم، فقط موردی را بفرمایید که هنوز مشخص نشده است: فضا، متراژ یا نوع پوشش.';
+        }
         if (preg_match('/سلام|درود|وقت بخیر/u', $t)) {
             return 'حتماً. بگویید برای چه فضایی و چه نوع پوششی دنبال گزینه مناسب هستید؟';
         }

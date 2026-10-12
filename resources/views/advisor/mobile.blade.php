@@ -100,27 +100,26 @@
                 <source src="{{ $characterVideo }}" type="video/mp4">
                 <img src="{{ $character }}" alt="مشاور پالاز">
             </video>
-            <button class="video-sound" id="videoSound" type="button" aria-pressed="false">🔊 فعال‌کردن صدای ویدیو</button>
         </div>
-        <div class="status" id="status">برای گفت‌وگوی صوتی، روی میکروفن بزنید <b>🎙</b></div>
+        <div class="status" id="status">برای گفتگو تایپ کنید یا روی میکروفن بزنید 🎙</div>
         <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </section>
     <main class="messages" id="messages" aria-live="polite">
         <div class="message assistant"><div class="bubble">سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.</div></div>
     </main>
-    <form class="composer" id="form" data-url="{{ route('advisor.chat') }}">
+    <form class="composer" id="form" data-url="{{ route('advisor.chat') }}" data-speech-url="{{ route('advisor.speech') }}">
         <button class="mic" id="mic" type="button" aria-label="شروع گفتگو با صدا">
             <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 0 0 3.5-3.5V7a3.5 3.5 0 0 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5Z"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
         </button>
         <div class="input-wrap"><input id="input" autocomplete="off" placeholder="یا اینجا بنویسید..."><button class="send" type="submit" aria-label="ارسال">↑</button></div>
     </form>
-    <div class="hint" id="hint">برای مکالمه صوتی روی میکروفن بزنید. مرورگر برای اولین بار اجازه دسترسی می‌خواهد.</div>
+    <div class="hint" id="hint">پاسخ‌ها با صدای زن فارسی از سرویس آنلاین پخش می‌شوند؛ برای سؤال صوتی روی میکروفن بزنید.</div>
 </div>
 <script>
 (() => {
     const root=document.getElementById('advisor'), stage=document.getElementById('stage'), status=document.getElementById('status');
     const messages=document.getElementById('messages'), form=document.getElementById('form'), input=document.getElementById('input'), mic=document.getElementById('mic'), hint=document.getElementById('hint');
-    const advisorVideo=document.getElementById('advisorVideo'), videoSound=document.getElementById('videoSound');
+    const advisorVideo=document.getElementById('advisorVideo');
     const character=@json($character); let history=[{role:'assistant',content:'سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.'}]; let recognition=null; let speaking=false; let busy=false;
 
     const setState=(state,label)=>{
@@ -182,147 +181,185 @@
     };
     const removeTyping=()=>document.getElementById('typing')?.remove();
 
-    let voicesReady=false;
-    const loadVoices=()=>{
-        if(!('speechSynthesis' in window)) return [];
-        const voices=speechSynthesis.getVoices();
-        voicesReady=voices.length>0;
-        return voices;
-    };
-    const persianVoice=()=>{
-        // Never choose a non-Persian voice merely because its name mentions Iran/Persian.
-        const voices=loadVoices();
-        const faVoices=voices.filter(v=>/^fa(?:[-_]|$)/i.test(v.lang||''));
-        if(!faVoices.length) return null;
+    let activeSpeechAudio=null, activeSpeechUrl=null, speechGeneration=0;
 
-        // SpeechSynthesis exposes no reliable gender field. Only allow voices explicitly
-        // marked female or matching a known feminine name; never guess and risk a male voice.
-        const feminine=faVoices.find(v=>/female|woman|lady|زن|niloofar|نیلوفر|darya|دریا|ava|آوا|sara|سارا|shirin|شیرین|maryam|مریم|mahsa|مهسا|parisa|پریسا|hoda|هدا|tara|تارا|nazanin|نازنین|yasaman|یاسمن|bahar|بهار|sahar|سحر|roya|رویا|nika|نیکا|dorsa|درسا/i.test(v.name||''));
-        return feminine || null;
+    const stopSpeech=()=>{
+        speechGeneration++;
+        if(activeSpeechAudio){
+            activeSpeechAudio.onplay=null;activeSpeechAudio.onended=null;activeSpeechAudio.onerror=null;
+            try{activeSpeechAudio.pause();activeSpeechAudio.src='';activeSpeechAudio.load()}catch(e){}
+            activeSpeechAudio=null;
+        }
+        if(activeSpeechUrl){URL.revokeObjectURL(activeSpeechUrl);activeSpeechUrl=null}
+        speaking=false;root.classList.remove('speaking');
+        advisorVideo.loop=false;advisorVideo.pause();
+        try{advisorVideo.currentTime=0}catch(e){}
     };
+
+    const finishSpeech=(generation,label)=>{
+        if(generation!==speechGeneration)return;
+        const audio=activeSpeechAudio,url=activeSpeechUrl;
+        activeSpeechAudio=null;activeSpeechUrl=null;
+        if(audio){
+            audio.onplay=null;audio.onended=null;audio.onerror=null;
+            try{audio.pause();audio.src='';audio.load()}catch(e){}
+        }
+        if(url)URL.revokeObjectURL(url);
+        speaking=false;root.classList.remove('speaking');
+        advisorVideo.loop=false;advisorVideo.pause();
+        try{advisorVideo.currentTime=0}catch(e){}
+        setState('',label);
+    };
+
     const speak=async(text)=>{
-        if(!('speechSynthesis' in window)||!text) return false;
-        speechSynthesis.cancel();
-        try{speechSynthesis.resume()}catch(e){}
+        if(!text)return false;
+        stopSpeech();
+        const generation=speechGeneration;
+        setState('thinking','پاسخ صوتی در حال آماده‌سازی است...');
+        try{
+            const r=await fetch(form.dataset.speechUrl,{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'audio/mpeg,application/json',
+                    'X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content
+                },
+                body:JSON.stringify({text})
+            });
+            if(generation!==speechGeneration)return false;
+            if(!r.ok){
+                const error=await r.json().catch(()=>({}));
+                console.warn('[Palaz Advisor speech]',error.message||r.status);
+                finishSpeech(generation,'پاسخ متنی آماده است؛ می‌توانید گفتگو را ادامه دهید.');
+                return false;
+            }
+            const blob=await r.blob();
+            if(generation!==speechGeneration)return false;
+            if(blob.size<128){
+                finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+                return false;
+            }
 
-        // Let Chrome finish populating its voice list before checking for Persian.
-        if(!voicesReady){
-            loadVoices();
-            await new Promise(resolve=>setTimeout(resolve,180));
-        }
-
-        const v=persianVoice();
-        if(!v){
-            // Critical: no voice fallback. That fallback was reading Persian responses in an English voice.
-            speaking=false;
-            setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای زن فارسی روی این دستگاه در دسترس نیست.');
-            hint.textContent='برای جلوگیری از پخش صدای مردانه یا انگلیسی، پاسخ صوتی غیرفعال شد. برای پخش صوتی باید یک صدای زن فارسی در مرورگر فعال باشد.';
-            return false;
-        }
-
-        const u=new SpeechSynthesisUtterance(text);
-        u.lang=v.lang||'fa-IR';
-        u.voice=v;
-        u.rate=.92;
-        u.pitch=1.03;
-        u.volume=1;
-
-        return await new Promise(resolve=>{
-            let started=false;
-            let settled=false;
-            const finish=(value)=>{
-                if(settled)return;
-                settled=true;
-                resolve(value);
-            };
-            u.onstart=()=>{
-                started=true;
+            activeSpeechUrl=URL.createObjectURL(blob);
+            const audio=new Audio(activeSpeechUrl);
+            activeSpeechAudio=audio;
+            audio.preload='auto';
+            audio.volume=1;
+            audio.onplay=()=>{
+                if(generation!==speechGeneration)return;
                 speaking=true;
                 setState('speaking','مشاور پالاز در حال صحبت است...');
+                advisorVideo.muted=true;
+                advisorVideo.loop=true;
+                try{advisorVideo.currentTime=0}catch(e){}
+                const videoPlay=advisorVideo.play();
+                if(videoPlay&&typeof videoPlay.catch==='function')videoPlay.catch(()=>{});
             };
-            u.onend=()=>{
-                speaking=false;
-                setState('','آماده شنیدن شما 🎙');
-                finish(true);
-            };
-            u.onerror=()=>{
-                speaking=false;
-                setState('','پاسخ به‌صورت متنی نمایش داده شد؛ پخش صدای فارسی موفق نبود.');
-                finish(false);
-            };
-            speechSynthesis.speak(u);
-            try{speechSynthesis.resume()}catch(e){}
-            setTimeout(()=>{
-                if(!started && !speechSynthesis.speaking){
-                    speaking=false;
-                    setState('','پاسخ به‌صورت متنی نمایش داده شد؛ صدای فارسی پخش نشد.');
-                    finish(false);
-                }
-            },1200);
-        });
+            audio.onended=()=>finishSpeech(generation,'آماده شنیدن شما 🎙');
+            audio.onerror=()=>finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+            try{
+                await audio.play();
+                return true;
+            }catch(e){
+                console.warn('[Palaz Advisor audio playback]',e?.name||'playback_error');
+                finishSpeech(generation,'پاسخ متنی آماده است؛ پخش صدا انجام نشد.');
+                return false;
+            }
+        }catch(e){
+            console.warn('[Palaz Advisor speech request]',e?.message||'request_error');
+            finishSpeech(generation,'پاسخ متنی آماده است؛ می‌توانید گفتگو را ادامه دهید.');
+            return false;
+        }
     };
 
     const send=async(text)=>{
-        if(!text||busy)return; busy=true; add(text,'user'); history.push({role:'user',content:text}); typing(); setState('thinking','دارم فکر می‌کنم...');
+        if(!text||busy)return;
+        stopSpeech();
+        busy=true;
+        add(text,'user');
+        history.push({role:'user',content:text});
+        typing();
+        setState('thinking','دارم فکر می‌کنم...');
+        let replyToSpeak='';
         try{
-            const r=await fetch(form.dataset.url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content},body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-20),context:{surface:'mobile_advisor'}})});
-            const data=await r.json(); if(!r.ok||!data.reply)throw new Error('advisor');
-            removeTyping(); add(data.reply,'assistant'); addProducts(data.products); addActions(data.actions); history.push({role:'assistant',content:data.reply});
-            setState('speaking','پاسخ شما آماده است...'); speak(data.reply);
-        }catch(e){removeTyping();const msg='ارتباط با مشاور برقرار نشد. لطفاً یک بار دیگر امتحان کنید.';add(msg,'assistant');setState('','آماده شنیدن شما 🎙') }
-        finally{busy=false}
+            const r=await fetch(form.dataset.url,{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Accept':'application/json',
+                    'X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content
+                },
+                body:JSON.stringify({message:text,messages:history.slice(0,-1).slice(-20),context:{surface:'mobile_advisor'}})
+            });
+            const data=await r.json();
+            if(!r.ok||!data.reply)throw new Error('advisor');
+            removeTyping();
+            add(data.reply,'assistant');
+            addProducts(data.products);
+            addActions(data.actions);
+            history.push({role:'assistant',content:data.reply});
+            replyToSpeak=data.reply;
+            setState('thinking','پاسخ آماده شد؛ صدای مشاور آماده می‌شود...');
+        }catch(e){
+            removeTyping();
+            replyToSpeak='ارتباط با مشاور برقرار نشد. لطفاً یک بار دیگر امتحان کنید.';
+            add(replyToSpeak,'assistant');
+            setState('','آماده شنیدن شما 🎙');
+        }finally{
+            busy=false;
+        }
+        if(replyToSpeak)speak(replyToSpeak);
     };
 
     form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
 
-    const welcomeText='سلام وقت شما بخیر من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
-    let welcomePlayed=false;
-
-    const startVoice=async()=>{
+    const startVoice=()=>{
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-        if(!SR){hint.textContent='این مرورگر ورودی صوتی را پشتیبانی نمی‌کند؛ از Chrome/Safari به‌روز استفاده کنید.';input.focus();return}
-        if(!welcomePlayed && 'speechSynthesis' in window){
-            welcomePlayed=true;
-            setState('speaking','سلام، خوش آمدید 🌷');
-            await speak(welcomeText);
-            if(speaking&&'speechSynthesis' in window){speechSynthesis.cancel();speaking=false}
+        if(!SR){
+            hint.textContent='ورودی صوتی در این مرورگر در دسترس نیست؛ می‌توانید سؤال را تایپ کنید.';
+            input.focus();
+            return;
         }
-        if(speaking&&'speechSynthesis'in window){speechSynthesis.cancel();speaking=false}
-        if(recognition){try{recognition.stop()}catch(e){} recognition=null}
-        recognition=new SR(); recognition.lang='fa-IR';recognition.interimResults=false;recognition.maxAlternatives=1;
-        mic.classList.add('listening');setState('listening','گوش می‌دهم... 🎙');
-        recognition.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript?.trim();if(text){input.value=text;send(text)}};
-        recognition.onerror=e=>{mic.classList.remove('listening');setState('','دوباره امتحان کنید 🎙');hint.textContent=e.error==='not-allowed'?'اجازه میکروفن داده نشد؛ دسترسی Microphone مرورگر را فعال کنید.':'گفتگو با صدا در دسترس نبود؛ دوباره بزنید.'};
-        recognition.onend=()=>{mic.classList.remove('listening');if(!busy&&!speaking)setState('','آماده شنیدن شما 🎙')};
-        try{recognition.start()}catch(e){mic.classList.remove('listening');setState('','برای شروع دوباره روی میکروفن بزنید.');return}
+        stopSpeech();
+        if(recognition){try{recognition.stop()}catch(e){}recognition=null;}
+        recognition=new SR();
+        recognition.lang='fa-IR';
+        recognition.interimResults=false;
+        recognition.maxAlternatives=1;
+        mic.classList.add('listening');
+        setState('listening','گوش می‌دهم... 🎙');
+        recognition.onresult=e=>{
+            const text=e.results?.[0]?.[0]?.transcript?.trim();
+            if(text){input.value=text;send(text);}
+        };
+        recognition.onerror=e=>{
+            mic.classList.remove('listening');
+            setState('','دوباره امتحان کنید 🎙');
+            hint.textContent=e.error==='not-allowed'
+                ?'اجازه میکروفن داده نشد؛ دسترسی میکروفن مرورگر را فعال کنید.'
+                :'گفتگو با صدا در دسترس نبود؛ دوباره بزنید یا سؤال را تایپ کنید.';
+        };
+        recognition.onend=()=>{
+            mic.classList.remove('listening');
+            if(!busy&&!speaking)setState('','آماده شنیدن شما 🎙');
+        };
+        try{recognition.start();}
+        catch(e){
+            mic.classList.remove('listening');
+            setState('','برای شروع دوباره روی میکروفن بزنید.');
+        }
     };
     mic.addEventListener('click',startVoice);
 
+    // The pre-made clip supplies motion only. It is always muted and plays in a loop
+    // while the newly generated Persian voice is speaking.
+    advisorVideo.muted=true;
+    advisorVideo.loop=false;
     advisorVideo.addEventListener('ended',()=>{
         advisorVideo.pause();
         try{advisorVideo.currentTime=0}catch(e){}
     });
-
-    videoSound.addEventListener('click',async()=>{
-        advisorVideo.muted=!advisorVideo.muted;
-        if(!advisorVideo.muted){
-            advisorVideo.volume=1;
-            try{await advisorVideo.play()}catch(e){}
-            videoSound.textContent='🔇 بی‌صدا کردن ویدیو';
-            videoSound.setAttribute('aria-pressed','true');
-        }else{
-            videoSound.textContent='🔊 فعال‌کردن صدای ویدیو';
-            videoSound.setAttribute('aria-pressed','false');
-        }
-    });
-
-    if('speechSynthesis' in window){
-        loadVoices();
-        window.speechSynthesis.addEventListener('voiceschanged',loadVoices);
-
-        setTimeout(()=>{ if(!speaking && !busy) setState('','آماده شنیدن شما 🎙'); },800);
-    }
-
+    setState('','آماده شنیدن شما 🎙');
 })();
 </script>
 </body>

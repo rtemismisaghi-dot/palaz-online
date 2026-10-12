@@ -380,6 +380,7 @@ REVIEW;
         $isOffice = preg_match('/محل کار|اداری|اداره|دفتر|دفتر کار/u', $all);
         $isHotel = preg_match('/هتل/u', $all);
         $isPrayer = preg_match('/نمازخانه/u', $all);
+        $hasSpace = (bool) preg_match('/خانه|خانگی|منزل|پذیرایی|اتاق|راهرو|آشپزخانه|محل کار|اداری|اداره|دفتر|هتل|لابی|نمازخانه/u', $all);
         $hasArea = $this->extractAdvisorArea($conversationText) !== null;
         $hasCovering = preg_match('/موکت|لمینت|اس\\s*پی\\s*سی|spc|پارکت|چمن|کاغذ\\s*دیواری|گارد|اسپاگتی/u', $all);
         $hasHomePart = preg_match('/پذیرایی|اتاق خواب|اتاق کودک|اتاق|راهرو|آشپزخانه|بالکن/u', $all);

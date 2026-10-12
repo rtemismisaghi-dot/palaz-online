@@ -810,15 +810,15 @@ The customer asks for an office carpet that looks dark and conceals ordinary eve
 Inspect only what is actually visible in each swatch image.
 Prefer medium-dark charcoal/grey, greige, taupe or muted brown tones with a mixed/heathered or varied texture that may conceal ordinary dust and small marks. Do not automatically prefer flat pure black: lint and pale dust can show on it. Avoid pale/cream/light samples.
 Do not infer durability, cleaning performance, fiber quality, or suitability for heavy traffic from color alone.
-For each image you can clearly judge, return its exact candidate index and copy the exact code shown in the adjacent text. Return a concise Persian description of the visible color and numeric visual scores from 0 to 1.
+For each image you can clearly judge, return its candidate index exactly as numbered in the user message. The index is the only identifier you must copy; do not copy or invent any product code. The application will map the index to the exact catalog code itself. Return a concise Persian description of the visible color and numeric visual scores from 0 to 1.
 If an image does not clearly show a carpet swatch, omit it rather than guess.
 Respond only with valid JSON in this exact shape:
-{"items":[{"index":1,"album":"پونه","code":"4252","color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
+{"items":[{"index":1,"color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
 PROMPT;
 
         $parts = [[
             'type' => 'text',
-            'text' => 'Review each numbered carpet swatch. Copy the exact code beside each image. Return only codes and indexes that you can reliably match to a visible image.',
+            'text' => 'Review each numbered carpet swatch. Return only candidate indexes that you can reliably match to a visible image. Never transcribe product codes; the application maps each index to the exact catalog record.',
         ]];
 
         foreach ($candidates as $candidate) {
@@ -894,7 +894,6 @@ PROMPT;
                 ->filter(function ($item) {
                     return is_array($item)
                         && is_numeric($item['index'] ?? null)
-                        && isset($item['code'])
                         && is_numeric($item['darkness_score'] ?? null)
                         && is_numeric($item['soil_masking_score'] ?? null)
                         && is_numeric($item['confidence'] ?? null)
@@ -906,10 +905,9 @@ PROMPT;
                     $candidate = $byIndex->get((int) $item['index']);
                     if (!$candidate) return null;
 
-                    // The exact code must agree with the locally supplied product record.
+                    // Candidate index is matched to the local record; never trust model-transcribed codes.
                     $expectedCode = trim((string) ($candidate['product']['code'] ?? ''));
-                    $returnedCode = trim((string) ($item['code'] ?? ''));
-                    if ($expectedCode === '' || $returnedCode !== $expectedCode) return null;
+                    if ($expectedCode === '') return null;
 
                     $product = $candidate['product'];
                     $product['_visual_tone_fa'] = mb_substr(trim((string) ($item['color_fa'] ?? 'رنگ تیره/میانه')), 0, 80);
@@ -926,7 +924,8 @@ PROMPT;
                     'batch' => $batchNumber,
                     'model' => $model,
                     'returned_item_count' => count($items),
-                    'returned_codes' => collect($items)->pluck('code')->take(8)->all(),
+                    'returned_indexes' => collect($items)->pluck('index')->take(8)->all(),
+                    'returned_codes_legacy' => collect($items)->pluck('code')->take(8)->all(),
                     'candidate_codes' => collect($candidates)->map(fn ($candidate) => $candidate['product']['code'] ?? null)->filter()->values()->all(),
                 ]);
             }

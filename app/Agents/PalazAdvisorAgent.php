@@ -13,12 +13,24 @@ final class PalazAdvisorAgent
         $history = collect($history)
             ->filter(fn ($m) => in_array($m['role'] ?? null, ['user', 'assistant'], true))
             ->map(fn ($m) => ['role' => $m['role'], 'content' => mb_substr((string) ($m['content'] ?? ''), 0, 1200)])
-            ->take(-10)->values()->all();
+            ->take(-20)->values()->all();
 
-        // مسیر مرحله‌ای شروع مشاوره: ابتدا نوع فضا، سپس در صورت نیاز بخش فضا و در پایان متراژ.
-        // این مرحله‌ها را قبل از AI قطعی می‌کنیم تا گفتگو همیشه منظم و قابل پیش‌بینی باشد.
+        // حفظ زمینه اصلی درخواست حتی وقتی گفتگو چند نوبت طول کشیده باشد.
+        $routingText = collect($history)
+            ->filter(fn ($item) => ($item['role'] ?? '') === 'user')
+            ->pluck('content')
+            ->push($message)
+            ->implode(' ');
+        $routingText = $this->appendImpliedAreaAnswer($routingText, $message, $history);
+        $normalizedRoutingText = $this->normalizeSearchText($routingText);
+        $prioritizeChildSoftnessCatalog = (bool) preg_match('/اتاق خواب کودک|اتاق کودک|اتاق بچه|اتاق فرزند/u', $normalizedRoutingText)
+            && (bool) preg_match('/موکت/u', $normalizedRoutingText)
+            && (bool) preg_match('/نرمی|نرم|لطافت/u', $normalizedRoutingText);
+
+        // مسیر مرحله‌ای گفتگو؛ اما پس از کامل شدن درخواست نرمی موکت کودک، مسیر انتخاب کاتالوگ
+        // باید اجرا شود و سؤال‌های راهنما نباید پاسخ نهایی را متوقف کنند.
         $guidedReply = $this->guidedConversationReply($message, $history);
-        if ($guidedReply !== null) {
+        if ($guidedReply !== null && !$prioritizeChildSoftnessCatalog) {
             return ['reply' => $guidedReply, 'mode' => 'guided', 'actions' => []];
         }
 

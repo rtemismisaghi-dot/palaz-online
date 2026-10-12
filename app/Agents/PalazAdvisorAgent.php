@@ -4,6 +4,7 @@ namespace App\Agents;
 
 use App\Support\StoreCatalog;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 final class PalazAdvisorAgent
 {
@@ -737,23 +738,24 @@ REVIEW;
      */
     private function rankOfficeColorVariants($products, string $apiKey)
     {
+        // Three spread-out color variants per registered office album, then small image batches.
+        // Sending every swatch in one request can exceed provider image/request limits.
         $sampled = $products
             ->groupBy(fn ($product) => $this->normalizeSearchText((string) ($product['model'] ?? '')))
             ->flatMap(function ($group) {
                 $group = $group->sortBy(fn ($product) => trim((string) ($product['code'] ?? '')))->values();
                 $count = $group->count();
-                if ($count <= 4) return $group;
+                if ($count <= 3) return $group;
 
                 $indexes = array_values(array_unique([
                     0,
-                    (int) round(($count - 1) / 3),
-                    (int) round(2 * ($count - 1) / 3),
+                    (int) round(($count - 1) / 2),
                     $count - 1,
                 ]));
 
                 return collect($indexes)->map(fn ($index) => $group->get($index))->filter();
             })
-            ->take(28)
+            ->take(21)
             ->values();
 
         $visualCandidates = [];
@@ -768,26 +770,58 @@ REVIEW;
             $visualCandidates[] = [
                 'product' => $product,
                 'image' => $image,
-                'index' => count($visualCandidates) + 1,
             ];
         }
 
         if ($visualCandidates === []) {
+            Log::warning('Palaz office color analysis has no readable swatch images', [
+                'sampled_code_count' => $sampled->count(),
+                'sampled_codes' => $sampled->pluck('code')->filter()->values()->all(),
+            ]);
             return collect();
         }
 
+        $ranked = collect();
+        $batches = array_chunk($visualCandidates, 4);
+        foreach ($batches as $batchIndex => $batch) {
+            $ranked = $ranked->merge(
+                $this->analyzeOfficeColorBatch($batch, $apiKey, $batchIndex + 1)
+            );
+        }
+
+        return $ranked
+            ->sortByDesc(fn ($product) => $product['_visual_soil_masking_score'])
+            ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
+            ->take(3)
+            ->values();
+    }
+
+    private function analyzeOfficeColorBatch(array $candidates, string $apiKey, int $batchNumber)
+    {
+        $candidates = array_values($candidates);
+        foreach ($candidates as $index => &$candidate) {
+            $candidate['index'] = $index + 1;
+        }
+        unset($candidate);
+
         $prompt = <<<'PROMPT'
 You are visually reviewing exact-code carpet swatch photos for a Persian flooring retailer.
-The customer's request is a dark, dirt-masking carpet for an office. Inspect only what is actually visible in each swatch image.
-Prefer medium-dark charcoal/grey, greige, taupe or muted brown tones with mixed/heathered or varied texture that can conceal ordinary dust and small marks. Do not automatically prefer a flat pure-black sample: lint and light dust may show on it. Avoid pale/cream/light samples.
-Do not infer durability or fiber quality from the color photo. Return a relative visual suitability score for hiding everyday dirt, a darkness score, a confidence score, and a concise Persian color label. If the image does not clearly show a carpet color/sample, set confidence low.
+The customer asks for an office carpet that looks dark and conceals ordinary everyday dirt.
+Inspect only what is actually visible in each swatch image.
+Prefer medium-dark charcoal/grey, greige, taupe or muted brown tones with a mixed/heathered or varied texture that may conceal ordinary dust and small marks. Do not automatically prefer flat pure black: lint and pale dust can show on it. Avoid pale/cream/light samples.
+Do not infer durability, cleaning performance, fiber quality, or suitability for heavy traffic from color alone.
+For each image you can clearly judge, return its exact candidate index and copy the exact code shown in the adjacent text. Return a concise Persian description of the visible color and numeric visual scores from 0 to 1.
+If an image does not clearly show a carpet swatch, omit it rather than guess.
 Respond only with valid JSON in this exact shape:
 {"items":[{"index":1,"album":"پونه","code":"4252","color_fa":"خاکستری زغالی ملانژ","darkness_score":0.8,"soil_masking_score":0.85,"confidence":0.9}]}
-All scores are numeric 0..1. Include only images you can judge from the visible sample.
 PROMPT;
 
-        $parts = [['type' => 'text', 'text' => 'Analyze these carpet swatches. The number immediately before each image is its candidate index. Match every answer to that exact index, not to the apparent model name.']];
-        foreach ($visualCandidates as $candidate) {
+        $parts = [[
+            'type' => 'text',
+            'text' => 'Review each numbered carpet swatch. Copy the exact code beside each image. Return only codes and indexes that you can reliably match to a visible image.',
+        ]];
+
+        foreach ($candidates as $candidate) {
             $product = $candidate['product'];
             $parts[] = [
                 'type' => 'text',
@@ -795,8 +829,13 @@ PROMPT;
                     .' | Album: '.(string) ($product['model'] ?? '')
                     .' | Exact product code: '.(string) ($product['code'] ?? ''),
             ];
-            $parts[] = ['type' => 'image_url', 'image_url' => ['url' => $candidate['image']]];
+            $parts[] = [
+                'type' => 'image_url',
+                'image_url' => ['url' => $candidate['image']],
+            ];
         }
+
+        $model = (string) config('services.openrouter.vision_model', 'google/gemma-4-31b-it:free');
 
         try {
             $response = Http::withToken($apiKey)
@@ -805,18 +844,24 @@ PROMPT;
                     'HTTP-Referer' => config('app.url'),
                     'X-Title' => 'Palaz Office Carpet Color Advisor',
                 ])
-                ->timeout(45)
+                ->timeout(25)
                 ->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => config('services.openrouter.vision_model', config('services.openrouter.model', 'openrouter/free')),
+                    'model' => $model,
                     'messages' => [
                         ['role' => 'system', 'content' => $prompt],
                         ['role' => 'user', 'content' => $parts],
                     ],
-                    'max_tokens' => 1200,
+                    'max_tokens' => 700,
                     'temperature' => 0.1,
                 ]);
 
             if (!$response->successful()) {
+                Log::warning('Palaz office color vision request failed', [
+                    'batch' => $batchNumber,
+                    'model' => $model,
+                    'http_status' => $response->status(),
+                    'provider_message' => mb_substr((string) $response->body(), 0, 500),
+                ]);
                 return collect();
             }
 
@@ -832,10 +877,15 @@ PROMPT;
 
             $items = data_get($decoded, 'items', []);
             if (!is_array($items)) {
+                Log::warning('Palaz office color vision returned non-JSON or empty result', [
+                    'batch' => $batchNumber,
+                    'model' => $model,
+                    'reply_preview' => mb_substr($text, 0, 350),
+                ]);
                 return collect();
             }
 
-            $byIndex = collect($visualCandidates)->keyBy('index');
+            $byIndex = collect($candidates)->keyBy('index');
             return collect($items)
                 ->filter(function ($item) {
                     return is_array($item)
@@ -852,7 +902,7 @@ PROMPT;
                     $candidate = $byIndex->get((int) $item['index']);
                     if (!$candidate) return null;
 
-                    // Do not attach a visual result to the wrong product if the model mismatches an index and a code.
+                    // The exact code must agree with the locally supplied product record.
                     $expectedCode = trim((string) ($candidate['product']['code'] ?? ''));
                     $returnedCode = trim((string) ($item['code'] ?? ''));
                     if ($expectedCode === '' || $returnedCode !== $expectedCode) return null;
@@ -865,11 +915,13 @@ PROMPT;
                     return $product;
                 })
                 ->filter()
-                ->sortByDesc(fn ($product) => $product['_visual_soil_masking_score'])
-                ->unique(fn ($product) => trim((string) ($product['code'] ?? '')))
-                ->take(3)
                 ->values();
         } catch (\Throwable $e) {
+            Log::warning('Palaz office color vision exception', [
+                'batch' => $batchNumber,
+                'model' => $model,
+                'exception' => $e->getMessage(),
+            ]);
             report($e);
             return collect();
         }

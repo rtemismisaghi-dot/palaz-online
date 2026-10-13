@@ -187,6 +187,21 @@
 
     let activeSpeechAudio=null, activeSpeechUrl=null, speechGeneration=0;
 
+    // Prime media playback during a real user gesture. Speech itself is still generated
+    // by the server; this does not depend on voices installed on the customer's device.
+    let audioPrimed=false;
+    const primeAudioPlayback=()=>{
+        if(audioPrimed)return;
+        try{
+            const silentAudio=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=');
+            silentAudio.volume=0;
+            const priming=silentAudio.play();
+            if(priming&&typeof priming.then==='function'){
+                priming.then(()=>{silentAudio.pause();silentAudio.src='';audioPrimed=true;}).catch(()=>{});
+            }
+        }catch(e){}
+    };
+
     const stopSpeech=()=>{
         speechGeneration++;
         if(activeSpeechAudio){
@@ -227,7 +242,7 @@
         const generation=speechGeneration;
         setState('thinking','پاسخ صوتی در حال آماده‌سازی است...');
         const speechController=new AbortController();
-        const speechTimeout=setTimeout(()=>speechController.abort(),18000);
+        const speechTimeout=setTimeout(()=>speechController.abort(),50000);
         try{
             const r=await fetch(form.dataset.speechUrl,{
                 method:'POST',
@@ -334,11 +349,12 @@
         if(replyToSpeak)speak(replyToSpeak);
     };
 
-    form.addEventListener('submit',e=>{e.preventDefault();const v=input.value.trim();if(!v)return;input.value='';send(v)});
+    form.addEventListener('submit',e=>{e.preventDefault();primeAudioPlayback();const v=input.value.trim();if(!v)return;input.value='';send(v)});
 
     const welcomeText='سلام وقت شما بخیر، من مشاور پالاز هستم و آمادگی دارم پاسخگوی شما در زمینه محصولات پالاز باشم.';
     let voiceTestBusy=false;
     voiceTest.addEventListener('click',async()=>{
+        primeAudioPlayback();
         if(voiceTestBusy)return;
         voiceTestBusy=true;
         voiceTest.disabled=true;
@@ -353,6 +369,7 @@
     });
 
     const startVoice=()=>{
+        primeAudioPlayback();
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
         if(!SR){
             hint.textContent='ورودی صوتی در این مرورگر در دسترس نیست؛ می‌توانید سؤال را تایپ کنید.';

@@ -226,6 +226,8 @@
         stopSpeech();
         const generation=speechGeneration;
         setState('thinking','پاسخ صوتی در حال آماده‌سازی است...');
+        const speechController=new AbortController();
+        const speechTimeout=setTimeout(()=>speechController.abort(),18000);
         try{
             const r=await fetch(form.dataset.speechUrl,{
                 method:'POST',
@@ -234,13 +236,18 @@
                     'Accept':'audio/mpeg,application/json',
                     'X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content
                 },
-                body:JSON.stringify({text})
+                body:JSON.stringify({text}),
+                signal:speechController.signal
             });
+            clearTimeout(speechTimeout);
             if(generation!==speechGeneration)return false;
             if(!r.ok){
                 const error=await r.json().catch(()=>({}));
                 console.warn('[Palaz Advisor speech]',error.message||r.status);
-                finishSpeech(generation,'آماده شنیدن شما 🎙');
+                const label=r.status===503
+                    ?'سرویس صدای مشاور تنظیم نشده یا موقتاً در دسترس نیست.'
+                    :'ساخت صدای مشاور انجام نشد؛ دوباره امتحان کنید.';
+                finishSpeech(generation,label);
                 return false;
             }
             const blob=await r.blob();
@@ -279,8 +286,11 @@
                 return false;
             }
         }catch(e){
+            clearTimeout(speechTimeout);
             console.warn('[Palaz Advisor speech request]',e?.message||'request_error');
-            finishSpeech(generation,'آماده شنیدن شما 🎙');
+            finishSpeech(generation,e?.name==='AbortError'
+                ?'پاسخ سرویس صدا بیش از حد طول کشید؛ تنظیمات سرویس را بررسی کنید.'
+                :'ارتباط با سرویس صدای مشاور برقرار نشد.');
             return false;
         }
     };
